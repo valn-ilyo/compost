@@ -1,1 +1,0 @@
-import{i as e}from"./vue-router-C6NsgDzh.js";import{n as t,t as n}from"./index-B7MxM_OZ.js";function r(){let r=e();return{logout:async(e=`/auth`)=>{await t.auth.signOut(),n().reset(),await r.push(e)}}}export{r as t};

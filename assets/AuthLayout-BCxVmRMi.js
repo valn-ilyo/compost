@@ -1,1 +1,0 @@
-import{Nt as e,Rt as t,an as n,mn as r,nn as i}from"./dimensions-CpdRXRgd.js";import{d as a}from"./index-B7MxM_OZ.js";import{t as o}from"./_plugin-vue_export-helper-B7aGp3iI.js";var s={};function c(o,s){let c=n(`RouterView`);return i(),e(a,null,{default:r(()=>[t(c)]),_:1})}var l=o(s,[[`render`,c]]);export{l as default};

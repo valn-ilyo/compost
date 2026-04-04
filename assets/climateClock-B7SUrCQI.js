@@ -1,0 +1,1 @@
+import{Tn as e}from"./dimensions-B-ltLJhX.js";import{M as t}from"./transitions-BkmkJOS0.js";var n=t(`clockVisible`,()=>{let t=e(!0);function n(){t.value=!t.value}return{clockVisible:t,toggleClock:n}},{persist:!0});export{n as t};

@@ -1,1 +1,0 @@
-import{Dn as e,en as t,kn as n,wn as r}from"./dimensions-B-ltLJhX.js";function i(){let i=e(!1);return t(()=>{window.requestAnimationFrame(()=>{i.value=!0})}),{ssrBootStyles:n(()=>i.value?void 0:{transition:`none !important`}),isBooted:r(i)}}export{i as t};

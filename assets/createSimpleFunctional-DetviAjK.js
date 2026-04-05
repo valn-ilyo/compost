@@ -1,1 +1,0 @@
-import{Fn as e,Pn as t,Wt as n,c as r,m as i}from"./dimensions-B-ltLJhX.js";function a(a,o=`div`,s){return r()({name:s??e(t(a.replace(/__/g,`-`))),props:{tag:{type:String,default:o},...i()},setup(e,{slots:t}){return()=>n(e.tag,{class:[a,e.class],style:e.style},t.default?.())}})}export{a as t};

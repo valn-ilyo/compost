@@ -1,0 +1,1 @@
+import{Nt as e,hn as t,on as n,rn as r,zt as i}from"./dimensions-B-ltLJhX.js";import{d as a,r as o}from"./index-Dj8nvsWH.js";var s={};function c(o,s){let c=n(`RouterView`);return r(),e(a,null,{default:t(()=>[i(c)]),_:1})}var l=o(s,[[`render`,c]]);export{l as default};

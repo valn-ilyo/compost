@@ -1,1 +1,0 @@
-import{r as e}from"./index-Dj8nvsWH.js";var t={};function n(e,t){return`this is learning`}var r=e(t,[[`render`,n]]);export{r as default};

@@ -1,0 +1,1 @@
+import{r as e}from"./index-BaR-TX8p.js";var t={};function n(e,t){return`this is learning`}var r=e(t,[[`render`,n]]);export{r as default};

@@ -1,1 +1,0 @@
-import{r as e}from"./index-BaR-TX8p.js";var t={};function n(e,t){return`welcome to settings`}var r=e(t,[[`render`,n]]);export{r as default};

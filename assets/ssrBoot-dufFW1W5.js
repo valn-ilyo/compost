@@ -1,1 +1,0 @@
-import{Nr as e,Or as t,cr as n,jr as r}from"./ripple-BSNgyeMv.js";function i(){let i=r(!1);return n(()=>{window.requestAnimationFrame(()=>{i.value=!0})}),{ssrBootStyles:e(()=>i.value?void 0:{transition:`none !important`}),isBooted:t(i)}}export{i as t};

@@ -1,0 +1,1 @@
+import{i as e}from"./vue-router-D8HGJaMJ.js";import{t}from"./supabaseClient-3BBXKJdN.js";import{n}from"./index-B7ssPM3A.js";function r(){let r=e();return{logout:async(e=`/auth`)=>{await t.auth.signOut(),n().reset(),await r.push(e)}}}export{r as t};

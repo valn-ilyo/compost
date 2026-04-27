@@ -1,1 +1,0 @@
-import{t as e}from"./index-Ywo5HXBJ.js";var t={};function n(e,t){return`welcome to settings`}var r=e(t,[[`render`,n]]);export{r as default};

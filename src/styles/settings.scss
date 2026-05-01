@@ -1,0 +1,11 @@
+@use 'vuetify/settings' with (
+  $body-font-family: (
+    'Sofia Sans',
+    'Helvetica Neue',
+    sans-serif,
+  )
+);
+
+.font-condensed {
+  font-family: 'Sofia Sans Condensed', 'Helvetica Neue', sans-serif !important;
+}

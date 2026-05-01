@@ -1,0 +1,177 @@
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import type { UserHabit } from "@/types/app.types";
+
+const props = defineProps<{
+  habit: UserHabit;
+  isLoggedToday: boolean;
+  lostStreak?: number;
+}>();
+
+const emit = defineEmits<{
+  pause: [id: string];
+  remove: [id: string];
+  log: [id: string];
+}>();
+
+const confirmRemoveOpen = ref(false);
+
+const streakChip = computed(() => {
+  const days = props.lostStreak ?? props.habit.streak;
+  const unit = days === 1 ? "day" : "days";
+  if (props.lostStreak !== undefined && !props.isLoggedToday)
+    return {
+      icon: "mdi-fire-off",
+      color: "error",
+      label: `${days}-${unit} streak ended`,
+    };
+  if (props.habit.streak === 0)
+    return { icon: "mdi-sprout", color: "success", label: "Start your streak" };
+  return props.habit.freezeUsed
+    ? {
+        icon: "mdi-snowflake",
+        color: "info",
+        label: `${days}-${unit} streak, frozen`,
+      }
+    : { icon: "mdi-fire", color: "error", label: `${days}-${unit} streak` };
+});
+
+function handleRemoveClick(): void {
+  if (props.habit.streak > 0) {
+    confirmRemoveOpen.value = true;
+  } else {
+    emit("remove", props.habit.id);
+  }
+}
+</script>
+
+<template>
+  <!--
+    Root element is intentionally NOT v-motion — TransitionGroup in the parent
+    owns the enter/leave/move animations for the whole row. v-motion lives only
+    on internal child elements so both layers work independently.
+  -->
+  <v-list-item
+    density="compact"
+    min-height="0"
+    class="py-3"
+    :ripple="!isLoggedToday"
+    @click="!isLoggedToday && emit('log', habit.id)"
+  >
+    <template #prepend>
+      <v-icon
+        v-motion
+        :initial="{ opacity: 0, x: -10 }"
+        :enter="{ opacity: 1, x: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 } }"
+        :icon="isLoggedToday ? 'mdi-check-decagram' : habit.icon"
+        :color="isLoggedToday ? 'primary' : 'secondary'"
+		size="x-large"
+      />
+    </template>
+
+    <template #title>
+      <span
+        v-motion
+        :initial="{ opacity: 0, y: 6 }"
+        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 } }"
+        class="text-wrap font-weight-medium"
+        >{{ habit.name }}</span
+      >
+    </template>
+
+    <template v-if="streakChip" #subtitle>
+      <v-chip
+        v-motion
+        :initial="{ opacity: 0, y: 6 }"
+        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 150 } }"
+        :color="streakChip.color"
+        :prepend-icon="streakChip.icon"
+        variant="text"
+        class="text-wrap"
+      >
+        {{ streakChip.label }}
+      </v-chip>
+    </template>
+
+    <template #append>
+      <v-menu location="bottom end">
+        <template #activator="{ props: menuProps }">
+          <v-btn
+            v-bind="menuProps"
+            icon="mdi-dots-vertical"
+            variant="text"
+            density="compact"
+            size="small"
+            color="on-surface-variant"
+            @click.stop
+          />
+        </template>
+        <v-list density="compact" rounded="lg">
+          <v-list-item
+            v-if="habit.streak > 0"
+            title="Pause"
+            prepend-icon="mdi-pause"
+            rounded="lg"
+            base-color="warning"
+            @click="emit('pause', habit.id)"
+          />
+          <v-list-item
+            title="Remove"
+            prepend-icon="mdi-close"
+            rounded="lg"
+            base-color="error"
+            @click="handleRemoveClick"
+          />
+        </v-list>
+      </v-menu>
+    </template>
+  </v-list-item>
+
+  <!-- Confirmation dialog — only reachable when habit.streak > 0 -->
+  <v-dialog v-model="confirmRemoveOpen" max-width="320">
+    <v-card rounded="xl">
+      <v-card-item class="pt-5 pb-1">
+        <template #prepend>
+          <v-icon icon="mdi-fire" color="error" />
+        </template>
+        <v-card-title class="text-body-1 font-weight-bold">
+          Drop your {{ habit.streak }}-day streak?
+        </v-card-title>
+      </v-card-item>
+
+      <v-card-text class="text-body-2 text-medium-emphasis">
+        This deletes the streak for good. Pause it instead if you might come back.
+      </v-card-text>
+
+      <v-card-actions class="px-4 pb-4 gap-2">
+        <v-btn
+          variant="text"
+          color="error"
+          rounded="lg"
+          flex="1"
+          @click="
+            emit('remove', habit.id);
+            confirmRemoveOpen = false;
+          "
+        >
+          Remove
+        </v-btn>
+        <v-btn
+          variant="flat"
+          color="primary"
+          rounded="lg"
+          flex="1"
+          @click="confirmRemoveOpen = false"
+        >
+          Keep it
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<style scoped>
+:deep(.v-list-item-subtitle) {
+  opacity: 1 !important;
+}
+</style>

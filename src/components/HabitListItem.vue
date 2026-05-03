@@ -16,6 +16,7 @@ defineProps<{
   subtitle?: string;
   borderClass?: string;
   delay?: number;
+  expandColor?: string;
 }>();
 
 const emit = defineEmits<{
@@ -33,7 +34,6 @@ const emit = defineEmits<{
       transition: { duration: 200, delay: delay ?? 0 },
     }"
     density="compact"
-    rounded="lg"
     :class="borderClass"
   >
     <template #prepend>
@@ -83,7 +83,7 @@ const emit = defineEmits<{
         transition: { duration: 200, delay: 30 },
       }"
       variant="tonal"
-      color="info"
+      :color="expandColor ?? 'info'"
       rounded="lg"
       class="mx-3 mb-3"
       style="transform-origin: top center"

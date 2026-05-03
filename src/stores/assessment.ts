@@ -21,6 +21,13 @@ interface AssessmentState {
   answers: Partial<Record<string, SectionAnswers>>;
   completedAt: Partial<Record<string, number>>; // unix ms timestamp
   activeTab: string;
+  /**
+   * The fixed set of up to 3 habit template IDs recommended after the first
+   * completed assessment. Computed once and persisted so that acting on a
+   * recommendation (add / pause) never causes a replacement to appear.
+   * Reset to [] by clearAll() if the user retakes the assessment from scratch.
+   */
+  recommendedHabitIds: string[];
 }
 
 export const useAssessmentStore = defineStore("assessment", {
@@ -28,6 +35,7 @@ export const useAssessmentStore = defineStore("assessment", {
     answers: {},
     completedAt: {},
     activeTab: "checkin",
+    recommendedHabitIds: [],
   }),
 
   getters: {
@@ -58,7 +66,7 @@ export const useAssessmentStore = defineStore("assessment", {
 
     // Overall score — only counts sections that have been answered.
     // achieved / outOf reflect raw weighted points.
-    // normalized     → score out of 100 (fixed 330 denominator, never inflated)
+    // normalized     → score out of 100 (fixed 325 denominator, never inflated)
     // normalizedOutOf → grows as sections are completed; reaches 100 when all done
     overallScore(): {
       achieved: number;
@@ -111,6 +119,16 @@ export const useAssessmentStore = defineStore("assessment", {
     clearAll() {
       this.answers = {};
       this.completedAt = {};
+      this.recommendedHabitIds = [];
+    },
+
+    /**
+     * Stores the recommendation set. Called when the assessment is completed
+     * or when a mastered habit is retired — always overwrites so that
+     * reassessment or retirement can surface fresh candidates.
+     */
+    setRecommendedHabits(ids: string[]) {
+      this.recommendedHabitIds = ids;
     },
   },
 

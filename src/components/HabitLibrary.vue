@@ -22,6 +22,7 @@ const templates = computed(() =>
       ...t,
       isActive: store.activeTemplateIds.has(t.id),
       isPaused: store.pausedTemplateIds.has(t.id),
+      isMastered: store.masteredTemplateIds.has(t.id),
       isRecommended: props.recommendedIds?.includes(t.id) ?? false,
       pausedHabit: store.pausedHabits.find((h) => h.templateId === t.id) ?? null,
     };
@@ -29,9 +30,16 @@ const templates = computed(() =>
 );
 
 const grouped = computed(() => ({
+  mastered: store.masteredArchive
+    .map((entry) => templates.value.find((t) => t.id === entry.templateId))
+    .filter((t): t is (typeof templates.value)[number] => t !== undefined),
   paused: templates.value.filter((t) => t.isPaused),
-  recommended: templates.value.filter((t) => t.isRecommended && !t.isPaused && !t.isActive),
-  available: templates.value.filter((t) => !t.isPaused && !t.isActive && !t.isRecommended),
+  recommended: templates.value.filter(
+    (t) => t.isRecommended && !t.isPaused && !t.isActive && !t.isMastered,
+  ),
+  available: templates.value.filter(
+    (t) => !t.isPaused && !t.isActive && !t.isRecommended && !t.isMastered,
+  ),
   active: templates.value.filter((t) => t.isActive),
 }));
 
@@ -145,7 +153,10 @@ function formatStreak(days: number): string {
           :initial="{ opacity: 0 }"
           :enter="{
             opacity: 1,
-            transition: { duration: 200, delay: 160 + grouped.paused.length * 70 + grouped.recommended.length * 70 + 60 },
+            transition: {
+              duration: 200,
+              delay: 160 + grouped.paused.length * 70 + grouped.recommended.length * 70 + 60,
+            },
           }"
           :class="grouped.paused.length || grouped.recommended.length ? 'mt-3' : 'mt-1'"
         >
@@ -184,6 +195,38 @@ function formatStreak(days: number): string {
               @toggle="toggleExpand(t.id)"
               @action="emit('add', t.id)"
             />
+          </template>
+
+          <template v-if="grouped.mastered.length">
+            <v-list-subheader
+              v-motion
+              :initial="{ opacity: 0 }"
+              :enter="{
+                opacity: 1,
+                transition: { duration: 200, delay: grouped.available.slice(3).length * 60 + 40 },
+              }"
+              class="mt-3"
+            >
+              Mastered
+            </v-list-subheader>
+
+            <template v-for="(t, i) in grouped.mastered" :key="t.id">
+              <v-divider v-if="i > 0" />
+              <HabitListItem
+                :delay="grouped.available.slice(3).length * 60 + 80 + i * 60"
+                :habit="t"
+                :is-expanded="expandedId === t.id"
+                icon-color="success"
+                action-icon="mdi-star-shooting"
+                action-color="success"
+                expand-color="success"
+                item-color="success"
+                :action-disabled="true"
+                outlined
+                @toggle="toggleExpand(t.id)"
+                @action="() => {}"
+              />
+            </template>
           </template>
 
           <template v-if="grouped.active.length">

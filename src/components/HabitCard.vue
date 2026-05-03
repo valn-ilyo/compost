@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { UserHabit } from "@/types/app.types";
+import MasteryRetireSheet from "@/components/MasteryRetireSheet.vue";
 
 const props = defineProps<{
   habit: UserHabit;
@@ -12,11 +13,22 @@ const emit = defineEmits<{
   pause: [id: string];
   remove: [id: string];
   log: [id: string];
+  retire: [id: string];
 }>();
 
 const confirmRemoveOpen = ref(false);
+const retireSheetOpen = ref(false);
 
 const streakChip = computed(() => {
+  if (props.habit.isMastered) {
+    const days = props.habit.streak;
+    const unit = days === 1 ? "day" : "days";
+    return {
+      icon: "mdi-star-shooting",
+      color: "primary",
+      label: `${days}-${unit} streak, mastered`,
+    };
+  }
   const days = props.lostStreak ?? props.habit.streak;
   const unit = days === 1 ? "day" : "days";
   if (props.lostStreak !== undefined && !props.isLoggedToday)
@@ -55,17 +67,21 @@ function handleRemoveClick(): void {
     density="compact"
     min-height="0"
     class="py-3"
-    :ripple="!isLoggedToday"
-    @click="!isLoggedToday && emit('log', habit.id)"
+    :ripple="habit.isMastered || !isLoggedToday"
+    @click="habit.isMastered ? (retireSheetOpen = true) : !isLoggedToday && emit('log', habit.id)"
   >
     <template #prepend>
       <v-icon
         v-motion
         :initial="{ opacity: 0, x: -10 }"
-        :enter="{ opacity: 1, x: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 } }"
+        :enter="{
+          opacity: 1,
+          x: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 },
+        }"
         :icon="isLoggedToday ? 'mdi-check-decagram' : habit.icon"
-        :color="isLoggedToday ? 'primary' : 'secondary'"
-		size="x-large"
+        :color="habit.isMastered ? 'primary' : isLoggedToday ? 'primary' : 'secondary'"
+        size="x-large"
       />
     </template>
 
@@ -73,7 +89,11 @@ function handleRemoveClick(): void {
       <span
         v-motion
         :initial="{ opacity: 0, y: 6 }"
-        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 } }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 },
+        }"
         class="text-wrap font-weight-medium"
         >{{ habit.name }}</span
       >
@@ -83,7 +103,11 @@ function handleRemoveClick(): void {
       <v-chip
         v-motion
         :initial="{ opacity: 0, y: 6 }"
-        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 150 } }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 150 },
+        }"
         :color="streakChip.color"
         :prepend-icon="streakChip.icon"
         variant="text"
@@ -93,7 +117,8 @@ function handleRemoveClick(): void {
       </v-chip>
     </template>
 
-    <template #append>
+    <!-- No menu for mastered habits — tap the card instead -->
+    <template v-if="!habit.isMastered" #append>
       <v-menu location="bottom end">
         <template #activator="{ props: menuProps }">
           <v-btn
@@ -126,6 +151,9 @@ function handleRemoveClick(): void {
       </v-menu>
     </template>
   </v-list-item>
+
+  <!-- Retirement bottom sheet — mastered habits only -->
+  <MasteryRetireSheet v-model="retireSheetOpen" :habit="habit" @retire="emit('retire', $event)" />
 
   <!-- Confirmation dialog — only reachable when habit.streak > 0 -->
   <v-dialog v-model="confirmRemoveOpen" max-width="320">

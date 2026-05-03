@@ -81,7 +81,7 @@ function close(): void {
           :chunk-count="session.length"
           color="primary"
           bg-color="surface-variant"
-          rounded
+          rounded="b"
         />
       </v-card-title>
       <v-card-text class="py-0 mt-0" style="flex: 1; overflow: hidden">

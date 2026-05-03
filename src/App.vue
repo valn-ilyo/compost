@@ -24,7 +24,7 @@
   - "Freeze" / "Freezes": a token that protects a streak when a day is missed entirely
   - "Freeze count": how many freezes the user currently holds
   - "Streak debt": a negative freeze balance; occurs when tied habits are saved on credit
-  - "Milestone": a 14-day interval of Yes logs that earns one freeze (14, 28, 42...)
+  - "Milestone": a 22-day interval of Yes logs that earns one freeze (22, 44, 66...)
   - "Tied habits": habits with equal streaks that missed on the same day; treated as a group
   - Do not invent new names for these concepts
 
@@ -42,11 +42,15 @@ import { onMounted } from "vue";
 import AppSnackbar from "./components/AppSnackbar.vue";
 import { useMasteryStore } from "@/stores/mastery";
 import { useThemeStore } from "@/stores/theme";
+import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
 
 const masteryStore = useMasteryStore();
 // Initialising here (not just in AppBarProfile) ensures the persisted theme
 // is applied on every page load, not only when the Profile tab is visited.
 useThemeStore();
+// Initialise here so recommendedHabitIds is populated regardless of which
+// view the user lands on first — not just when MasteryView mounts.
+useMasteryRecommendations();
 
 // Reconcile streaks every time the app is opened.
 // This catches missed days that occurred while the app was closed —

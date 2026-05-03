@@ -215,4 +215,31 @@ export interface UserHabit {
    * Shown as a one-day notice on the card, then cleared on the next render cycle.
    */
   freezeUsed: boolean;
+  /**
+   * True when the habit has reached the 66-day mastery milestone.
+   * Mastered habits cannot be logged and are excluded from activeHabits computed,
+   * but still occupy a slot until the user explicitly retires them.
+   */
+  isMastered: boolean;
 }
+
+// ─── Mastery store events & archive ──────────────────────────────────────────
+
+/**
+ * A single event produced by reconcileStreaks describing what happened to one
+ * habit when the user missed a day. Persisted so they survive a page refresh.
+ */
+export type ReconcileEvent =
+  | { type: "frozen"; habitId: string; habitName: string; streak: number }
+  | { type: "lost"; habitId: string; habitName: string; streak: number };
+
+/**
+ * Minimal record of a retired mastered habit stored outside of slots.
+ * Shown in the Habit Library under the "Mastered" subheader.
+ * Excluded from all active/paused/recommended logic — purely archival.
+ */
+export type MasteredArchiveEntry = {
+  templateId: string;
+  name: string;
+  icon: string;
+};

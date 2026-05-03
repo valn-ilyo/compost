@@ -51,6 +51,7 @@ function setFreezeUsed(id: string, val: boolean): void {
 function clearStore(): void {
   store.slots = [];
   store.freezeCount = 0;
+  store.masteredArchive = [];
   dayOffset.value = 0;
   daysSimulated.value = 0;
   localStorage.removeItem(DEV_OFFSET_KEY);

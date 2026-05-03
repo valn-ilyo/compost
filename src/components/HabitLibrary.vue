@@ -222,7 +222,6 @@ function formatStreak(days: number): string {
                 expand-color="success"
                 item-color="success"
                 :action-disabled="true"
-                outlined
                 @toggle="toggleExpand(t.id)"
                 @action="() => {}"
               />

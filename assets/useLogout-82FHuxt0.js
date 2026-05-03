@@ -1,0 +1,1 @@
+import{t as e}from"./supabaseClient-HTjMTI1T.js";import{f as t,i as n,n as r,o as i}from"./index-CIB3_u6V.js";function a(){let a=n();return{logout:async(n=`/auth`)=>{await e.auth.signOut(),r().reset(),i().clearAll(),t().$reset(),await a.push(n)}}}export{a as t};

@@ -5,30 +5,32 @@ const props = defineProps<{
   freezeCount: number;
   freezeCap: number;
   daysToNextFreeze: number | null;
+  daysToNextMastery: number | null;
   anyFreezeUsed: boolean;
+  masteredToday: boolean;
 }>();
 
 const inDebt = computed(() => props.freezeCount < 0);
 const isOverflow = computed(() => props.freezeCount > props.freezeCap);
+const atCap = computed(
+  () => !inDebt.value && !isOverflow.value && props.freezeCount === props.freezeCap,
+);
 
-const btnColor = computed(() => {
-  if (inDebt.value) return "error";
-  return "info";
-});
+const btnColor = computed(() => (inDebt.value ? "error" : "info"));
 const btnIcon = computed(() => (inDebt.value ? "mdi-snowflake-alert" : "mdi-snowflake"));
-const cardIcon = computed(() => btnIcon.value);
-const cardIconColor = computed(() => btnColor.value);
 
 const cardTitle = computed(() => {
-  if (isOverflow.value) return "Bonus freeze";
-  if (!inDebt.value) return "Streak Freezes";
-  return props.anyFreezeUsed ? "Streak Debt" : "Still in Debt";
+  if (isOverflow.value) return "Freeze overflow";
+  if (!inDebt.value) return "Streak freeze";
+  return "Freeze debt";
 });
 
 const progressionLabel = computed(() => {
-  if (isOverflow.value) return null;
+  if (isOverflow.value) {
+    if (props.daysToNextMastery === null) return null;
+    return "Next freeze in";
+  }
   if (props.daysToNextFreeze === null) return null;
-  if (props.daysToNextFreeze === 0) return "Log today to earn one";
   if (inDebt.value) {
     return props.freezeCount === -1 ? "Debt clears in" : "Debt reduces in";
   }
@@ -36,8 +38,17 @@ const progressionLabel = computed(() => {
 });
 
 const daysLabel = computed(() => {
+  if (isOverflow.value) {
+    if (props.daysToNextMastery === null) return null;
+    return props.daysToNextMastery === 1 ? "1 day" : `${props.daysToNextMastery} days`;
+  }
   if (props.daysToNextFreeze === null) return null;
   return props.daysToNextFreeze === 1 ? "1 day" : `${props.daysToNextFreeze} days`;
+});
+
+const showProgressRow = computed(() => {
+  if (isOverflow.value) return props.daysToNextMastery !== null;
+  return props.daysToNextFreeze !== null;
 });
 </script>
 
@@ -78,7 +89,7 @@ const daysLabel = computed(() => {
         }"
         class="text-subtitle-1 pt-4 font-weight-bold"
       >
-        <v-icon :icon="cardIcon" :color="cardIconColor" size="small" class="mr-2" />
+        <v-icon :icon="btnIcon" :color="btnColor" size="small" class="mr-2" />
         {{ cardTitle }}
       </v-card-title>
 
@@ -92,35 +103,46 @@ const daysLabel = computed(() => {
         }"
         class="text-body-2 text-medium-emphasis pb-4"
       >
-        <!-- Situation 1: overflow → goal completion pushed past the cap -->
-        <template v-if="isOverflow">
-          A 66-day habit is done. Your pool was already full, so the cap bent. Spend the extra on
-          any active habit.
+        <!-- Overflow, mastery fired today: present-tense event -->
+        <template v-if="isOverflow && masteredToday">
+          Mastering a habit earned a freeze, but the pool was full so it pushed past the cap.
+          <strong>Yes</strong> logs won't earn more while you're over it. Master another habit to
+          earn the next one.
         </template>
 
-        <!-- Situation 2: no debt → explain how freezes work -->
+        <!-- Overflow, ongoing state: eternal description -->
+        <template v-else-if="isOverflow">
+          You have more freezes than the cap. <strong>Yes</strong> logs won't add to the pool while
+          you're over it. Master another habit to earn the next one.
+        </template>
+
+        <!-- No debt: normal state -->
         <template v-else-if="!inDebt">
-          A freeze covers you if you miss a day completely. Logging No still counts, so your streak
-          holds. Yes logs earn new freezes: one every 22 days.
+          A freeze covers you if you miss a day completely. Logging <strong>No</strong> still
+          counts, so your streak holds. <strong>Yes</strong> logs earn new freezes: one every 22
+          days.
+          <template v-if="atCap">
+            Your pool is full. New ones won't be added until you've used one.
+          </template>
         </template>
 
-        <!-- Situation 3: in debt AND freeze fired today → streaks just saved on credit -->
+        <!-- In debt, freeze fired today -->
         <template v-else-if="anyFreezeUsed">
           Your streaks were saved on credit. They were tied, so all of them got covered even though
-          you were short. Keep logging Yes: every 22 days earns one back.
+          you were short. Keep logging <strong>Yes</strong>: every 22 days earns one back.
         </template>
 
-        <!-- Situation 4: in debt but no freeze used today → debt carried over from before -->
+        <!-- In debt, carried over -->
         <template v-else>
           You're in debt from a missed day before this one. Nothing hit today, it's carried over.
-          Log Yes consistently and each new freeze chips away at it.
+          Log <strong>Yes</strong> consistently and each new freeze chips away at it.
         </template>
       </v-card-text>
 
       <v-divider />
 
       <v-card-text
-        v-if="daysToNextFreeze !== null"
+        v-if="showProgressRow"
         v-motion
         :initial="{ opacity: 0, y: 6 }"
         :enter="{
@@ -132,11 +154,11 @@ const daysLabel = computed(() => {
       >
         <span class="text-caption font-weight-medium">{{ progressionLabel }}</span>
         <v-chip
-          v-if="daysToNextFreeze > 0"
-          :color="inDebt ? 'info' : 'error'"
+          v-if="showProgressRow"
+          color="error"
           variant="tonal"
           size="small"
-          :prepend-icon="inDebt ? 'mdi-trending-up' : 'mdi-fire'"
+          prepend-icon="mdi-fire"
           class="font-weight-bold"
         >
           {{ daysLabel }}

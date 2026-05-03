@@ -25,7 +25,9 @@ export function useMasteryCheckin() {
   const frozenFreezeCount = ref(0);
   const frozenFreezeCap = ref(0);
   const frozenDaysToNextFreeze = ref<number | null>(null);
+  const frozenDaysToNextMastery = ref<number | null>(null);
   const frozenAnyFreezeUsed = ref(false);
+  const frozenMasteredToday = ref(false);
 
   const lostStreakMap = computed(
     () =>
@@ -34,6 +36,17 @@ export function useMasteryCheckin() {
           .filter((e) => e.type === "lost")
           .map((e) => [e.habitId, e.streak]),
       ),
+  );
+
+  const daysToNextMastery = computed(() => {
+    const habits = store.activeHabits.filter((h) => h.streak >= 1);
+    if (habits.length === 0) return null;
+    // Range 1–66: 1 = log today to master, matching daysToNextFreeze (1–22) convention.
+    return Math.min(...habits.map((h) => 66 - (h.streak % 66)));
+  });
+
+  const masteredToday = computed(() =>
+    store.masteredHabits.some((h) => h.lastLoggedDate === new Date().toISOString().slice(0, 10)),
   );
 
   function resolveLogLabel(unlogged: number, total: number): string {
@@ -45,15 +58,15 @@ export function useMasteryCheckin() {
   function snapshotHabits(): void {
     frozenHabits.value = new Map(store.activeHabits.map((h) => [h.id, { ...h }]));
     frozenLostStreakMap.value = new Map(
-      store.lastReconcileEvents
-        .filter((e) => e.type === "lost")
-        .map((e) => [e.habitId, e.streak]),
+      store.lastReconcileEvents.filter((e) => e.type === "lost").map((e) => [e.habitId, e.streak]),
     );
     frozenLogLabel.value = resolveLogLabel(store.unloggedToday.length, store.activeHabits.length);
     frozenFreezeCount.value = store.freezeCount;
     frozenFreezeCap.value = store.freezeCap;
     frozenDaysToNextFreeze.value = store.daysToNextFreeze;
+    frozenDaysToNextMastery.value = daysToNextMastery.value;
     frozenAnyFreezeUsed.value = store.activeHabits.some((h) => h.freezeUsed);
+    frozenMasteredToday.value = masteredToday.value;
   }
 
   // ── Display helpers ─────────────────────────────────────────────────────────
@@ -91,10 +104,16 @@ export function useMasteryCheckin() {
   const displayDaysToNextFreeze = computed(() =>
     isLogAll.value && checkinOpen.value ? frozenDaysToNextFreeze.value : store.daysToNextFreeze,
   );
+  const displayDaysToNextMastery = computed(() =>
+    isLogAll.value && checkinOpen.value ? frozenDaysToNextMastery.value : daysToNextMastery.value,
+  );
   const displayAnyFreezeUsed = computed(() =>
     isLogAll.value && checkinOpen.value
       ? frozenAnyFreezeUsed.value
       : store.activeHabits.some((h) => h.freezeUsed),
+  );
+  const displayMasteredToday = computed(() =>
+    isLogAll.value && checkinOpen.value ? frozenMasteredToday.value : masteredToday.value,
   );
 
   // ── Handlers ────────────────────────────────────────────────────────────────
@@ -119,7 +138,9 @@ export function useMasteryCheckin() {
   // Clear reconcile events once all habits are logged for the day.
   watch(
     () => store.allLoggedToday,
-    (allDone) => { if (allDone) store.clearReconcileEvents(); },
+    (allDone) => {
+      if (allDone) store.clearReconcileEvents();
+    },
   );
 
   return {
@@ -130,7 +151,9 @@ export function useMasteryCheckin() {
     displayFreezeCount,
     displayFreezeCap,
     displayDaysToNextFreeze,
+    displayDaysToNextMastery,
     displayAnyFreezeUsed,
+    displayMasteredToday,
     displayHabit,
     displayLostStreak,
     handleLog,

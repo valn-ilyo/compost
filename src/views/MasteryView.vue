@@ -24,7 +24,9 @@ const {
   displayFreezeCount,
   displayFreezeCap,
   displayDaysToNextFreeze,
+  displayDaysToNextMastery,
   displayAnyFreezeUsed,
+  displayMasteredToday,
   displayHabit,
   displayLostStreak,
   handleLog,
@@ -77,7 +79,9 @@ onMounted(() => {
                   :freeze-count="displayFreezeCount"
                   :freeze-cap="displayFreezeCap"
                   :days-to-next-freeze="displayDaysToNextFreeze"
+                  :days-to-next-mastery="displayDaysToNextMastery"
                   :any-freeze-used="displayAnyFreezeUsed"
+                  :mastered-today="displayMasteredToday"
                 />
               </div>
             </template>

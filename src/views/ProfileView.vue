@@ -1,33 +1,26 @@
 <script setup lang="ts">
 import { ref } from "vue";
-
 import { useProfileStore } from "@/stores/profile";
 import { useLogout } from "@/composables/useLogout";
 import AppBarProfile from "@/components/AppBarProfile.vue";
-
 const { logout } = useLogout();
 const loggingOut = ref(false);
-
 const store = useProfileStore();
-
 const handleLogout = async () => {
   loggingOut.value = true;
   await logout();
 };
 </script>
-
 <template>
   <AppBarProfile />
-
   <v-container>
     <v-row justify="center">
       <v-col cols="12" sm="10" md="8" lg="6" xl="4">
-
         <!-- avatar + name -->
         <div
           v-motion
           :initial="{ opacity: 0, y: 24 }"
-          :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
+          :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
           class="d-flex flex-column align-center text-center"
         >
           <v-avatar size="128" color="primary-container" class="border-md">
@@ -37,19 +30,19 @@ const handleLogout = async () => {
             {{ store.profile?.name || "No name set" }}
           </h1>
         </div>
-
         <!-- details section -->
         <div
           v-motion
           :initial="{ opacity: 0 }"
-          :enter="{ opacity: 1, transition: { duration: 150, delay: 60 } }"
+          :enter="{ opacity: 1, transition: { duration: 200 } }"
           class="text-overline text-medium-emphasis px-1 mb-1"
-        >Details</div>
-
+        >
+          Details
+        </div>
         <v-card
           v-motion
           :initial="{ opacity: 0, y: 16 }"
-          :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 } }"
+          :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
           rounded="xl"
           border
           flat
@@ -74,19 +67,19 @@ const handleLogout = async () => {
             />
           </v-list>
         </v-card>
-
         <!-- actions section -->
         <div
           v-motion
           :initial="{ opacity: 0 }"
-          :enter="{ opacity: 1, transition: { duration: 150, delay: 150 } }"
+          :enter="{ opacity: 1, transition: { duration: 200 } }"
           class="text-overline text-medium-emphasis px-1 mb-1 mt-5"
-        >Actions</div>
-
+        >
+          Actions
+        </div>
         <v-card
           v-motion
           :initial="{ opacity: 0, y: 16 }"
-          :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 180 } }"
+          :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
           flat
           rounded="xl pa-0"
           border
@@ -112,7 +105,6 @@ const handleLogout = async () => {
             :loading="loggingOut"
           />
         </v-card>
-
       </v-col>
     </v-row>
   </v-container>

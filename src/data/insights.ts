@@ -40,11 +40,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     text: "A private car alone is the highest-emission commute option. Find the shared transport route for your destination and take it once this week.",
   },
 
-  // commute_distance
+  // commute_distance — noHabit: distance is a fixed fact, not a repeatable behaviour.
+  // The document explicitly assigns no habit to this question. The insight still renders
+  // in the Reflections panel but must never occupy a habit recommendation slot.
   {
     sectionId: "transport",
     questionId: "commute_distance",
     score: 5,
+    noHabit: true,
     icon: "mdi-home-outline",
     text: "Living on-site removes commute emissions entirely. That is the structural ceiling of commute impact reduction, and you are already there.",
   },
@@ -52,6 +55,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     sectionId: "transport",
     questionId: "commute_distance",
     score: 4,
+    noHabit: true,
     icon: "mdi-walk",
     text: "Under 2 km is walkable or cyclable for most people. If you are not already doing this on every trip, that is the one remaining gap.",
   },
@@ -59,6 +63,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     sectionId: "transport",
     questionId: "commute_distance",
     score: 3,
+    noHabit: true,
     icon: "mdi-bicycle",
     text: "2–5 km is within cycling range and well within shared transport range. If you are using a private vehicle for this distance, replace it with one of those two options starting today.",
   },
@@ -66,6 +71,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     sectionId: "transport",
     questionId: "commute_distance",
     score: 2,
+    noHabit: true,
     icon: "mdi-bus",
     text: "5–15 km requires planning but is served by shared transport in most areas. Map your route once and use it on your next commute.",
   },
@@ -73,6 +79,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     sectionId: "transport",
     questionId: "commute_distance",
     score: 1,
+    noHabit: true,
     icon: "mdi-map-marker-distance",
     text: "Over 15 km commutes carry the highest transport footprints. Find the shared transport option for your route — bus, train, or carpool — and use it for one trip this week.",
   },
@@ -1405,31 +1412,63 @@ export function getInsightsForAssessment(
 
   const key = (q: { sectionId: string; questionId: string }) => `${q.sectionId}::${q.questionId}`;
 
+  // Look up whether a question has a coverable habit.
+  // noHabit questions (e.g. commute_distance) still render in Reflections but
+  // must never occupy an actionable slot — they would silently prevent a real
+  // habit recommendation from surfacing.
+  const isNoHabit = (sectionId: string, questionId: string): boolean =>
+    QUESTION_INSIGHTS.some(
+      (i) => i.sectionId === sectionId && i.questionId === questionId && i.noHabit === true,
+    );
+
   // The affirmation slot always goes to the single best-scoring question.
   // Even when all scores are bad, the least-bad question gets the affirmation
   // treatment — something is always better than everything else.
   const affirmation = sorted[sorted.length - 1]!;
 
-  // Fill up to 4 actionable slots from worst-first, excluding the affirmation pick
-  const actionablePicks: typeof sorted = [];
+  // Fill actionable candidates from worst-first.
+  // Exclude the affirmation pick AND any noHabit questions.
+  //
+  // We collect up to 9 questions rather than 4, because merged habits mean
+  // multiple questions can map to the same habit. In the worst case all 3 of
+  // the highest-weight transport questions (commute_mode, commute_frequency,
+  // discretionary_mode) resolve to shared_or_active_travel — consuming 3
+  // question slots while producing only 1 distinct habit. A cap of 4 would
+  // then leave only 1 actionable question slot for the remaining sections,
+  // making it impossible to surface 3 distinct recommendations. 9 = 3 habits
+  // × 3 worst-case questions-per-habit, which guarantees we can always find
+  // 3 distinct coverable habits even under maximum merging.
+  //
+  // The Reflections panel shows only the first 4 of these (worst → best order)
+  // so the display stays focused regardless of the larger candidate pool.
+  const actionableCandidates: typeof sorted = [];
   for (const q of sorted) {
-    if (actionablePicks.length >= 4) break;
-    if (key(q) !== key(affirmation)) actionablePicks.push(q);
+    if (actionableCandidates.length >= 9) break;
+    if (key(q) !== key(affirmation) && !isNoHabit(q.sectionId, q.questionId))
+      actionableCandidates.push(q);
   }
 
-  // Sandwich: actionable worst → … → actionable best → affirmation last
-  const picks = [...actionablePicks, affirmation];
+  // noHabit questions that scored low enough to appear still deserve a
+  // Reflections entry — append them after the actionable picks so they render
+  // but never displace a habit-producing slot.
+  const noHabitPicks = sorted.filter(
+    (q) => key(q) !== key(affirmation) && isNoHabit(q.sectionId, q.questionId),
+  );
+
+  // Sandwich: all actionable candidates (worst → best) → noHabit contextual → affirmation last.
+  // The component slices the first 4 actionable entries for the Reflections panel;
+  // the full candidate list is needed here so the recommendation loop can always
+  // find 3 distinct coverable habits even when the top questions share a habit.
+  const picks = [...actionableCandidates, ...noHabitPicks, affirmation];
 
   return picks.flatMap(({ sectionId, questionId, score }, index) => {
     const insight = QUESTION_INSIGHTS.find(
       (i) => i.sectionId === sectionId && i.questionId === questionId && i.score === score,
     );
     if (!insight) return [];
-    return [
-      {
-        ...insight,
-        isAffirmation: score >= 4 || index === picks.length - 1,
-      },
-    ];
+    // isAffirmation: true for score ≥ 4, for noHabit entries (contextual, not actionable),
+    // and for the final affirmation slot.
+    const isAff = score >= 4 || insight.noHabit === true || index === picks.length - 1;
+    return [{ ...insight, isAffirmation: isAff }];
   });
 }

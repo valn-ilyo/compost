@@ -26,18 +26,30 @@ const isAssessmentComplete = computed(() =>
   SECTIONS.every((s) => assessmentStore.sectionResults.some((r) => r.meta.id === s.id)),
 );
 const recommendedIds = computed(() => {
-  if (!isAssessmentComplete.value) return [];
-  const insights = getInsightsForAssessment(assessmentStore.answers);
-  // Slice to 3 FIRST to fix the candidate pool, then hide any that are now active/paused.
-  // This prevents new recommendations bleeding in to replace ones the user has added.
-  return insights
-    .filter((i) => !i.isAffirmation)
-    .map((i) => HABIT_TEMPLATES.find((h) => h.sectionId === i.sectionId && h.id === i.questionId))
-    .filter(Boolean)
-    .slice(0, 3)
-    .filter((h) => !store.activeTemplateIds.has(h!.id) && !store.pausedTemplateIds.has(h!.id))
-    .map((h) => h!.id);
-});
+  if (!isAssessmentComplete.value) return []
+  const insights = getInsightsForAssessment(assessmentStore.answers)
+  // Exclude active and paused habits DURING matching so they don't consume a slot.
+  // Filtering after-the-fact (old behaviour) meant a habit the user had already
+  // added would silently burn one of the 3 recommendation positions, and a better
+  // candidate further down the list would never surface.
+  const seen = new Set<string>()
+  const matched: string[] = []
+  for (const i of insights.filter((i) => !i.isAffirmation)) {
+    if (matched.length >= 3) break
+    const h = HABIT_TEMPLATES.find(
+      (h) =>
+        h.covers.some((c) => c.sectionId === i.sectionId && c.questionId === i.questionId) &&
+        !seen.has(h.id) &&
+        !store.activeTemplateIds.has(h.id) &&
+        !store.pausedTemplateIds.has(h.id),
+    )
+    if (h) {
+      seen.add(h.id)
+      matched.push(h.id)
+    }
+  }
+  return matched
+})
 
 const checkinOpen = ref(false);
 const swapOpen = ref(false);
@@ -58,6 +70,7 @@ const frozenLogLabel = ref<string | null>(null);
 const frozenFreezeCount = ref(0);
 const frozenFreezeCap = ref(0);
 const frozenDaysToNextFreeze = ref<number | null>(null);
+const frozenAnyFreezeUsed = ref(false);
 
 function resolveLogLabel(unlogged: number, total: number): string {
   if (unlogged === total) return "Log your habits";
@@ -74,6 +87,7 @@ function snapshotHabits(): void {
   frozenFreezeCount.value = store.freezeCount;
   frozenFreezeCap.value = store.freezeCap;
   frozenDaysToNextFreeze.value = store.daysToNextFreeze;
+  frozenAnyFreezeUsed.value = store.activeHabits.some((h) => h.freezeUsed);
 }
 
 function displayHabit(habit: UserHabit): UserHabit {
@@ -102,6 +116,11 @@ const displayFreezeCap = computed(() =>
 );
 const displayDaysToNextFreeze = computed(() =>
   isLogAll.value && checkinOpen.value ? frozenDaysToNextFreeze.value : store.daysToNextFreeze,
+);
+const displayAnyFreezeUsed = computed(() =>
+  isLogAll.value && checkinOpen.value
+    ? frozenAnyFreezeUsed.value
+    : store.activeHabits.some((h) => h.freezeUsed),
 );
 
 function handleLog(habitId: string): void {
@@ -214,6 +233,7 @@ onMounted(() => {
                   :freeze-count="displayFreezeCount"
                   :freeze-cap="displayFreezeCap"
                   :days-to-next-freeze="displayDaysToNextFreeze"
+                  :any-freeze-used="displayAnyFreezeUsed"
                 />
               </div>
             </template>
@@ -293,7 +313,12 @@ onMounted(() => {
           :enter="{
             opacity: 1,
             y: 0,
-            transition: { type: 'spring', stiffness: 300, damping: 22, delay: store.activeHabits.length * 80 + 160 },
+            transition: {
+              type: 'spring',
+              stiffness: 300,
+              damping: 22,
+              delay: store.activeHabits.length * 80 + 160,
+            },
           }"
         >
           <HabitLibrary :recommended-ids="recommendedIds" @add="handleAdd" @resume="handleResume" />

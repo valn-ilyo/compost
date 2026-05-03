@@ -106,11 +106,7 @@ function clearStore(): void {
                     :disabled="store.freezeCount <= 0"
                     @click="store.freezeCount--"
                   />
-                  <v-btn
-                    icon="mdi-plus"
-                    :disabled="store.freezeCount >= store.freezeCap"
-                    @click="store.freezeCount++"
-                  />
+                  <v-btn icon="mdi-plus" @click="store.freezeCount++" />
                 </v-btn-group>
               </v-col>
             </v-row>

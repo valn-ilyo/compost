@@ -80,22 +80,50 @@ const sections = computed(() =>
 const incompleteSections = computed(() => SECTIONS.filter((s) => !completedIds.value.has(s.id)));
 
 // ── Insights ──────────────────────────────────────────────────────────────────
-const insights = computed(() => getInsightsForAssessment(store.answers));
+// getInsightsForAssessment returns up to 9 actionable candidates so the recommendation
+// loop can always find 3 distinct habits even when merged habits share questions.
+// The Reflections panel only shows the first 4 actionable entries — same as before.
+const insights = computed(() => {
+  const all = getInsightsForAssessment(store.answers)
+  // Split: noHabit entries are marked isAffirmation=true but still contextual
+  // The affirmation is always the last item; noHabit entries are between the
+  // actionable block and the affirmation. We keep up to 4 non-affirmation,
+  // non-noHabit entries for display, plus all noHabit entries, plus the affirmation.
+  const actionable = all.filter((i) => !i.isAffirmation).slice(0, 4)
+  const noHabitContextual = all.filter((i) => i.isAffirmation && i.noHabit === true)
+  const affirmation = all.filter((i) => i.isAffirmation && !i.noHabit).slice(-1)
+  return [...actionable, ...noHabitContextual, ...affirmation]
+})
 const hasInsights = computed(() => isComplete.value && insights.value.length > 0);
 
 // ── Habit recommendations ─────────────────────────────────────────────────────
-const linkedHabits = computed(
-  () =>
-    insights.value
-      .filter((i) => !i.isAffirmation)
-      .map((i) => HABIT_TEMPLATES.find((h) => h.sectionId === i.sectionId && h.id === i.questionId))
-      .filter((h) => h !== undefined)
-      .slice(0, 3)
-      .filter(
-        (h) =>
-          !masteryStore.activeTemplateIds.has(h!.id) && !masteryStore.pausedTemplateIds.has(h!.id),
-      ) as typeof HABIT_TEMPLATES,
-);
+const linkedHabits = computed(() => {
+  const seen = new Set<string>()
+  const results: typeof HABIT_TEMPLATES = []
+
+  for (const insight of insights.value.filter((i) => !i.isAffirmation)) {
+    if (results.length >= 3) break
+
+    // Find habits that cover this question — a single habit may cover multiple questions,
+    // so match on covers[] rather than the old 1:1 id match.
+    const match = HABIT_TEMPLATES.find(
+      (h) =>
+        h.covers.some(
+          (c) => c.sectionId === insight.sectionId && c.questionId === insight.questionId,
+        ) &&
+        !seen.has(h.id) &&
+        !masteryStore.activeTemplateIds.has(h.id) &&
+        !masteryStore.pausedTemplateIds.has(h.id),
+    )
+
+    if (match) {
+      seen.add(match.id)
+      results.push(match)
+    }
+  }
+
+  return results
+})
 
 // ── SDG chips ─────────────────────────────────────────────────────────────────
 const chips = computed(() => {

@@ -91,12 +91,12 @@ const emit = defineEmits<{
       <v-list density="compact" bg-color="transparent">
         <v-list-item>
           <v-list-item-title class="text-wrap">
-            <span class="font-weight-bold">Tip: </span>{{ habit.instruction }}
+            <span class="font-weight-bold">When: </span>{{ habit.when }}
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title class="text-wrap">
-            <span class="font-weight-bold">When: </span>{{ habit.when }}
+            <span class="font-weight-bold">Tip: </span>{{ habit.instruction }}
           </v-list-item-title>
         </v-list-item>
       </v-list>

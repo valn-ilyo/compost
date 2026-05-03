@@ -24,7 +24,7 @@ export type ReconcileEvent =
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MAX_SLOTS = 3;
-const FREEZE_MILESTONE = 14;
+const FREEZE_MILESTONE = 22;
 const FREEZE_CAP = MAX_SLOTS; // one freeze per active slot max
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ export const useMasteryStore = defineStore(
     const activeTemplateIds = computed(() => new Set(activeHabits.value.map((h) => h.templateId)));
     const pausedTemplateIds = computed(() => new Set(pausedHabits.value.map((h) => h.templateId)));
 
-    const freezeCap = computed(() => Math.min(activeHabits.value.length, FREEZE_CAP));
+    const freezeCap = computed(() => FREEZE_CAP);
 
     const daysToNextFreeze = computed(() => {
       if (activeHabits.value.length === 0) return null;
@@ -116,9 +116,6 @@ export const useMasteryStore = defineStore(
     function removeHabit(id: string): void {
       slots.value = slots.value.filter((h) => h.id !== id);
       lastReconcileEvents.value = lastReconcileEvents.value.filter((e) => e.habitId !== id);
-      if (freezeCount.value > freezeCap.value) {
-        freezeCount.value = freezeCap.value;
-      }
     }
 
     function pauseHabit(id: string): void {
@@ -360,6 +357,19 @@ export const useMasteryStore = defineStore(
       lastReconcileEvents.value = [];
     }
 
+    /**
+     * Marks a habit as complete at the 66-day milestone.
+     * Grants one freeze token unconditionally — allowed to exceed FREEZE_CAP
+     * as a goal completion reward. The UI surfaces this as the overflow (4/3)
+     * state in MasteryFreezeInfo. Habit retirement (removal, celebration screen)
+     * is handled separately.
+     */
+    function completeHabit(id: string): void {
+      const habit = slots.value.find((h) => h.id === id);
+      if (!habit) return;
+      freezeCount.value++;
+    }
+
     function logHabit(id: string, didIt: boolean): void {
       const habit = slots.value.find((h) => h.id === id);
       if (!habit || isLoggedToday(habit)) return;
@@ -376,7 +386,11 @@ export const useMasteryStore = defineStore(
         const wasConsecutive = habit.lastLoggedDate === yesterday || habit.lastLoggedDate === null;
         habit.streak = wasConsecutive ? habit.streak + 1 : 1;
 
-        if (habit.streak % FREEZE_MILESTONE === 0 && freezeCount.value < freezeCap.value) {
+        if (habit.streak === 66) {
+          // Goal complete — unconditional freeze grant, allowed past cap.
+          // Regular milestone earn is skipped on this day; completion reward takes over.
+          completeHabit(id);
+        } else if (habit.streak % FREEZE_MILESTONE === 0 && freezeCount.value < freezeCap.value) {
           freezeCount.value++;
         }
       }
@@ -422,10 +436,10 @@ export const useMasteryStore = defineStore(
       logHabit,
       reconcileStreaks,
       clearReconcileEvents,
+      completeHabit,
     };
   },
   {
     persist: true,
   },
 );
-          

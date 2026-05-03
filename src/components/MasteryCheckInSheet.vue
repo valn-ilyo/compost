@@ -74,15 +74,15 @@ function close(): void {
       :style="{ display: 'flex', flexDirection: 'column', minHeight: mdAndUp ? '230px' : '260px' }"
     >
       <v-card-title class="pb-0">
-        <div v-if="session.length > 1" class="d-flex ga-1 px-1">
-          <v-progress-linear
-            v-for="(_, i) in session"
-            :key="i"
-            :model-value="i <= idx ? 100 : 0"
-            color="primary"
-            style="flex: 1"
-          />
-        </div>
+        <v-progress-linear
+          v-if="session.length > 1"
+          :model-value="idx + 1"
+          :max="session.length"
+          :chunk-count="session.length"
+          color="primary"
+          bg-color="surface-variant"
+          rounded
+        />
       </v-card-title>
       <v-card-text class="py-0 mt-0" style="flex: 1; overflow: hidden">
         <p

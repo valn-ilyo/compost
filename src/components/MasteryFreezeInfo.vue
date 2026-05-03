@@ -5,17 +5,28 @@ const props = defineProps<{
   freezeCount: number;
   freezeCap: number;
   daysToNextFreeze: number | null;
+  anyFreezeUsed: boolean;
 }>();
 
 const inDebt = computed(() => props.freezeCount < 0);
+const isOverflow = computed(() => props.freezeCount > props.freezeCap);
 
-const btnColor = computed(() => (inDebt.value ? "error" : "info"));
+const btnColor = computed(() => {
+  if (inDebt.value) return "error";
+  return "info";
+});
 const btnIcon = computed(() => (inDebt.value ? "mdi-snowflake-alert" : "mdi-snowflake"));
-const cardIcon = computed(() => (inDebt.value ? "mdi-snowflake-alert" : "mdi-snowflake"));
-const cardIconColor = computed(() => (inDebt.value ? "error" : "info"));
-const cardTitle = computed(() => (inDebt.value ? "Streak Debt" : "Streak Freezes"));
+const cardIcon = computed(() => btnIcon.value);
+const cardIconColor = computed(() => btnColor.value);
+
+const cardTitle = computed(() => {
+  if (isOverflow.value) return "Bonus freeze";
+  if (!inDebt.value) return "Streak Freezes";
+  return props.anyFreezeUsed ? "Streak Debt" : "Still in Debt";
+});
 
 const progressionLabel = computed(() => {
+  if (isOverflow.value) return null;
   if (props.daysToNextFreeze === null) return null;
   if (props.daysToNextFreeze === 0) return "Log today to earn one";
   if (inDebt.value) {
@@ -35,7 +46,7 @@ const daysLabel = computed(() => {
     <template #activator="{ props: menuProps }">
       <v-btn
         v-bind="menuProps"
-        variant="tonal"
+        :variant="isOverflow ? 'flat' : 'tonal'"
         :color="btnColor"
         :prepend-icon="btnIcon"
         rounded="pill"
@@ -45,21 +56,26 @@ const daysLabel = computed(() => {
       </v-btn>
     </template>
 
-    <!--
-      Card drops in from above when the menu opens.
-      Children cascade: title → body → footer row.
-    -->
     <v-card
       v-motion
       :initial="{ opacity: 0, y: -8, scale: 0.97 }"
-      :enter="{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
+      :enter="{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { type: 'spring', stiffness: 300, damping: 22 },
+      }"
       width="260"
       rounded="lg"
     >
       <v-card-title
         v-motion
         :initial="{ opacity: 0, x: -8 }"
-        :enter="{ opacity: 1, x: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 } }"
+        :enter="{
+          opacity: 1,
+          x: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 },
+        }"
         class="text-subtitle-1 pt-4 font-weight-bold"
       >
         <v-icon :icon="cardIcon" :color="cardIconColor" size="small" class="mr-2" />
@@ -69,18 +85,35 @@ const daysLabel = computed(() => {
       <v-card-text
         v-motion
         :initial="{ opacity: 0, y: 6 }"
-        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 } }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 },
+        }"
         class="text-body-2 text-medium-emphasis pb-4"
       >
-        <!-- Render as two spans so <strong> works without v-html -->
-        <template v-if="inDebt">
-          Your streaks were saved on credit. They were tied, so the system covered all of them even
-          though you were short on freezes. Keep logging Yes to earn freezes and clear the balance.
+        <!-- Situation 1: overflow → goal completion pushed past the cap -->
+        <template v-if="isOverflow">
+          A 66-day habit is done. Your pool was already full, so the cap bent. Spend the extra on
+          any active habit.
         </template>
+
+        <!-- Situation 2: no debt → explain how freezes work -->
+        <template v-else-if="!inDebt">
+          A freeze covers you if you miss a day completely. Logging No still counts, so your streak
+          holds. Yes logs earn new freezes: one every 22 days.
+        </template>
+
+        <!-- Situation 3: in debt AND freeze fired today → streaks just saved on credit -->
+        <template v-else-if="anyFreezeUsed">
+          Your streaks were saved on credit. They were tied, so all of them got covered even though
+          you were short. Keep logging Yes: every 22 days earns one back.
+        </template>
+
+        <!-- Situation 4: in debt but no freeze used today → debt carried over from before -->
         <template v-else>
-          A freeze covers you if you miss a day completely. Logging No still counts as showing up,
-          so your streak holds. Only Yes logs earn new freezes: one for every 14 days of consistent
-          progress.
+          You're in debt from a missed day before this one. Nothing hit today, it's carried over.
+          Log Yes consistently and each new freeze chips away at it.
         </template>
       </v-card-text>
 
@@ -90,7 +123,11 @@ const daysLabel = computed(() => {
         v-if="daysToNextFreeze !== null"
         v-motion
         :initial="{ opacity: 0, y: 6 }"
-        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 140 } }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 140 },
+        }"
         class="d-flex align-center justify-space-between py-3"
       >
         <span class="text-caption font-weight-medium">{{ progressionLabel }}</span>

@@ -5,444 +5,447 @@ import type { HabitTemplate } from "../types/app.types";
 
 export const HABIT_TEMPLATES: HabitTemplate[] = [
   // ── TRANSPORT ─────────────────────────────────────────────────────────────
-
+  // Q1 (commute_mode) + Q3 (commute_frequency) + Q5 (discretionary_mode) → merged
   {
-    id: "commute_mode",
+    id: "shared_or_active_travel",
+    covers: [
+      { sectionId: "transport", questionId: "commute_mode" },
+      { sectionId: "transport", questionId: "commute_frequency" },
+      { sectionId: "transport", questionId: "discretionary_mode" },
+    ],
+    sectionId: "transport",
+    name: "Shared or active travel",
     icon: "mdi-map-marker-path",
     iconOutline: "mdi-map-marker-path", // no-outline
-    sectionId: "transport",
-    name: "Confirm your commute mode before stepping out",
-    prompt: "Did you walk, cycle, or use shared transport for your commute today?",
-    when: "Every morning before you leave for your destination",
+    prompt: "Did you walk, cycle, or use shared transport for every trip today?",
+    when: "Every morning before leaving, and before every local trip",
     instruction:
-      "Before stepping out, confirm your mode. Walk or cycle if the distance allows. If not, take shared transport. Reserve private vehicles for when no alternative exists.",
+      "Walk any trip under 2 km. Use shared transport for everything else. Reserve a private vehicle only when no alternative exists.",
   },
+
+  // Q2 (commute_distance) — no habit: distance is a fixed fact, not a repeatable behaviour
+
+  // Q4 (short_trips)
   {
-    id: "commute_distance",
-    icon: "mdi-map-marker-distance",
-    iconOutline: "mdi-map-marker-distance", // no-outline
+    id: "walk_short_trips",
+    covers: [{ sectionId: "transport", questionId: "short_trips" }],
     sectionId: "transport",
-    name: "Walk under 2 km, share over 5 km",
-    prompt: "Did you use the lowest-emission mode your distance allows today?",
-    when: "Every time you prepare to leave for your destination",
-    instruction:
-      "Under 2 km, walk. 2–5 km, cycle or take shared transport. Over 5 km, use shared transport or carpool. Distance is fixed — mode is the variable you control.",
-  },
-  {
-    id: "commute_frequency",
-    icon: "mdi-calendar-check",
-    iconOutline: "mdi-calendar-check-outline",
-    sectionId: "transport",
-    name: "Take shared or active transport on every commute day",
-    prompt: "Did you use shared or zero-emission transport on every day you commuted this week?",
-    when: "Each morning you leave for your destination",
-    instruction:
-      "On every day you commute, confirm your mode before leaving. Shared transport or active travel on each commute day is the target — frequency reduction alone is not enough if the mode is high-emission.",
-  },
-  {
-    id: "short_trips",
+    name: "Walk short trips",
     icon: "mdi-walk",
     iconOutline: "mdi-walk", // no-outline
-    sectionId: "transport",
-    name: "Walk every trip under 2 km",
-    prompt: "Did you walk every short local trip today instead of using a vehicle?",
-    when: "Every time you are about to leave for a nearby errand or visit",
+    prompt: "Did you walk every trip under 2 km today?",
+    when: "Before any short local errand or visit",
     instruction:
-      "Before any trip, check the distance. If it is under 2 km, walk. No vehicle, no shared transport — walking is the correct mode at that distance and is usually as fast as waiting.",
-  },
-  {
-    id: "discretionary_mode",
-    icon: "mdi-bus-clock",
-    iconOutline: "mdi-bus-clock", // no-outline
-    sectionId: "transport",
-    name: "Replace the first private trip each day with shared transport",
-    prompt:
-      "Did you choose shared transport or walking over a private vehicle for every local trip today?",
-    when: "Before your first local journey of the day",
-    instruction:
-      "Before any local trip, check whether shared transport or walking covers it. If yes, use that. Identify the one daily trip where you most often default to a private vehicle and replace it first.",
+      "Under 2 km means walk, no exceptions. At that distance walking is usually as fast as waiting for transport.",
   },
 
   // ── FOOD ──────────────────────────────────────────────────────────────────
 
+  // Q1 (diet_type)
   {
-    id: "diet_type",
+    id: "one_plant_based_meal",
+    covers: [{ sectionId: "food", questionId: "diet_type" }],
+    sectionId: "food",
+    name: "One plant-based meal",
     icon: "mdi-food-apple",
     iconOutline: "mdi-food-apple-outline",
-    sectionId: "food",
-    name: "Have a plant-based lunch every day",
     prompt: "Did you eat at least one fully plant-based meal today?",
     when: "At lunchtime every day",
     instruction:
-      "Commit to one plant-based meal daily — lunch is the easiest to control. Legumes, lentils, grains, or vegetables with no meat or dairy. One meal a day, every day.",
+      "Make lunch your plant-based meal every day. Lentils, legumes, grains, or vegetables, no meat or dairy.",
   },
+
+  // Q3 (leftovers) — also absorbs Q2 (plate_waste): both habits live at the moment food is
+  // served. Serving a right-sized portion and boxing the rest are the same motion.
   {
-    id: "plate_waste",
-    icon: "mdi-food",
-    iconOutline: "mdi-food-outline",
+    id: "box_leftovers_first",
+    covers: [
+      { sectionId: "food", questionId: "leftovers" },
+      { sectionId: "food", questionId: "plate_waste" },
+    ],
     sectionId: "food",
-    name: "Serve one spoon less at every meal",
-    prompt: "Did you finish everything on your plate at every meal today?",
-    when: "Every time you serve yourself food",
-    instruction:
-      "Take a slightly smaller first serving than you think you need. Eat it. Decide if you need more before serving again. The gap between what you serve and what you eat is where plate waste is created.",
-  },
-  {
-    id: "leftovers",
+    name: "Box leftovers first",
     icon: "mdi-fridge",
     iconOutline: "mdi-fridge-outline",
-    sectionId: "food",
-    name: "Box the extra portion before you serve yourself",
     prompt: "Did you store your leftovers immediately after cooking today?",
     when: "Every time you finish cooking a meal",
     instruction:
-      "As soon as the food is ready, box the leftover portion before serving your plate. Food stored immediately gets eaten — food left in the pot or on the counter rarely does.",
+      "Box the leftover portion before serving your plate. Food stored immediately gets eaten. Food left in the pot rarely does.",
   },
+
+  // Q4 (packaged_food)
   {
-    id: "packaged_food",
+    id: "pack_a_home_snack",
+    covers: [{ sectionId: "food", questionId: "packaged_food" }],
+    sectionId: "food",
+    name: "Pack a home snack",
     icon: "mdi-bag-personal",
     iconOutline: "mdi-bag-personal-outline",
-    sectionId: "food",
-    name: "Pack a home snack before leaving every day",
-    prompt:
-      "Did you bring a home-prepared snack or drink with you today instead of buying packaged food?",
-    when: "Every morning as part of getting ready to leave",
+    prompt: "Did you bring a home-prepared snack or drink instead of buying packaged food today?",
+    when: "Every morning before leaving the house",
     instruction:
-      "Pack a snack before you leave each morning — fruit, home food, a filled bottle. Hunger away from home with nothing available is what drives packaged purchases. A packed item removes that trigger.",
+      "Pack a snack before you leave: fruit, home food, or a filled bottle. Hunger away from home is what drives packaged purchases.",
   },
+
+  // Q5 (local_food)
   {
-    id: "local_food",
+    id: "local_or_unpackaged_food",
+    covers: [{ sectionId: "food", questionId: "local_food" }],
+    sectionId: "food",
+    name: "Local or unpackaged food",
     icon: "mdi-basket",
     iconOutline: "mdi-basket-outline",
-    sectionId: "food",
-    name: "Buy one local or unpackaged item per shopping trip",
-    prompt:
-      "Did you choose at least one local, seasonal, or unpackaged item in your food purchases today?",
-    when: "Every time you go to buy food",
+    prompt: "Did you choose at least one local, seasonal, or unpackaged item today?",
+    when: "Every time you buy food",
     instruction:
-      "At every shopping trip, buy at least one item that is local, seasonal, or unpackaged. Start with one — the item most available near you. That single choice shifts your food sourcing pattern over time.",
+      "At every shopping trip, choose at least one item that is local, seasonal, or unpackaged. Start with the most available option near you.",
   },
 
   // ── ENERGY ────────────────────────────────────────────────────────────────
-
+  // Q1 (lights_off) + Q4 (shared_space_energy) → merged
   {
-    id: "lights_off",
+    id: "lights_off_on_exit",
+    covers: [
+      { sectionId: "energy", questionId: "lights_off" },
+      { sectionId: "energy", questionId: "shared_space_energy" },
+    ],
+    sectionId: "energy",
+    name: "Lights off on exit",
     icon: "mdi-lightbulb-off",
     iconOutline: "mdi-lightbulb-off-outline",
-    sectionId: "energy",
-    name: "Switch off lights and fans when you leave",
-    prompt: "Did you switch off every fan and light each time you left a room today?",
-    when: "Every time you leave any room",
+    prompt: "Did you switch off every fan and light each time you left any room today?",
+    when: "Every time you leave any room, your own or shared",
     instruction:
-      "One glance back before stepping out. If anything is running and the room will be empty, switch it off. Start with one room — your bedroom — for one full week, then extend.",
+      "One glance back before stepping out. If anything is running and the room will be empty, switch it off. This applies to every room regardless of whose it is.",
   },
+
+  // Q2 (standby_power)
   {
-    id: "standby_power",
+    id: "unplug_when_charged",
+    covers: [{ sectionId: "energy", questionId: "standby_power" }],
+    sectionId: "energy",
+    name: "Unplug when charged",
     icon: "mdi-power-plug-off",
     iconOutline: "mdi-power-plug-off-outline",
-    sectionId: "energy",
-    name: "Unplug your charger the moment it's done",
     prompt: "Did you unplug your charger as soon as your device finished charging today?",
     when: "Every time your device reaches full charge",
     instruction:
-      "Device full means charger out. Set a charging alarm if needed. Before sleeping, unplug every charger not actively charging something — one sweep of the room takes under a minute.",
+      "Device full means charger out. Before sleeping, sweep the room and unplug every charger not actively charging something.",
   },
+
+  // Q3 (natural_light)
   {
-    id: "natural_light",
+    id: "daylight_first",
+    covers: [{ sectionId: "energy", questionId: "natural_light" }],
+    sectionId: "energy",
+    name: "Daylight first",
     icon: "mdi-sun-angle",
     iconOutline: "mdi-sun-angle-outline",
-    sectionId: "energy",
-    name: "Use daylight before turning on a light",
     prompt: "Did you use natural daylight instead of electric lights for all daytime tasks today?",
     when: "Every morning when you sit down to work or study",
     instruction:
-      "Open curtains before touching any switch. Move your work spot near a window. Turn on electric light only when daylight is genuinely insufficient. Daylight first is the rule, not a preference.",
+      "Open curtains before touching any switch. Move your work spot near a window. Turn on electric light only when daylight is genuinely insufficient.",
   },
+
+  // Q5 (power_saving_mode)
   {
-    id: "shared_space_energy",
-    icon: "mdi-door-open",
-    iconOutline: "mdi-door-open", // no-outline
+    id: "power_saving_mode_on",
+    covers: [{ sectionId: "energy", questionId: "power_saving_mode" }],
     sectionId: "energy",
-    name: "Switch off fans and lights in shared spaces",
-    prompt:
-      "Did you check and switch off fans and lights every time you left a shared space today?",
-    when: "Every time you leave a shared room",
-    instruction:
-      "Before stepping out of any shared space, take three seconds to check. Fan on and room emptying — switch it off. Light on — switch it off. Do not wait for someone else to do it.",
-  },
-  {
-    id: "power_saving_mode",
+    name: "Power-saving mode on",
     icon: "mdi-battery-heart",
     iconOutline: "mdi-battery-heart-outline",
-    sectionId: "energy",
-    name: "Keep power-saving mode permanently enabled",
-    prompt: "Were power-saving and auto-brightness settings active on all your devices today?",
-    when: "Right now — open your device settings once and set it permanently",
+    prompt: "Were power-saving and auto-brightness active on all your devices today?",
+    when: "Right now. Open settings once and set it permanently.",
     instruction:
-      "Go into your phone and laptop settings and enable power-saving mode and auto-brightness permanently. This is a one-time action. Once set, it reduces device energy draw every hour without any further effort.",
+      "Enable power-saving mode and auto-brightness on every device. This is a one-time action that reduces device energy draw every hour with no further effort.",
   },
 
-  // ── CONSUMPTION ───────────────────────────────────────────────────────────
-
+  // ── WATER + WASTE — SHARED HABIT ─────────────────────────────────────────
+  // Water Q5 (drinking_water_source) + Waste Q1 (plastic_bottles) → merged
   {
-    id: "printing_habits",
-    icon: "mdi-printer-off",
-    iconOutline: "mdi-printer-off-outline",
-    sectionId: "consumption",
-    name: "Open the document digitally before printing",
-    prompt: "Did you avoid all unnecessary printing and handle documents digitally today?",
-    when: "Every time you are about to print any document",
+    id: "reusable_bottle_daily",
+    covers: [
+      { sectionId: "water", questionId: "drinking_water_source" },
+      { sectionId: "waste", questionId: "plastic_bottles" },
+    ],
+    sectionId: "water",
+    name: "Reusable bottle daily",
+    icon: "mdi-bottle-soda",
+    iconOutline: "mdi-bottle-soda-outline",
+    prompt: "Did you carry a filled reusable bottle instead of buying one today?",
+    when: "Every morning before leaving home",
     instruction:
-      "Before printing anything, open the file on your phone or screen first. Read it or annotate it digitally. Print only if digital is genuinely unusable for that specific task. The default is screen, not paper.",
-  },
-  {
-    id: "clothing_purchases",
-    icon: "mdi-tshirt-crew",
-    iconOutline: "mdi-tshirt-crew-outline",
-    sectionId: "consumption",
-    name: "Write a list before every shopping trip",
-    prompt:
-      "Did you shop only from a prepared list today without any unplanned clothing or accessory purchases?",
-    when: "The evening before any planned shopping trip",
-    instruction:
-      "Make your list the night before — not at the market. Write exactly what you need. At the market, buy only what is on the list. If it is not on the list, leave it. No exceptions for one full week.",
-  },
-  {
-    id: "device_longevity",
-    icon: "mdi-wrench",
-    iconOutline: "mdi-wrench-outline",
-    sectionId: "consumption",
-    name: "Repair before you replace any device",
-    prompt: "Did you choose repair over replacement for any device issue that came up today?",
-    when: "The moment any device develops a fault or problem",
-    instruction:
-      "When a device has a problem, find the repair cost before looking at replacements. Battery, screen, and performance issues are usually repairable for a fraction of the cost of a new device. Repair is the first option, not the last.",
-  },
-  {
-    id: "circular_economy",
-    icon: "mdi-recycle",
-    iconOutline: "mdi-recycle", // no-outline
-    sectionId: "consumption",
-    name: "Check secondhand before buying anything new",
-    prompt: "Did you check a secondhand or borrowing option before any purchase you made today?",
-    when: "Every time you identify something you need to buy",
-    instruction:
-      "Before buying anything new, spend five minutes checking whether it exists secondhand or can be borrowed. If a secondhand option covers the need, use it. New is the fallback, not the default.",
+      "Fill your bottle from the tap or filter before stepping out. Keep it next to your keys. A filled bottle removes the need for any single-use purchase. This habit covers both your water and waste sections.",
   },
 
   // ── WATER ─────────────────────────────────────────────────────────────────
 
+  // Q1 (bathing_method)
   {
-    id: "bathing_method",
+    id: "bucket_bath",
+    covers: [{ sectionId: "water", questionId: "bathing_method" }],
+    sectionId: "water",
+    name: "Bucket bath",
     icon: "mdi-bucket",
     iconOutline: "mdi-bucket-outline",
-    sectionId: "water",
-    name: "Bathe with a bucket",
-    prompt: "Did you bathe using a bucket instead of a shower today?",
+    prompt: "Did you use a bucket for your bath today?",
     when: "Every time you prepare to bathe",
     instruction:
-      "Fill your bucket before getting in. A bucket bath uses 15–20 litres. A 10-minute shower uses 60–80 litres. If switching immediately feels difficult, set a 5-minute timer on your shower and work toward bucket bathing once a week.",
+      "Fill your bucket before entering the bathroom. Use only what is in it. A bucket bath uses 15-20 litres. A 10-minute shower uses 60-80.",
   },
+
+  // Q2 (tap_behaviour) — also absorbs Q6 (leak_reporting): noticing running water and
+  // turning it off is the same attentiveness as noticing a dripping tap and reporting it.
   {
-    id: "tap_behaviour",
+    id: "tap_off_while_soaping",
+    covers: [
+      { sectionId: "water", questionId: "tap_behaviour" },
+      { sectionId: "water", questionId: "leak_reporting" },
+    ],
+    sectionId: "water",
+    name: "Tap off while soaping",
     icon: "mdi-water-off",
     iconOutline: "mdi-water-off-outline",
-    sectionId: "water",
-    name: "Turn off the tap while brushing",
-    prompt: "Did you turn the tap off every time you were brushing, soaping, or lathering today?",
+    prompt: "Did you keep the tap off every time you were brushing or lathering today?",
     when: "The moment your hand touches the soap or toothbrush",
     instruction:
-      "Soap or brush in hand means tap is off. Make that an absolute rule. Turn on only to rinse. A running tap wastes 6 litres per minute of idle flow — this single rule prevents all of it.",
+      "Soap or brush in hand means tap is off. Turn it on only to rinse. A running tap wastes 6 litres per idle minute.",
   },
+
+  // Q3 (dishwashing_method)
   {
-    id: "dishwashing_method",
+    id: "basin_for_dishes",
+    covers: [{ sectionId: "water", questionId: "dishwashing_method" }],
+    sectionId: "water",
+    name: "Basin for dishes",
     icon: "mdi-bowl",
     iconOutline: "mdi-bowl-outline",
-    sectionId: "water",
-    name: "Wash dishes in a filled basin",
-    prompt:
-      "Did you use a filled basin or bucket for all dish washing today instead of a running tap?",
-    when: "The moment you start any dishwashing session",
+    prompt: "Did you wash dishes from a filled basin today?",
+    when: "Before you touch any dish at the sink",
     instruction:
-      "Fill the basin before touching a single dish. Wash everything in it. Use the running tap only for a quick final rinse. A filled basin uses 5–10 litres; a running tap uses up to 30 per session.",
+      "Fill the basin before starting. Wash everything in it. Use the running tap only for a final rinse. A filled basin uses 5-10 litres versus up to 30 with a running tap.",
   },
+
+  // Q4 (laundry_method) — two variants for machine vs hand-wash users
   {
-    id: "laundry_method",
+    id: "full_machine_load_only",
+    covers: [{ sectionId: "water", questionId: "laundry_method" }],
+    sectionId: "water",
+    name: "Full machine load only",
     icon: "mdi-washing-machine",
     iconOutline: "mdi-washing-machine", // no-outline
-    sectionId: "water",
-    name: "Wait for a full load before doing any laundry",
-    prompt: "Did you run only a full load of laundry today, or wait until you have one?",
-    when: "Every time you consider doing laundry",
+    prompt: "Did you run the washing machine only when it was full today?",
+    when: "Every time you are about to start a machine wash",
     instruction:
-      "Before starting any wash, check whether you have a full load. If not, wait and collect more. A partial load uses the same water and electricity as a full one — every gap in the drum is wasted resource.",
+      "Check the drum is full before pressing start. If not, close it and wait. A half-load uses the same water and electricity as a full one.",
   },
   {
-    id: "drinking_water_source",
-    icon: "mdi-bottle-soda",
-    iconOutline: "mdi-bottle-soda-outline",
+    id: "one_bucket_hand_wash",
+    covers: [{ sectionId: "water", questionId: "laundry_method" }],
     sectionId: "water",
-    name: "Fill a bottle before leaving home",
-    prompt: "Did you fill and carry your reusable bottle today instead of buying bottled water?",
-    when: "Every morning before leaving home",
+    name: "One bucket hand wash",
+    icon: "mdi-bucket",
+    iconOutline: "mdi-bucket-outline",
+    prompt: "Did you wash all your laundry in a single filled bucket today?",
+    when: "Every time you hand-wash clothes",
     instruction:
-      "Fill your reusable bottle from the tap or filter before you leave. Keep it next to your keys so it leaves with you on every trip, including short ones. A filled bottle in hand removes the need for any bottled purchase.",
+      "Fill one bucket with soapy water before starting. Wash everything in it. Use a second bucket for rinsing only if needed. Don't run water continuously.",
   },
+
+  // ── WASTE + WASTE — SHARED HABIT ─────────────────────────────────────────
+  // Q2 (waste_segregation) + Q6 (organic_waste) → merged
   {
-    id: "leak_reporting",
-    icon: "mdi-water-alert",
-    iconOutline: "mdi-water-alert-outline",
-    sectionId: "water",
-    name: "Report and follow up every water leak you notice",
-    prompt: "Did you report or follow up on any water leak or waste you noticed today?",
-    when: "The moment you notice any dripping tap, leaking pipe, or running water going to waste",
+    id: "food_scraps_in_wet_bin",
+    covers: [
+      { sectionId: "waste", questionId: "waste_segregation" },
+      { sectionId: "waste", questionId: "organic_waste" },
+    ],
+    sectionId: "waste",
+    name: "Food scraps in wet bin",
+    icon: "mdi-sprout",
+    iconOutline: "mdi-sprout-outline",
+    prompt: "Did you put all food scraps and waste into the correct bin today?",
+    when: "Every time you have food scraps, peels, or anything to throw away",
     instruction:
-      "Report it immediately to whoever is responsible — landlord, building management, or facilities. Note the date. Follow up after three days if it is not fixed. A dripping tap wastes 15–20 litres per day; following up is what ensures it stops.",
+      "Food scraps are wet waste. One container next to the cooking area covers both questions. Every peel and scrap goes there, everything else in the dry bin.",
   },
 
   // ── WASTE ─────────────────────────────────────────────────────────────────
 
+  // Q3 (disposable_cutlery)
   {
-    id: "plastic_bottles",
-    icon: "mdi-bottle-soda",
-    iconOutline: "mdi-bottle-soda-outline",
+    id: "own_cup_and_cutlery",
+    covers: [{ sectionId: "waste", questionId: "disposable_cutlery" }],
     sectionId: "waste",
-    name: "Refill a bottle instead of buying one",
-    prompt:
-      "Did you use your reusable bottle all day today without buying a single-use plastic bottle?",
-    when: "Every morning before leaving home",
-    instruction:
-      "Fill a reusable bottle before you leave. Place it next to your keys so it goes with you every time. At the moment you would buy a bottle, you already have one.",
-  },
-  {
-    id: "waste_segregation",
-    icon: "mdi-trash-can",
-    iconOutline: "mdi-trash-can-outline",
-    sectionId: "waste",
-    name: "Sort waste into a wet bin and dry bin",
-    prompt: "Did you correctly separate every item of waste into the right bin today?",
-    when: "Every time you dispose of any item",
-    instruction:
-      "Before dropping anything in a bin, pause and ask: wet, dry, or hazardous? Set up three clearly labelled containers today. The system needs to exist physically before the habit can form.",
-  },
-  {
-    id: "disposable_cutlery",
+    name: "Own cup and cutlery",
     icon: "mdi-cup",
     iconOutline: "mdi-cup-outline",
-    sectionId: "waste",
-    name: "Use your own cup, plate, and spoon",
-    prompt:
-      "Did you use reusable items for every meal and drink today without touching a disposable?",
+    prompt: "Did you avoid all disposable cups, plates, and cutlery today?",
     when: "Every morning before leaving the house",
     instruction:
-      "Pack a reusable cup and a set of cutlery in your bag before stepping out. One set in your bag means disposables are never the only option available, regardless of where you eat.",
+      "Pack a reusable cup and one set of cutlery in your bag before stepping out. Having your own removes the need to accept a disposable at any point.",
   },
+
+  // Q4 (reusable_bag)
   {
-    id: "reusable_bag",
+    id: "cloth_bag_every_trip",
+    covers: [{ sectionId: "waste", questionId: "reusable_bag" }],
+    sectionId: "waste",
+    name: "Cloth bag every trip",
     icon: "mdi-shopping",
     iconOutline: "mdi-shopping-outline",
-    sectionId: "waste",
-    name: "Take a cloth bag to every shop",
-    prompt:
-      "Did you use only a reusable bag for all shopping today without accepting any plastic bags?",
-    when: "Every time you leave the house",
+    prompt: "Did you carry a reusable bag on every trip today?",
+    when: "Before leaving home for any errand or shop",
     instruction:
-      "Keep a foldable cloth bag next to your keys. Before picking up your keys, pick up the bag. That one association removes the most common reason for accepting a plastic bag — simply not having one.",
+      "Keep a foldable bag inside your everyday bag permanently. Decline plastic bags at the counter. Having your own removes the only reason to accept one.",
   },
+
+  // Q5 (ewaste)
   {
-    id: "ewaste",
+    id: "store_ewaste_properly",
+    covers: [{ sectionId: "waste", questionId: "ewaste" }],
+    sectionId: "waste",
+    name: "Store e-waste properly",
     icon: "mdi-battery-remove",
     iconOutline: "mdi-battery-remove-outline",
-    sectionId: "waste",
-    name: "Take e-waste to an authorised collection point",
-    prompt:
-      "Did you store or drop off any electronic waste correctly today rather than discarding it improperly?",
-    when: "The moment any electronic item is no longer working or needed",
+    prompt: "Did you store or drop off any electronic waste correctly today?",
+    when: "The moment any device, battery, or charger stops working",
     instruction:
-      "Find your nearest authorised e-waste collection point now and save the address. When an item fails, store it safely until you can drop it off there. Never put electronics in the regular bin or discard them outdoors.",
+      "Place the item in a dedicated container, not the regular bin. Find and save your nearest authorised e-waste collection point now. That step only needs to happen once.",
   },
+
+  // Q7 (food_waste)
   {
-    id: "organic_waste",
-    icon: "mdi-sprout",
-    iconOutline: "mdi-sprout-outline",
+    id: "fridge_check_before_shopping",
+    covers: [{ sectionId: "waste", questionId: "food_waste" }],
     sectionId: "waste",
-    name: "Put food scraps in a separate container",
-    prompt:
-      "Did you put all food scraps and peels into a dedicated container today, separate from other waste?",
-    when: "Every time you have food scraps, peels, or leftover food",
-    instruction:
-      "Place a small container — any lidded container — next to your cooking area for food scraps only. Every peel and scrap goes there. That one container makes composting or proper disposal possible.",
-  },
-  {
-    id: "food_waste",
+    name: "Fridge check before shopping",
     icon: "mdi-fridge",
     iconOutline: "mdi-fridge-outline",
-    sectionId: "waste",
-    name: "Check the fridge before buying groceries",
-    prompt:
-      "Did you check what was already in your fridge and plan meals around it before buying food today?",
+    prompt: "Did you check what was already in your fridge before buying food today?",
     when: "Before every grocery shopping trip",
     instruction:
-      "Open the fridge before you leave for any food shopping. Look at what is already there and what needs to be eaten first. Build your shopping list around that. This one check prevents the most common source of household food waste.",
+      "Open the fridge before you leave for any food shopping. List what needs to be eaten first. Build your shopping list around that.",
+  },
+
+  // ── DIGITAL + CONSUMPTION — SHARED HABIT ─────────────────────────────────
+  // Digital Q5 (device_repair) + Consumption Q3 (device_longevity) → merged
+  {
+    id: "repair_before_replace",
+    covers: [
+      { sectionId: "digital", questionId: "device_repair" },
+      { sectionId: "consumption", questionId: "device_longevity" },
+    ],
+    sectionId: "digital",
+    name: "Repair before replace",
+    icon: "mdi-wrench",
+    iconOutline: "mdi-wrench-outline",
+    prompt: "Did you attempt repair before replacing any device today?",
+    when: "The moment any device develops a fault, slowdown, or battery problem",
+    instruction:
+      "Get a repair quote before looking at any replacement. Battery, screen, and performance issues are typically fixable for a fraction of a new device. Repair is the first option, not the last.",
   },
 
   // ── DIGITAL ───────────────────────────────────────────────────────────────
 
+  // Q1 (streaming_habits)
   {
-    id: "streaming_habits",
+    id: "stream_at_sd_quality",
+    covers: [{ sectionId: "digital", questionId: "streaming_habits" }],
+    sectionId: "digital",
+    name: "Stream at SD quality",
     icon: "mdi-video",
     iconOutline: "mdi-video-outline",
-    sectionId: "digital",
-    name: "Set streaming quality to SD permanently",
-    prompt: "Did you stream at SD quality and stay within your daily time limit today?",
-    when: "Right now — open your streaming app settings once and set it permanently",
+    prompt: "Did you stream at SD quality and stay within your time limit today?",
+    when: "Before opening any streaming app",
     instruction:
-      "Go into your streaming app settings and set video quality to SD or the lowest auto option. Do this on every app today. HD uses roughly 20 times more data per hour than SD — this one setting change reduces streaming energy use every session.",
+      "Set quality to SD or Auto in your app settings. On YouTube: Settings > Video Quality. On Netflix: Account > Playback Settings. SD uses roughly 20 times less data per hour than HD.",
   },
+
+  // Q2 (cloud_hygiene)
   {
-    id: "cloud_hygiene",
+    id: "monthly_digital_declutter",
+    covers: [{ sectionId: "digital", questionId: "cloud_hygiene" }],
+    sectionId: "digital",
+    name: "Monthly digital declutter",
     icon: "mdi-cloud-remove",
     iconOutline: "mdi-cloud-remove-outline",
-    sectionId: "digital",
-    name: "Delete unused files and photos monthly",
-    prompt: "Did you review and delete any unused files, photos, or cloud backups this month?",
-    when: "Once a month — set a recurring calendar reminder today",
+    prompt: "Did you delete unused files and photos this month?",
+    when: "Once a month. Set a recurring calendar reminder today.",
     instruction:
-      "Set a monthly 15-minute calendar reminder for a digital cleanup. Delete photos you will never use, videos you have already watched, and duplicate backups. Cloud storage requires continuous server energy — keeping it lean reduces that load.",
+      "Spend 15 minutes each month deleting blurry photos, duplicate shots, unused downloads, and old cloud backups. Set the recurring reminder now.",
   },
+
+  // Q3 (email_hygiene)
   {
-    id: "email_hygiene",
+    id: "weekly_inbox_clear",
+    covers: [{ sectionId: "digital", questionId: "email_hygiene" }],
+    sectionId: "digital",
+    name: "Weekly inbox clear",
     icon: "mdi-email-remove",
     iconOutline: "mdi-email-remove-outline",
-    sectionId: "digital",
-    name: "Unsubscribe and delete emails weekly",
-    prompt:
-      "Did you delete unnecessary emails and unsubscribe from irrelevant mailing lists this week?",
-    when: "Once a week — the same day and time each week",
+    prompt: "Did you delete unnecessary emails and unsubscribe from at least one list this week?",
+    when: "Once a week, same day and time each week",
     instruction:
-      "Set a weekly 10-minute slot for inbox management. Delete emails you will never return to. Unsubscribe from mailing lists you no longer read. Unsubscribing prevents the email from arriving — it is more efficient than deleting repeatedly.",
+      "Spend five minutes: delete promotional and spam emails, and unsubscribe from any list you did not open. Unsubscribing stops the email being generated again.",
   },
+
+  // Q4 (intentional_use)
   {
-    id: "intentional_use",
+    id: "daily_screen_time_limit",
+    covers: [{ sectionId: "digital", questionId: "intentional_use" }],
+    sectionId: "digital",
+    name: "Daily screen time limit",
     icon: "mdi-timer",
     iconOutline: "mdi-timer-outline",
-    sectionId: "digital",
-    name: "Set a daily screen time limit before you scroll",
-    prompt:
-      "Did you use your device only for specific, intended purposes today without passive scrolling?",
-    when: "Every time you pick up your phone or open your laptop",
+    prompt: "Did you stay within your screen time limit for social media today?",
+    when: "Right now. Set it once in your phone settings, then check in daily.",
     instruction:
-      "Before picking up your phone or opening a laptop, state to yourself what you are doing with it. Passive scrolling generates continuous data transfer. Intentional use with a defined endpoint stops that. Set a daily screen time limit in your device settings.",
+      "Open Screen Time on iOS or Digital Wellbeing on Android and set a daily limit of 30 minutes for social media apps. Configure it once. After that the daily check-in is the habit.",
   },
+
+  // ── CONSUMPTION ───────────────────────────────────────────────────────────
+
+  // Q1 (printing_habits)
   {
-    id: "device_repair",
-    icon: "mdi-wrench",
-    iconOutline: "mdi-wrench-outline",
-    sectionId: "digital",
-    name: "Get a repair quote before any replacement",
-    prompt: "Did you choose repair over replacement for any device issue today?",
-    when: "The moment any device develops a fault or problem",
+    id: "digital_before_print",
+    covers: [{ sectionId: "consumption", questionId: "printing_habits" }],
+    sectionId: "consumption",
+    name: "Digital before print",
+    icon: "mdi-printer-off",
+    iconOutline: "mdi-printer-off-outline",
+    prompt: "Did you avoid all unnecessary printing and handle documents digitally today?",
+    when: "Every time you are about to print anything",
     instruction:
-      "When a device has a problem, find the repair cost before looking at any replacement. Battery, screen, and performance issues are typically repairable. Get one quote from a local technician before making any other decision.",
+      "Open the file on screen first. Read or annotate it digitally. Print only if digital is genuinely unusable for that specific task. Screen is the default, not paper.",
+  },
+
+  // Q2 (clothing_purchases)
+  {
+    id: "shopping_list_first",
+    covers: [{ sectionId: "consumption", questionId: "clothing_purchases" }],
+    sectionId: "consumption",
+    name: "Shopping list first",
+    icon: "mdi-tshirt-crew",
+    iconOutline: "mdi-tshirt-crew-outline",
+    prompt: "Did you shop only from a prepared list with no unplanned purchases today?",
+    when: "The evening before any planned shopping trip",
+    instruction:
+      "Make your list the night before, not at the market. Write exactly what you need. At the market, buy only what is on the list.",
+  },
+
+  // Q4 (circular_economy)
+  {
+    id: "secondhand_check_first",
+    covers: [{ sectionId: "consumption", questionId: "circular_economy" }],
+    sectionId: "consumption",
+    name: "Secondhand check first",
+    icon: "mdi-recycle",
+    iconOutline: "mdi-recycle", // no-outline
+    prompt: "Did you check a secondhand or borrow option before any purchase today?",
+    when: "Every time you identify something you need to buy",
+    instruction:
+      "Before buying anything new, spend five minutes checking whether it exists secondhand or can be borrowed. The habit is the check, not the outcome.",
   },
 ];

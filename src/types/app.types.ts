@@ -114,6 +114,13 @@ export interface QuestionInsight {
   score: 1 | 2 | 3 | 4 | 5;
   icon: string; // you assign
   text: string; // from research v2
+  /**
+   * When true, this question has no coverable habit (e.g. commute_distance is a
+   * fixed fact, not a repeatable behaviour). The insight still renders in the
+   * Reflections panel but is excluded from habit recommendation slots so it
+   * never silently burns an actionable pick.
+   */
+  noHabit?: boolean;
 }
 
 export interface SelectedInsight extends QuestionInsight {
@@ -140,8 +147,21 @@ export interface PunchyFrame {
  * Content is placeholder for now — real researched data replaces these later.
  */
 export interface HabitTemplate {
-  /** Links to the assessment question that triggers this recommendation, e.g. 'energy-q1' */
+  /** Unique habit identifier — no longer mirrors a question id */
   id: string;
+  /**
+   * The assessment questions this habit covers.
+   * A habit may cover one question, multiple questions in the same section,
+   * or questions across different sections (cross-section shared habits).
+   * Used to drive recommendations: the habit surfaces when any of its linked
+   * questions appear in the user's low-scoring slots.
+   */
+  covers: Array<{ sectionId: string; questionId: string }>;
+  /**
+   * Primary section for display grouping in the habit library.
+   * For cross-section habits, use the section whose question has the
+   * greater footprint relevance (or the first listed cover).
+   */
   sectionId: string;
   /** Display name shown in the library and on the habit card — fixed regardless of score */
   name: string;
@@ -156,7 +176,7 @@ export interface HabitTemplate {
   prompt: string;
   /** The cue or trigger for the habit — when to do it. Shown in Growth Space and Stats. */
   when: string;
-  /** One-time onboarding instruction calibrated to the user's score. Shown in Growth Space and Stats. */
+  /** Onboarding instruction shown in Growth Space and Stats. */
   instruction: string;
 }
 

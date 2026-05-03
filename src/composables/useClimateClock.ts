@@ -86,7 +86,11 @@ function hydrate(modules: Record<string, ClockModule>) {
 function hydrateFromStore(store: ReturnType<typeof useClockDataStore>) {
   if (store.deadlineTs) deadlineTs.value = new Date(store.deadlineTs);
   if (store.deadlineLabel) deadlineLabel.value = store.deadlineLabel;
-  if (store.lifelines) lifelines.value = store.lifelines;
+  if (store.lifelines)
+    lifelines.value = store.lifelines.map((lf) => ({
+      ...lf,
+      origin: lf.origin instanceof Date ? lf.origin : new Date(lf.origin as string),
+    }));
   if (store.tickerItems) tickerItems.value = store.tickerItems;
 }
 

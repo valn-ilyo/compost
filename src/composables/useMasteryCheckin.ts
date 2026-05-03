@@ -1,5 +1,6 @@
 import { computed, ref, watch } from "vue";
 import { useMasteryStore } from "@/stores/mastery";
+import { todayISO } from "@/lib/habitDate";
 import type { UserHabit } from "@/types/app.types";
 
 /**
@@ -46,7 +47,7 @@ export function useMasteryCheckin() {
   });
 
   const masteredToday = computed(() =>
-    store.masteredHabits.some((h) => h.lastLoggedDate === new Date().toISOString().slice(0, 10)),
+    store.masteredHabits.some((h) => h.lastLoggedDate === todayISO()),
   );
 
   function resolveLogLabel(unlogged: number, total: number): string {
@@ -119,6 +120,8 @@ export function useMasteryCheckin() {
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   function handleLog(habitId: string): void {
+    const habit = store.activeHabits.find((h) => h.id === habitId);
+    if (!habit || store.isLoggedToday(habit)) return;
     isLogAll.value = false;
     checkinHabitId.value = habitId;
     checkinOpen.value = true;

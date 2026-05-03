@@ -60,6 +60,7 @@ const router = createRouter({
     {
       meta: { requiresAuth: true },
       path: "/assessment/:sectionId",
+      name: "assessment-section",
       component: () => import("@/views/AssessmentSectionView.vue"),
     },
     {

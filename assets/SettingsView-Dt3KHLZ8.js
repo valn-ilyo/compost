@@ -1,1 +1,0 @@
-import{t as e}from"./index-nqze2zXY.js";var t={};function n(e,t){return`welcome to settings`}var r=e(t,[[`render`,n]]);export{r as default};

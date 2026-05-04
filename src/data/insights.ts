@@ -16,14 +16,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "commute_mode",
     score: 4,
     icon: "mdi-bus",
-    text: "Shared transport is a strong choice. The gap to score 5 is mode — if any part of your route is walkable or cyclable, replacing that segment removes the remaining footprint.",
+    text: "Shared transport is a strong choice. If any part of your route is walkable or cyclable, replacing that segment removes the remaining footprint.",
   },
   {
     sectionId: "transport",
     questionId: "commute_mode",
     score: 3,
     icon: "mdi-account-group-outline",
-    text: "Group transport reduces per-person emissions but still depends on a vehicle. Check whether a public bus serves the same route — it typically runs regardless of your participation, making your seat a near-zero marginal addition.",
+    text: "Group transport reduces per-person emissions but still depends on a vehicle. Check whether a public bus serves the same route: it runs regardless of your participation, so your seat adds almost nothing to the total.",
   },
   {
     sectionId: "transport",
@@ -41,15 +41,13 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
   },
 
   // commute_distance — noHabit: distance is a fixed fact, not a repeatable behaviour.
-  // The document explicitly assigns no habit to this question. The insight still renders
-  // in the Reflections panel but must never occupy a habit recommendation slot.
   {
     sectionId: "transport",
     questionId: "commute_distance",
     score: 5,
     noHabit: true,
     icon: "mdi-home-outline",
-    text: "Living on-site removes commute emissions entirely. That is the structural ceiling of commute impact reduction, and you are already there.",
+    text: "Living on-site removes commute emissions entirely. That's the structural ceiling of commute impact reduction, and you're already there.",
   },
   {
     sectionId: "transport",
@@ -57,7 +55,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     score: 4,
     noHabit: true,
     icon: "mdi-walk",
-    text: "Under 2 km is walkable or cyclable for most people. If you are not already doing this on every trip, that is the one remaining gap.",
+    text: "Under 2 km is walkable or cyclable for most people. If you're not already doing this on every trip, that's the one remaining gap.",
   },
   {
     sectionId: "transport",
@@ -65,7 +63,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     score: 3,
     noHabit: true,
     icon: "mdi-bicycle",
-    text: "2–5 km is within cycling range and well within shared transport range. If you are using a private vehicle for this distance, replace it with one of those two options starting today.",
+    text: "2 to 5 km is within cycling range and well within shared transport range. If you're using a private vehicle for this distance, replace it with one of those two options starting today.",
   },
   {
     sectionId: "transport",
@@ -73,7 +71,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     score: 2,
     noHabit: true,
     icon: "mdi-bus",
-    text: "5–15 km requires planning but is served by shared transport in most areas. Map your route once and use it on your next commute.",
+    text: "5 to 15 km requires planning but is served by shared transport in most areas. Map your route once and use it on your next commute.",
   },
   {
     sectionId: "transport",
@@ -81,7 +79,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     score: 1,
     noHabit: true,
     icon: "mdi-map-marker-distance",
-    text: "Over 15 km commutes carry the highest transport footprints. Find the shared transport option for your route — bus, train, or carpool — and use it for one trip this week.",
+    text: "Over 15 km commutes carry the highest transport footprints. Find the shared transport option for your route, whether bus, train, or carpool, and use it for one trip this week.",
   },
 
   // commute_frequency
@@ -97,21 +95,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "commute_frequency",
     score: 4,
     icon: "mdi-calendar-check",
-    text: "One to two commute days per week is already low. The remaining impact comes from mode — ensure those trips use shared or active transport.",
+    text: "One to two commute days per week is already low. The remaining impact comes from mode: make sure those trips use shared or active transport.",
   },
   {
     sectionId: "transport",
     questionId: "commute_frequency",
     score: 3,
     icon: "mdi-calendar-week",
-    text: "Three to four days of commuting is above average. On each of those days, the mode determines the footprint. Shared transport on every commute day removes most of the remaining impact.",
+    text: "Three to four days of commuting is above average. Mode determines the footprint on each of those days. Switch to shared transport on every commute day.",
   },
   {
     sectionId: "transport",
     questionId: "commute_frequency",
     score: 2,
     icon: "mdi-bus",
-    text: "Five to six commute days is a daily pattern. Using shared transport consistently on those days is the primary lever available at this frequency.",
+    text: "Five to six commute days is a daily pattern. Use shared transport on at least three of those days this week.",
   },
   {
     sectionId: "transport",
@@ -134,14 +132,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "short_trips",
     score: 4,
     icon: "mdi-walk",
-    text: "Walking most of the time is close to the ceiling. The gap is the trips where you choose otherwise — commit to walking unconditionally for any trip under 2 km.",
+    text: "Walking most of the time is close to the ceiling. The gap is the trips where you choose otherwise: commit to walking for any trip under 2 km, no exceptions.",
   },
   {
     sectionId: "transport",
     questionId: "short_trips",
     score: 3,
     icon: "mdi-map-marker-path",
-    text: "Short trips by shared transport are not zero-emission. For distances under 2 km, walking is faster than waiting and costs nothing. Remove the decision — walk every time.",
+    text: "Short trips by shared transport are not zero-emission. For distances under 2 km, walking is faster than waiting and costs nothing. Remove the decision: walk every time.",
   },
   {
     sectionId: "transport",
@@ -171,14 +169,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "discretionary_mode",
     score: 4,
     icon: "mdi-bus",
-    text: "Using shared transport on most trips is strong. The remaining gap is the occasions where you default to private — identify those specific trips and plan the shared alternative in advance.",
+    text: "Using shared transport on most trips is strong. The remaining gap is the occasions where you default to private. Identify those specific trips and plan the shared alternative in advance.",
   },
   {
     sectionId: "transport",
     questionId: "discretionary_mode",
     score: 3,
     icon: "mdi-car-multiple",
-    text: "Half private and half shared means the habit is not yet default. Pick shared transport as the rule, private as the exception. Start by committing shared for the next seven days.",
+    text: "Half private and half shared means the habit isn't yet default. Pick shared transport as the rule, private as the exception. Start by committing shared for the next seven days.",
   },
   {
     sectionId: "transport",
@@ -217,7 +215,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "diet_type",
     score: 3,
     icon: "mdi-food-variant",
-    text: "A mostly plant-based diet with occasional meat is a meaningful position. Adding one more meat-free day per week is the specific corrective step — not reducing portion size, adding a full day.",
+    text: "A mostly plant-based diet with occasional meat still carries meat emissions. Add one more meat-free day per week: not a smaller portion, a full day without meat.",
   },
   {
     sectionId: "food",
@@ -240,21 +238,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "plate_waste",
     score: 5,
     icon: "mdi-food-off",
-    text: "Taking only what you will eat means the full production cost of your food — land, water, transport — is never wasted. That discipline is applied at the right moment.",
+    text: "Taking only what you'll eat means the full production cost of your food is never wasted. That discipline is applied at the right moment.",
   },
   {
     sectionId: "food",
     questionId: "plate_waste",
     score: 4,
     icon: "mdi-food-off",
-    text: "Wasting food once or twice a week is occasional but not zero. The specific fix is portion size at the point of serving — take less first, return for more if needed.",
+    text: "Wasting food once or twice a week is occasional but not zero. The specific fix is portion size at the point of serving: take less first, return for more if needed.",
   },
   {
     sectionId: "food",
     questionId: "plate_waste",
     score: 3,
     icon: "mdi-food-off",
-    text: "Wasting food three to four times a week means the serving habit is consistently over-estimating. Switch to a smaller plate starting today — plate size is the most direct control on how much you serve.",
+    text: "Wasting food three to four times a week means the serving habit consistently over-estimates. Switch to a smaller plate today. Plate size is the most direct control on how much you serve.",
   },
   {
     sectionId: "food",
@@ -284,14 +282,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "leftovers",
     score: 4,
     icon: "mdi-fridge-outline",
-    text: "Usually saving leftovers is close to the target. The gap is the occasions you do not. Date each container when you store it — dated leftovers get eaten, undated ones get forgotten.",
+    text: "Usually saving leftovers is close to the target. The gap is the occasions you don't. Date each container when you store it: dated leftovers get eaten, undated ones get forgotten.",
   },
   {
     sectionId: "food",
     questionId: "leftovers",
     score: 3,
     icon: "mdi-fridge-outline",
-    text: "Sometimes discarding leftovers means the storage habit is inconsistent. Box leftovers before serving your plate — not after eating, not later. That timing is what makes the difference.",
+    text: "Sometimes discarding leftovers means the storage habit is inconsistent. Box leftovers before you serve your plate, not after eating and not later. That timing is what makes the difference.",
   },
   {
     sectionId: "food",
@@ -305,7 +303,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "leftovers",
     score: 1,
     icon: "mdi-fridge-outline",
-    text: "Always discarding leftovers means the full cost of every meal beyond your plate — land, water, energy — is wasted. Before sleeping tonight, put any cooked food still out into the fridge.",
+    text: "Always discarding leftovers means the full cost of every meal beyond your plate is wasted. Before sleeping tonight, put any cooked food still out into the fridge.",
   },
 
   // packaged_food
@@ -321,7 +319,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "packaged_food",
     score: 4,
     icon: "mdi-package-variant-closed-remove",
-    text: "Buying packaged food once or twice a week is occasional. The gap is those specific moments — a packed item from home on every departure eliminates them.",
+    text: "Buying packaged food once or twice a week is occasional. The gap is those specific moments: a packed item from home on every departure eliminates them.",
   },
   {
     sectionId: "food",
@@ -358,14 +356,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "local_food",
     score: 4,
     icon: "mdi-store-outline",
-    text: "More than half local or fresh is a strong position. The gap is the remaining packaged or imported purchases — identify the one most easily replaced and substitute it next shopping trip.",
+    text: "More than half local or fresh is a strong position. The gap is the remaining packaged or imported purchases. Identify the one most easily replaced and swap it on your next trip.",
   },
   {
     sectionId: "food",
     questionId: "local_food",
     score: 3,
     icon: "mdi-store-outline",
-    text: "Roughly half local and half packaged or imported means the habit is not yet consistent. Set a minimum of one local or unpackaged item per shopping trip as a non-negotiable rule.",
+    text: "Roughly half local and half packaged or imported means the habit isn't yet consistent. Set a minimum of one local or unpackaged item per shopping trip as a non-negotiable rule.",
   },
   {
     sectionId: "food",
@@ -397,7 +395,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "lights_off",
     score: 4,
     icon: "mdi-lightbulb-off-outline",
-    text: "Usually switching off is close to complete. The gap is the occasions you forget. A note on your door — Fan? Light? — closes that gap without any ongoing effort.",
+    text: "Usually switching off is close to complete. The gap is the occasions you forget. A note on your door listing what to check closes that gap without any ongoing effort.",
   },
   {
     sectionId: "energy",
@@ -434,7 +432,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "standby_power",
     score: 4,
     icon: "mdi-power-plug-off",
-    text: "Usually unplugging is close to complete. The remaining occasions are the gap. Device at 100% is the trigger — make that moment unconditional.",
+    text: "Usually unplugging is close to complete. The remaining occasions are the gap. Make device at 100% the unconditional trigger to unplug.",
   },
   {
     sectionId: "energy",
@@ -448,14 +446,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "standby_power",
     score: 2,
     icon: "mdi-power-plug-off",
-    text: "Chargers left plugged in draw power continuously. Start with the charger by your bed — unplug it every morning as part of waking up.",
+    text: "Chargers left plugged in draw power continuously. Start with the charger by your bed: unplug it every morning as part of waking up.",
   },
   {
     sectionId: "energy",
     questionId: "standby_power",
     score: 1,
     icon: "mdi-power-plug-off",
-    text: "Devices plugged in continuously means phantom load runs all day and night. Unplug one charger tonight before sleeping. That is the first action.",
+    text: "Devices plugged in continuously means phantom load runs all day and night. Unplug one charger tonight before sleeping. That's the first action.",
   },
 
   // natural_light
@@ -478,14 +476,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "natural_light",
     score: 3,
     icon: "mdi-weather-sunny",
-    text: "Sometimes using daylight means electric lights run during hours when they are not needed. Move your primary work spot near a window and open curtains before sitting down every morning.",
+    text: "Sometimes using daylight means electric lights run during hours when they're not needed. Move your primary work spot near a window and open curtains before sitting down every morning.",
   },
   {
     sectionId: "energy",
     questionId: "natural_light",
     score: 2,
     icon: "mdi-weather-sunny",
-    text: "Rarely using daylight means electric lights run all day regardless of what is available outside. Open your curtains as the first act of every morning — before any switch.",
+    text: "Rarely using daylight means electric lights run all day regardless of what's available outside. Open your curtains as the first act of every morning, before any switch.",
   },
   {
     sectionId: "energy",
@@ -515,7 +513,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "shared_space_energy",
     score: 3,
     icon: "mdi-account-group-outline",
-    text: "Sometimes checking means shared spaces run unnecessarily on the days you do not. Pick one shared space you use daily and commit to always checking before you leave it.",
+    text: "Sometimes checking means shared spaces run unnecessarily on the days you don't. Pick one shared space you use daily and commit to always checking before you leave it.",
   },
   {
     sectionId: "energy",
@@ -552,7 +550,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "power_saving_mode",
     score: 3,
     icon: "mdi-brightness-auto",
-    text: "Enabling power-saving only when battery is low means your device runs at full draw most of the time. Go into settings today and enable both permanently — one action, permanent effect.",
+    text: "Enabling power-saving only when battery is low means your device runs at full draw most of the time. Go into settings today and enable both permanently: one action, permanent effect.",
   },
   {
     sectionId: "energy",
@@ -584,21 +582,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "printing_habits",
     score: 4,
     icon: "mdi-printer-off",
-    text: 'Printing only when truly required is close to the ceiling. The gap is identifying what "truly required" means — challenge one more print decision per week by trying digital first.',
+    text: 'Printing only when truly required is close to the ceiling. The gap is what "truly required" actually means. Challenge one more print decision per week by opening the file on screen first.',
   },
   {
     sectionId: "consumption",
     questionId: "printing_habits",
     score: 3,
     icon: "mdi-printer-off",
-    text: "Printing roughly half the time means printing is still a reflex for many documents. Before your next print, open the file on screen first. Most people find they never needed the printout once they start that way.",
+    text: "Printing roughly half the time means printing is still a reflex. Before your next print, open the file on screen first. Most documents don't need a physical copy once you look at them that way.",
   },
   {
     sectionId: "consumption",
     questionId: "printing_habits",
     score: 2,
     icon: "mdi-printer-off",
-    text: "Printing as the default means paper and ink are consumed for documents that could stay digital. Start with your notes — open them on your phone at your next session.",
+    text: "Printing as the default means paper and ink are consumed for documents that could stay digital. Start with your notes: open them on your phone at your next session.",
   },
   {
     sectionId: "consumption",
@@ -621,7 +619,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "clothing_purchases",
     score: 4,
     icon: "mdi-hanger",
-    text: "One unplanned purchase is a small gap in an otherwise disciplined pattern. The list habit — written before you leave, not at the market — closes it.",
+    text: "One unplanned purchase is a small gap in an otherwise disciplined pattern. A written list prepared before you leave, not at the market, closes it.",
   },
   {
     sectionId: "consumption",
@@ -651,21 +649,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "device_longevity",
     score: 5,
     icon: "mdi-cellphone-check",
-    text: "Using a device until it stops working and repairing rather than replacing spreads the manufacturing cost — roughly 70–80 kg CO2 for a smartphone — across the maximum possible years.",
+    text: "Using a device until it stops working, and repairing rather than replacing, spreads the manufacturing cost (roughly 70 to 80 kg CO2 for a smartphone) across the maximum possible years.",
   },
   {
     sectionId: "consumption",
     questionId: "device_longevity",
     score: 4,
     icon: "mdi-cellphone-check",
-    text: "Four or more years of use is well above average. When the next fault appears, check the repair cost first — extending the life by another year is usually achievable and significantly cheaper.",
+    text: "Four or more years of use is well above average. When the next fault appears, check the repair cost first: extending the life by another year is usually achievable and significantly cheaper.",
   },
   {
     sectionId: "consumption",
     questionId: "device_longevity",
     score: 3,
     icon: "mdi-cellphone-check",
-    text: "Two to three years is a common replacement cycle but not yet the most efficient. Before your next upgrade, get a repair quote — a battery replacement or screen fix often adds one to two years of use at low cost.",
+    text: "Two to three years is a common replacement cycle but not the most efficient. Before your next upgrade, get a repair quote: a battery replacement or screen fix often adds one to two years of use at low cost.",
   },
   {
     sectionId: "consumption",
@@ -695,7 +693,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "circular_economy",
     score: 4,
     icon: "mdi-swap-horizontal",
-    text: "Three to five secondhand or borrowed purchases is a strong pattern. The gap is the remaining new purchases — for each, check secondhand first as a standing rule.",
+    text: "Three to five secondhand or borrowed purchases is a strong pattern. For the remaining new purchases, check secondhand first as a standing rule.",
   },
   {
     sectionId: "consumption",
@@ -727,21 +725,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "bathing_method",
     score: 5,
     icon: "mdi-shower-head",
-    text: "Bucket bathing consistently uses 15–20 litres per wash versus 60–80 for a 10-minute shower. That difference is fixed and daily.",
+    text: "Bucket bathing consistently uses 15 to 20 litres per wash versus 60 to 80 for a 10-minute shower. That difference is fixed and daily.",
   },
   {
     sectionId: "water",
     questionId: "bathing_method",
     score: 4,
     icon: "mdi-shower-head",
-    text: "A shower under 5 minutes is a controlled habit. The gap to score 5 is method — a bucket bath uses roughly half the water of even a 5-minute shower.",
+    text: "A shower under 5 minutes is a controlled habit. The gap to score 5 is method: a bucket bath uses roughly half the water of even a 5-minute shower.",
   },
   {
     sectionId: "water",
     questionId: "bathing_method",
     score: 3,
     icon: "mdi-shower-head",
-    text: "Showering 5–10 minutes means water use is above the bucket baseline. Set a 5-minute timer before stepping in. When it rings, turn off. Work toward one bucket bath per week.",
+    text: "Showering 5 to 10 minutes means water use is above the bucket baseline. Set a 5-minute timer before stepping in. When it rings, turn off. Work toward one bucket bath per week.",
   },
   {
     sectionId: "water",
@@ -755,7 +753,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "bathing_method",
     score: 1,
     icon: "mdi-shower-head",
-    text: "No awareness of shower duration means water use is unchecked. Set a timer before your next shower — any duration. Knowing how long you take is the first corrective step.",
+    text: "No awareness of shower duration means water use is unchecked. Set a timer before your next shower, any duration. Knowing how long you take is the first corrective step.",
   },
 
   // tap_behaviour
@@ -764,7 +762,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "tap_behaviour",
     score: 5,
     icon: "mdi-water-off",
-    text: "Turning off the tap whenever not actively rinsing eliminates idle flow entirely. A running tap at 6 litres per minute — zero of that is wasted under this habit.",
+    text: "Turning off the tap whenever you're not actively rinsing eliminates idle flow entirely. At 6 litres per minute, none of that water is wasted under this habit.",
   },
   {
     sectionId: "water",
@@ -801,14 +799,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "dishwashing_method",
     score: 5,
     icon: "mdi-bowl-outline",
-    text: "Always using a filled basin means dishwashing uses 5–10 litres per session instead of up to 30. That saving occurs at every wash.",
+    text: "Always using a filled basin means dishwashing uses 5 to 10 litres per session instead of up to 30. That saving occurs at every wash.",
   },
   {
     sectionId: "water",
     questionId: "dishwashing_method",
     score: 4,
     icon: "mdi-bowl-outline",
-    text: "Usually using a basin is close to the target. The remaining occasions with a running tap are the gap. Make filling the basin the first action before touching any dish — non-negotiable.",
+    text: "Usually using a basin is close to the target. The remaining occasions with a running tap are the gap. Make filling the basin the first action before touching any dish, non-negotiable.",
   },
   {
     sectionId: "water",
@@ -845,14 +843,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "laundry_method",
     score: 4,
     icon: "mdi-washing-machine",
-    text: "Always running full loads is strong. The next step is reusing the final rinse water for mopping or watering — that closes the last gap.",
+    text: "Always running full loads is strong. The next step is reusing the final rinse water for mopping or watering: that closes the last gap.",
   },
   {
     sectionId: "water",
     questionId: "laundry_method",
     score: 3,
     icon: "mdi-washing-machine",
-    text: "Mixing full and partial loads means water use per garment varies widely. Check the load before starting — if it is not full, wait one more day. Partial loads use the same water as full ones.",
+    text: "Mixing full and partial loads means water use per garment varies widely. Check the load before starting: if it's not full, wait one more day. Partial loads use the same water as full ones.",
   },
   {
     sectionId: "water",
@@ -889,7 +887,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "drinking_water_source",
     score: 3,
     icon: "mdi-bottle-tonic-outline",
-    text: "Equal tap and bottled means the refill habit is not yet consistent. Fill your bottle as the last step before leaving home every morning. Place it next to your keys tonight.",
+    text: "Equal tap and bottled means the refill habit isn't yet consistent. Fill your bottle as the last step before leaving home every morning. Place it next to your keys tonight.",
   },
   {
     sectionId: "water",
@@ -912,21 +910,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "leak_reporting",
     score: 5,
     icon: "mdi-pipe-leak",
-    text: "Reporting immediately and following up means leaks are stopped rather than just noted. A dripping tap at 15–20 litres per day is fully preventable once reported and fixed.",
+    text: "Reporting immediately and following up means leaks are stopped rather than just noted. A dripping tap at 15 to 20 litres per day is fully preventable once reported and fixed.",
   },
   {
     sectionId: "water",
     questionId: "leak_reporting",
     score: 4,
     icon: "mdi-pipe-leak",
-    text: "Reporting once is the most important step. The gap is follow-up — add a reminder for three days after reporting to check whether it was fixed.",
+    text: "Reporting once is the most important step. The gap is follow-up: add a reminder for three days after reporting to check whether it was fixed.",
   },
   {
     sectionId: "water",
     questionId: "leak_reporting",
     score: 3,
     icon: "mdi-pipe-leak",
-    text: "Informal mentions often do not reach the person who can act. A formal report — a message to building management — is what actually triggers a repair. One message, correctly addressed.",
+    text: "Informal mentions often don't reach the person who can act. A message to building management is what triggers a repair. One message, correctly addressed.",
   },
   {
     sectionId: "water",
@@ -958,7 +956,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "plastic_bottles",
     score: 4,
     icon: "mdi-bottle-soda",
-    text: "One to two occasional bottles means the habit is strong but not complete. The gap is forgetting your bottle — keep it next to your keys so it leaves with you automatically.",
+    text: "One to two occasional bottles means the habit is strong but not complete. The gap is forgetting your bottle: keep it next to your keys so it leaves with you automatically.",
   },
   {
     sectionId: "waste",
@@ -979,7 +977,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "plastic_bottles",
     score: 1,
     icon: "mdi-bottle-soda",
-    text: "Seven or more bottles per week is over 365 pieces of plastic per year from one person. Get a reusable bottle — any bottle you own — and fill it from the tap today.",
+    text: "Seven or more bottles per week is over 365 pieces of plastic per year from one person. Get a reusable bottle, any bottle you own, and fill it from the tap today.",
   },
 
   // waste_segregation
@@ -988,21 +986,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "waste_segregation",
     score: 5,
     icon: "mdi-trash-can",
-    text: "Consistently separating all three waste categories — wet, dry, hazardous — means your waste is correctly routed for recycling, composting, and safe disposal.",
+    text: "Consistently separating all three waste categories, wet, dry, and hazardous, means your waste is correctly routed for recycling, composting, and safe disposal.",
   },
   {
     sectionId: "waste",
     questionId: "waste_segregation",
     score: 4,
     icon: "mdi-trash-can",
-    text: "Separating wet and dry is the essential step. The gap is hazardous — set up a small clearly labelled container for batteries, medicines, and chemical packaging next to your other bins.",
+    text: "Separating wet and dry is the essential step. The gap is hazardous: set up a small clearly labelled container for batteries, medicines, and chemical packaging next to your other bins.",
   },
   {
     sectionId: "waste",
     questionId: "waste_segregation",
     score: 3,
     icon: "mdi-trash-can",
-    text: "Sometimes separating means the bins exist but the habit is inconsistent. Every time you throw something away this week, pause for two seconds before placing it. Wet, dry, or hazardous — then place.",
+    text: "Sometimes separating means the bins exist but the habit is inconsistent. Every time you throw something away this week, pause for two seconds: wet, dry, or hazardous, then place.",
   },
   {
     sectionId: "waste",
@@ -1032,28 +1030,28 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "disposable_cutlery",
     score: 4,
     icon: "mdi-silverware",
-    text: "Rarely using disposables is close to complete. The gap is unavoidable situations — carry a small foldable cup and one spoon so you always have your own, even at events.",
+    text: "Rarely using disposables is close to complete. The gap is unavoidable situations: carry a small foldable cup and one spoon so you always have your own, even at events.",
   },
   {
     sectionId: "waste",
     questionId: "disposable_cutlery",
     score: 3,
     icon: "mdi-silverware",
-    text: "A few disposables per week means the reusable set is not yet in your bag consistently. Add a cup and cutlery to your bag every morning before leaving — make packing it as automatic as locking the door.",
+    text: "A few disposables per week means the reusable set isn't yet in your bag consistently. Add a cup and cutlery to your bag every morning before leaving. Make packing them as automatic as locking the door.",
   },
   {
     sectionId: "waste",
     questionId: "disposable_cutlery",
     score: 2,
     icon: "mdi-silverware",
-    text: "Almost daily disposable use means reusables are not the default. Start with one swap per day this week — use your own cup or plate for one meal. By the end of the week it becomes the natural reach.",
+    text: "Almost daily disposable use means reusables are not the default. Start with one swap per day this week: use your own cup or plate for one meal. By the end of the week it becomes the natural reach.",
   },
   {
     sectionId: "waste",
     questionId: "disposable_cutlery",
     score: 1,
     icon: "mdi-silverware",
-    text: "Disposables at almost every meal means more than 1,000 single-use items per year from one person. Use one thing you already own — a mug, a plate, a spoon — at your next meal. Wash it. Repeat tomorrow.",
+    text: "Disposables at almost every meal means more than 1,000 single-use items per year from one person. Use one thing you already own, whether a mug, a plate, or a spoon, at your next meal. Wash it. Repeat tomorrow.",
   },
 
   // reusable_bag
@@ -1076,7 +1074,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "reusable_bag",
     score: 3,
     icon: "mdi-bag-personal-outline",
-    text: "Sometimes carrying a bag means the bag is not yet part of the leaving routine. Keep it next to your keys — before picking up one, pick up the other. That association is the habit.",
+    text: "Sometimes carrying a bag means the bag isn't yet part of the leaving routine. Keep it next to your keys: before picking one up, pick up the other. That association is the habit.",
   },
   {
     sectionId: "waste",
@@ -1090,7 +1088,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "reusable_bag",
     score: 1,
     icon: "mdi-bag-personal-outline",
-    text: "Never carrying a reusable bag means dozens of plastic bags per month. Take any bag you own — a backpack, a tote — on your next market trip and refuse the plastic bag.",
+    text: "Never carrying a reusable bag means dozens of plastic bags per month. Take any bag you own, a backpack or a tote, on your next market trip and refuse the plastic bag.",
   },
 
   // ewaste
@@ -1106,14 +1104,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "ewaste",
     score: 4,
     icon: "mdi-recycle",
-    text: "Using an authorised scrap dealer or recycler is a responsible path. The distinction from score 5 is authorisation — confirm that your dealer is certified to handle electronics before the next drop-off.",
+    text: "Using an authorised scrap dealer or recycler is a responsible path. The distinction from score 5 is authorisation: confirm that your dealer is certified to handle electronics before the next drop-off.",
   },
   {
     sectionId: "waste",
     questionId: "ewaste",
     score: 3,
     icon: "mdi-recycle",
-    text: "Storing at home until you find proper disposal is responsible in intent. The gap is acting on it. Find your nearest e-waste facility now and note the address — that removes the main reason for delay.",
+    text: "Storing at home until you find proper disposal is responsible in intent. The gap is acting on it. Find your nearest e-waste facility now and save the address: that removes the main reason for delay.",
   },
   {
     sectionId: "waste",
@@ -1127,7 +1125,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "ewaste",
     score: 1,
     icon: "mdi-recycle",
-    text: "Burning or discarding electronics outdoors releases toxic chemicals directly into the air and soil. Find a safe collection point in your area — collection is usually free — and use it immediately.",
+    text: "Burning or discarding electronics outdoors releases toxic chemicals directly into the air and soil. Find a safe collection point in your area, collection is usually free, and use it immediately.",
   },
 
   // organic_waste
@@ -1157,7 +1155,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "organic_waste",
     score: 2,
     icon: "mdi-compost",
-    text: "Mixing food with all other waste means compostable material cannot be processed correctly. One separate container for food scraps only — start with that before anything else.",
+    text: "Mixing food with all other waste means compostable material cannot be processed correctly. One separate container for food scraps only: start with that before anything else.",
   },
   {
     sectionId: "waste",
@@ -1187,7 +1185,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "food_waste",
     score: 3,
     icon: "mdi-food-off",
-    text: "Discarding food a few times a week means the shopping and planning habit is not yet closing the gap. Spend two minutes checking the fridge before every grocery trip and plan three meals around what you find.",
+    text: "Discarding food a few times a week means the shopping and planning habit isn't yet closing the gap. Spend two minutes checking the fridge before every grocery trip and plan three meals around what you find.",
   },
   {
     sectionId: "waste",
@@ -1219,7 +1217,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "streaming_habits",
     score: 4,
     icon: "mdi-video-off-outline",
-    text: "One to two hours at SD quality manages quality correctly. The remaining gap is duration — consider replacing 15 minutes of video with audio-only to go further.",
+    text: "One to two hours at SD quality manages quality correctly. The remaining gap is duration: consider replacing 15 minutes of video with audio-only to go further.",
   },
   {
     sectionId: "digital",
@@ -1263,14 +1261,14 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "cloud_hygiene",
     score: 3,
     icon: "mdi-delete-sweep-outline",
-    text: "Rarely deleting means storage accumulates continuously. Set a monthly 15-minute calendar reminder today for a digital tidy. One recurring action in your calendar is what converts occasional awareness into a consistent habit.",
+    text: "Rarely deleting means storage accumulates continuously. Set a monthly 15-minute calendar reminder now. That one recurring entry converts occasional awareness into action.",
   },
   {
     sectionId: "digital",
     questionId: "cloud_hygiene",
     score: 2,
     icon: "mdi-delete-sweep-outline",
-    text: "Never deleting means storage grows indefinitely and cloud energy draw is at its maximum. Start with one focused session — delete your oldest or largest unused files today.",
+    text: "Never deleting means storage grows indefinitely and cloud energy draw is at its maximum. Start with one focused session: delete your oldest or largest unused files today.",
   },
   {
     sectionId: "digital",
@@ -1293,21 +1291,21 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "email_hygiene",
     score: 4,
     icon: "mdi-email-outline",
-    text: "Periodically deleting spam and unnecessary emails is good active management. The remaining gap is mailing lists — unsubscribe from ones you no longer read to prevent them arriving in the first place.",
+    text: "Periodically deleting spam and unnecessary emails is good active management. The remaining gap is mailing lists: unsubscribe from ones you no longer read to prevent them arriving in the first place.",
   },
   {
     sectionId: "digital",
     questionId: "email_hygiene",
     score: 3,
     icon: "mdi-email-outline",
-    text: "Letting emails accumulate with occasional deletion means the inbox is growing faster than it is being cleared. Set a weekly slot — 10 minutes, same day each week — and unsubscribe from five mailing lists in that time.",
+    text: "Letting emails accumulate with occasional deletion means the inbox is growing faster than it's being cleared. Set a weekly 10-minute slot on the same day each week and unsubscribe from five mailing lists in that time.",
   },
   {
     sectionId: "digital",
     questionId: "email_hygiene",
     score: 2,
     icon: "mdi-email-outline",
-    text: "Rarely deleting means your inbox holds years of emails that serve no function. Start in your promotions or newsletters folder — delete everything older than one month.",
+    text: "Rarely deleting means your inbox holds years of emails that serve no function. Start in your promotions or newsletters folder: delete everything older than one month.",
   },
   {
     sectionId: "digital",
@@ -1330,7 +1328,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "intentional_use",
     score: 4,
     icon: "mdi-cellphone-off",
-    text: "Mostly intentional use with occasional passive scrolling is close to the target. The gap is noticing when passive scrolling begins — a screen time daily summary makes that visible.",
+    text: "Mostly intentional use with occasional passive scrolling is close to the target. The gap is noticing when passive scrolling begins: a screen time daily summary makes that visible.",
   },
   {
     sectionId: "digital",
@@ -1360,28 +1358,28 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "device_repair",
     score: 5,
     icon: "mdi-tools",
-    text: "Always choosing repair first extends device life and avoids repeating the manufacturing footprint — roughly 70–80 kg CO2 for a smartphone — for as long as the device functions.",
+    text: "Always choosing repair first extends device life and avoids repeating the manufacturing footprint (roughly 70 to 80 kg CO2 for a smartphone) for as long as the device functions.",
   },
   {
     sectionId: "digital",
     questionId: "device_repair",
     score: 4,
     icon: "mdi-tools",
-    text: "Usually repairing minor issues and replacing only if unrepairable is a responsible pattern. The gap is the definition of unrepairable — get a second opinion from a local technician before concluding a device cannot be fixed.",
+    text: "Usually repairing minor issues and replacing only if unrepairable is a responsible pattern. The gap is the definition of unrepairable: get a second opinion from a local technician before concluding a device can't be fixed.",
   },
   {
     sectionId: "digital",
     questionId: "device_repair",
     score: 3,
     icon: "mdi-tools",
-    text: "Trying repair once and replacing if it is not a quick fix means many repairable devices are discarded. Explore repair cafes or local technicians — many repairs that appear complex are straightforward and cheap.",
+    text: "Trying repair once and replacing if it's not a quick fix means many repairable devices are discarded. Check repair cafes or local technicians: many repairs that appear complex are straightforward and cheap.",
   },
   {
     sectionId: "digital",
     questionId: "device_repair",
     score: 2,
     icon: "mdi-tools",
-    text: "Replacing because repair seems too complicated or expensive is a decision often made without getting a quote. Consult a local repair technician before your next replacement — battery repairs in particular are usually fast and inexpensive.",
+    text: "Replacing because repair seems too complicated or expensive is a decision often made without getting a quote. Consult a local repair technician before your next replacement: battery repairs in particular are usually fast and inexpensive.",
   },
   {
     sectionId: "digital",
@@ -1407,40 +1405,17 @@ export function getInsightsForAssessment(
 
   if (all.length === 0) return [];
 
-  // Sort ascending: worst first, best last
   const sorted = [...all].sort((a, b) => a.score - b.score);
 
   const key = (q: { sectionId: string; questionId: string }) => `${q.sectionId}::${q.questionId}`;
 
-  // Look up whether a question has a coverable habit.
-  // noHabit questions (e.g. commute_distance) still render in Reflections but
-  // must never occupy an actionable slot — they would silently prevent a real
-  // habit recommendation from surfacing.
   const isNoHabit = (sectionId: string, questionId: string): boolean =>
     QUESTION_INSIGHTS.some(
       (i) => i.sectionId === sectionId && i.questionId === questionId && i.noHabit === true,
     );
 
-  // The affirmation slot always goes to the single best-scoring question.
-  // Even when all scores are bad, the least-bad question gets the affirmation
-  // treatment — something is always better than everything else.
   const affirmation = sorted[sorted.length - 1]!;
 
-  // Fill actionable candidates from worst-first.
-  // Exclude the affirmation pick AND any noHabit questions.
-  //
-  // We collect up to 9 questions rather than 4, because merged habits mean
-  // multiple questions can map to the same habit. In the worst case all 3 of
-  // the highest-weight transport questions (commute_mode, commute_frequency,
-  // discretionary_mode) resolve to shared_or_active_travel — consuming 3
-  // question slots while producing only 1 distinct habit. A cap of 4 would
-  // then leave only 1 actionable question slot for the remaining sections,
-  // making it impossible to surface 3 distinct recommendations. 9 = 3 habits
-  // × 3 worst-case questions-per-habit, which guarantees we can always find
-  // 3 distinct coverable habits even under maximum merging.
-  //
-  // The Reflections panel shows only the first 4 of these (worst → best order)
-  // so the display stays focused regardless of the larger candidate pool.
   const actionableCandidates: typeof sorted = [];
   for (const q of sorted) {
     if (actionableCandidates.length >= 9) break;
@@ -1448,17 +1423,10 @@ export function getInsightsForAssessment(
       actionableCandidates.push(q);
   }
 
-  // noHabit questions that scored low enough to appear still deserve a
-  // Reflections entry — append them after the actionable picks so they render
-  // but never displace a habit-producing slot.
   const noHabitPicks = sorted.filter(
     (q) => key(q) !== key(affirmation) && isNoHabit(q.sectionId, q.questionId),
   );
 
-  // Sandwich: all actionable candidates (worst → best) → noHabit contextual → affirmation last.
-  // The component slices the first 4 actionable entries for the Reflections panel;
-  // the full candidate list is needed here so the recommendation loop can always
-  // find 3 distinct coverable habits even when the top questions share a habit.
   const picks = [...actionableCandidates, ...noHabitPicks, affirmation];
 
   return picks.flatMap(({ sectionId, questionId, score }, index) => {
@@ -1466,8 +1434,6 @@ export function getInsightsForAssessment(
       (i) => i.sectionId === sectionId && i.questionId === questionId && i.score === score,
     );
     if (!insight) return [];
-    // isAffirmation: true for score ≥ 4, for noHabit entries (contextual, not actionable),
-    // and for the final affirmation slot.
     const isAff = score >= 4 || insight.noHabit === true || index === picks.length - 1;
     return [{ ...insight, isAffirmation: isAff }];
   });

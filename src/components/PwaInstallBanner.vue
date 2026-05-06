@@ -39,7 +39,7 @@
       </v-card-item>
     </template>
 
-    <v-card-text class="pt-0" v-if="isIos && !hasInstallPrompt">
+    <v-card-text v-if="isIos && !hasInstallPrompt" class="pt-0">
       <!-- iOS steps -->
       <v-list density="compact" bg-color="transparent" class="pa-0 mt-2">
         <v-list-item class="px-0" min-height="28">

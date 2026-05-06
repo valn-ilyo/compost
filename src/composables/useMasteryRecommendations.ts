@@ -80,5 +80,13 @@ export function useMasteryRecommendations() {
     );
   });
 
-  return { isAssessmentComplete, recommendedIds };
+  // Recommended habits the user has paused — still the right habits for them,
+  // just not currently being worked on. Used to distinguish "paused" from
+  // "genuinely no recommendations" in the UI.
+  const pausedRecommendedIds = computed(() => {
+    if (!isAssessmentComplete.value) return [];
+    return assessmentStore.recommendedHabitIds.filter((id) => store.pausedTemplateIds.has(id));
+  });
+
+  return { isAssessmentComplete, recommendedIds, pausedRecommendedIds };
 }

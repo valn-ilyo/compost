@@ -7,20 +7,27 @@ import type { HabitTemplate, HabitPanelItem } from "@/types/app.types";
 
 const props = defineProps<{
   templates: HabitTemplate[];
+  hasPausedRecs?: boolean;
 }>();
 
 const router = useRouter();
 const masteryStore = useMasteryStore();
 
-const hasSlot = computed(
-  () => masteryStore.activeHabits.length < MAX_SLOTS && props.templates.length > 0,
-);
-const isEmpty = computed(
-  () => props.templates.length === 0 && masteryStore.activeHabits.length < MAX_SLOTS,
-);
+const hasSlot = computed(() => masteryStore.usedSlots < MAX_SLOTS && props.templates.length > 0);
+const isEmpty = computed(() => props.templates.length === 0 && masteryStore.usedSlots < MAX_SLOTS);
 
 const items = computed((): HabitPanelItem[] => {
   if (isEmpty.value) {
+    if (props.hasPausedRecs) {
+      return [
+        {
+          key: "paused",
+          icon: "mdi-play",
+          iconColor: "warning",
+          name: "Your recommended habits are paused. Resume them in Habits whenever you're ready.",
+        },
+      ];
+    }
     return [
       {
         key: "empty",
@@ -52,7 +59,7 @@ const items = computed((): HabitPanelItem[] => {
 });
 
 const btnLabel = computed(() => {
-  if (isEmpty.value) return "Explore";
+  if (isEmpty.value) return props.hasPausedRecs ? "Go to Habits" : "Explore";
   return hasSlot.value ? "Start a habit" : "Swap one out";
 });
 

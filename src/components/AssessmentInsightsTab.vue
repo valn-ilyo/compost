@@ -22,10 +22,12 @@ import { useMasteryStore } from "@/stores/mastery";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();
-const { recommendedIds } = useMasteryRecommendations();
+const { recommendedIds, pausedRecommendedIds } = useMasteryRecommendations();
 
 const habitsLabel = computed(() => {
-  if (masteryStore.activeHabits.length >= MAX_SLOTS) return "What you're working on";
+  if (masteryStore.usedSlots >= MAX_SLOTS) return "What you're working on";
+  if (linkedHabits.value.length === 0 && pausedRecommendedIds.value.length > 0)
+    return "Recommendations paused";
   if (linkedHabits.value.length === 0) return "No recommendations";
   return "Recommendations";
 });
@@ -230,7 +232,10 @@ const chips = computed(() => {
             </div>
             <v-expand-transition>
               <div v-show="habitsOpen" class="overflow-hidden">
-                <InsightsHabitPanel :templates="linkedHabits" />
+                <InsightsHabitPanel
+                  :templates="linkedHabits"
+                  :has-paused-recs="pausedRecommendedIds.length > 0"
+                />
               </div>
             </v-expand-transition>
           </template>

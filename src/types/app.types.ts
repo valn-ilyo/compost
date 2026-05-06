@@ -95,8 +95,6 @@ export interface SDG {
   /** e.g. 6 */
   number: number;
   name: string;
-  /** One-liner shown when the chip is tapped
-  description: string;
   /** Section ids that contribute to this goal */
   sectionIds: string[];
 }

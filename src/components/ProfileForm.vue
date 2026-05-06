@@ -6,6 +6,7 @@ import { useNotifier } from "@/composables/useNotifier";
 
 const props = defineProps<{
   editMode?: boolean;
+  disabled?: boolean;
 }>();
 
 defineEmits<{ cancel: [] }>();
@@ -84,6 +85,7 @@ function onDateSelect(val: Date | null) {
       ref="nameField"
       v-model="formData.name"
       :rules="[rules.required]"
+      :disabled="disabled || loading"
       label="Full Name"
       prepend-inner-icon="mdi-account-outline"
       variant="outlined"
@@ -96,6 +98,7 @@ function onDateSelect(val: Date | null) {
       ref="rollField"
       v-model="formData.rollNo"
       :rules="[rules.required, rules.rollNo]"
+      :disabled="disabled || loading"
       label="Roll No"
       prepend-inner-icon="mdi-identifier"
       variant="outlined"
@@ -114,6 +117,7 @@ function onDateSelect(val: Date | null) {
       v-model:menu="genderMenu"
       :items="genderOptions"
       :rules="[rules.required]"
+      :disabled="disabled || loading"
       label="Gender"
       prepend-inner-icon="mdi-gender-male-female"
       variant="outlined"
@@ -131,6 +135,7 @@ function onDateSelect(val: Date | null) {
           v-bind="activatorProps"
           :model-value="formData.dob"
           :rules="[rules.required]"
+          :disabled="disabled || loading"
           label="Date of Birth"
           prepend-inner-icon="mdi-calendar-outline"
           variant="outlined"
@@ -157,6 +162,7 @@ function onDateSelect(val: Date | null) {
       >
       <v-btn
         :loading="loading"
+        :disabled="disabled || loading"
         type="submit"
         color="primary"
         variant="flat"
@@ -170,6 +176,7 @@ function onDateSelect(val: Date | null) {
     <v-card-actions v-else class="px-0 pt-2 justify-end">
       <v-btn
         :loading="loading"
+        :disabled="disabled || loading"
         type="submit"
         color="primary"
         variant="flat"

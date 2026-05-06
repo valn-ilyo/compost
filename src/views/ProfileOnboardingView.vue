@@ -33,7 +33,6 @@ const handleLogout = async () => {
       class="w-100 w-sm-75 w-md-50 w-lg-33"
       color="background"
       elevation="0"
-      style="opacity: 0"
     >
       <v-card-item class="pa-6 pb-0">
         <v-card-title
@@ -45,7 +44,6 @@ const handleLogout = async () => {
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
           }"
           class="font-weight-bold text-onSecondaryContainer"
-          style="opacity: 0"
           >Welcome</v-card-title
         >
         <v-card-subtitle
@@ -53,12 +51,10 @@ const handleLogout = async () => {
           :initial="{ opacity: 0 }"
           :enter="{ opacity: 1, transition: { duration: 200, delay: 140 } }"
           class="text-onSecondaryContainer opacity-70 my-1"
-          style="opacity: 0"
         >
           A few quick things before you start.
         </v-card-subtitle>
       </v-card-item>
-
       <v-card-text
         v-motion
         :initial="{ opacity: 0, y: 12 }"
@@ -68,9 +64,8 @@ const handleLogout = async () => {
           transition: { type: 'spring', stiffness: 260, damping: 22, delay: 180 },
         }"
         class="pa-6 pt-2"
-        style="opacity: 0"
       >
-        <ProfileForm />
+        <ProfileForm :disabled="loggingOut" />
         <v-btn
           :loading="loggingOut"
           variant="text"

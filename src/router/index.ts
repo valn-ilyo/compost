@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import { supabase } from "@/lib/supabaseClient.ts";
 import { useProfileStore } from "@/stores/profile";
+import { useSyncStore } from "@/stores/sync";
 
 declare module "vue-router" {
   interface RouteMeta {
@@ -43,12 +44,6 @@ const router = createRouter({
           name: "profile",
           component: () => import("@/views/ProfileView.vue"),
         },
-        {
-          meta: { requiresAuth: true },
-          path: "/settings",
-          name: "settings",
-          component: () => import("@/views/SettingsView.vue"),
-        },
       ],
     },
     {
@@ -90,36 +85,51 @@ router.beforeEach(async (to, _from) => {
     data: { session },
   } = await supabase.auth.getSession();
   const isLoggedIn = !!session;
+  const syncStore = useSyncStore();
 
-  if (to.path.startsWith("/auth") && isLoggedIn) {
-    const fallback = (to.query.next as string) || "/";
-    return { path: fallback };
-  }
+  // ── Unauthenticated ────────────────────────────────────────────────────────
 
   if (to.meta.requiresAuth && !isLoggedIn) {
     return { name: "auth", query: { next: to.fullPath } };
   }
 
-  if (to.meta.requiresAuth && isLoggedIn) {
-    const profileStore = useProfileStore();
-    const userId = session.user.id;
+  // ── Authenticated but not yet hydrated ────────────────────────────────────
 
-    if (profileStore.profile !== null && profileStore.profile.user_id !== userId) {
+  if (to.meta.requiresAuth && isLoggedIn && !syncStore.isHydrated) {
+    return { name: "auth", query: { next: to.fullPath } };
+  }
+
+  // ── Already hydrated, trying to visit /auth ────────────────────────────────
+
+  if (to.path.startsWith("/auth") && isLoggedIn && syncStore.isHydrated) {
+    const fallback = (to.query.next as string) || "/";
+    return { path: fallback };
+  }
+
+  // ── Authenticated and hydrated — profile completeness checks ──────────────
+
+  if (to.meta.requiresAuth && isLoggedIn && syncStore.isHydrated) {
+    const profileStore = useProfileStore();
+
+    // Account switch guard: persisted store belongs to a different user.
+    if (profileStore.profile !== null && profileStore.profile.user_id !== session.user.id) {
       profileStore.reset();
+      syncStore.isHydrated = false;
+      return { name: "auth", query: { next: to.fullPath } };
     }
 
-    if (profileStore.profile === null && !profileStore.loading) {
-      await profileStore.fetchProfile(userId);
+    // Email missing from a previous session — re-hydrate to recover it.
+    if (profileStore.userEmail === null) {
+      syncStore.isHydrated = false;
+      return { name: "auth", query: { next: to.fullPath } };
     }
 
     const profileRoutes = ["profile-onboarding", "profile-edit"];
 
-    // Incomplete profile → redirect to onboarding (unless already on a profile route)
     if (!profileStore.isComplete && !profileRoutes.includes(to.name as string)) {
       return { name: "profile-onboarding", query: { next: to.fullPath } };
     }
 
-    // Complete profile → prevent access to onboarding
     if (profileStore.isComplete && to.name === "profile-onboarding") {
       return { path: "/" };
     }

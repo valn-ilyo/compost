@@ -1,10 +1,23 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useLogout } from "@/composables/useLogout";
+import { useSyncStore } from "@/stores/sync";
 import AppBarProfile from "@/components/AppBarProfile.vue";
 
 const { logout, loggingOut } = useLogout();
 const store = useProfileStore();
+const syncStore = useSyncStore();
+
+const showLogoutWarning = ref(false);
+
+function handleLogoutClick() {
+  if (syncStore.queue.length > 0) {
+    showLogoutWarning.value = true;
+  } else {
+    logout();
+  }
+}
 </script>
 
 <template>
@@ -92,7 +105,7 @@ const store = useProfileStore();
             class="rounded-b-xl"
             size="large"
             :disabled="loggingOut"
-            @click="logout()"
+            @click="handleLogoutClick"
           >
             <v-list-item-title :class="{ 'text-flashing': loggingOut }">
               {{ loggingOut ? "Logging out…" : "Logout" }}
@@ -102,6 +115,34 @@ const store = useProfileStore();
       </v-col>
     </v-row>
   </v-container>
+
+  <!-- Unsynced changes warning dialog -->
+  <v-dialog v-model="showLogoutWarning" max-width="360">
+    <v-card rounded="xl">
+      <v-card-title class="text-body-1 font-weight-bold pt-5 px-5"> Unsynced changes </v-card-title>
+      <v-card-text class="px-5 text-body-2 text-medium-emphasis">
+        You're offline or your data hasn't finished saving. Log out now and these changes won't be
+        backed up to your account.
+      </v-card-text>
+      <v-card-actions class="px-5 pb-5 gap-2">
+        <v-btn
+          color="error"
+          variant="tonal"
+          :loading="loggingOut"
+          @click="
+            () => {
+              showLogoutWarning = false;
+              logout();
+            }
+          "
+        >
+          Log out anyway
+        </v-btn>
+        <v-spacer />
+        <v-btn variant="text" @click="showLogoutWarning = false">Keep syncing</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>

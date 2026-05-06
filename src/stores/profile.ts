@@ -1,18 +1,15 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { supabase } from "@/lib/supabaseClient";
+import { useSyncStore } from "@/stores/sync";
 import type { ProfileRow, ProfileUpdate } from "@/types/database.types";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 
 export const useProfileStore = defineStore(
   "profile",
   () => {
-    // 1. Database Table Data
     const profile = ref<ProfileRow | null>(null);
-
-    // 2. Auth System Data (Separate to keep types clean)
     const userEmail = ref<string | null>(null);
-
     const loading = ref(false);
 
     const isComplete = computed(() => {
@@ -22,59 +19,53 @@ export const useProfileStore = defineStore(
       return nameFilled && rollFilled;
     });
 
-    async function fetchProfile(userId: string) {
-      // If we already have both, don't fetch again
+    async function fetchProfile(userId: string, email?: string) {
+      console.log("[fetchProfile] called with email:", email);
+      console.log(
+        "[fetchProfile] early return check — profile:",
+        profile.value,
+        "userEmail:",
+        userEmail.value,
+      );
+
       if (profile.value !== null && userEmail.value !== null) return;
+
+      console.log("[fetchProfile] proceeding, setting email...");
+      if (email) userEmail.value = email;
+      console.log("[fetchProfile] userEmail after set:", userEmail.value);
 
       loading.value = true;
 
       try {
-        // Fetch Auth User and Profile Table in parallel for better performance
-        const [authRes, profileRes] = await Promise.all([
-          supabase.auth.getUser(),
-          supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle<ProfileRow>(),
-        ]);
+        const profileRes = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle<ProfileRow>();
 
-        // Set Email from Auth (Lives in supabase.auth.users)
-        if (authRes.data.user) {
-          userEmail.value = authRes.data.user.email ?? null;
-        }
-
-        // Set Profile Data (Lives in public.profiles)
-        if (profileRes.data) {
-          profile.value = profileRes.data;
-        }
-
-        if (profileRes.error) {
-          // TODO: surface a proper error state to the user (retry button / snackbar)
-          // Currently leaves the UI in a silent failed state with no feedback.
-          console.error("Failed to fetch profile:", profileRes.error);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching profile details:", error);
+        if (profileRes.error) throw profileRes.error;
+        if (profileRes.data) profile.value = profileRes.data;
       } finally {
         loading.value = false;
       }
     }
 
     async function updateProfile(updates: ProfileUpdate) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user authenticated");
+      let userId = profile.value?.user_id;
 
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({ user_id: user.id, ...updates }, { onConflict: "user_id" });
+      if (!userId) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error("No user authenticated");
+        userId = user.id;
+      }
 
-      if (error) throw error;
-
-      // Update local cache
       if (profile.value) {
         profile.value = { ...profile.value, ...updates };
       } else {
         profile.value = {
-          user_id: user.id,
+          user_id: userId,
           name: null,
           roll_no: null,
           gender: null,
@@ -86,6 +77,14 @@ export const useProfileStore = defineStore(
           updated_at: new Date().toISOString(),
         };
       }
+
+      useSyncStore().enqueue({
+        id: `profiles:${userId}`,
+        table: "profiles",
+        operation: "upsert",
+        payload: { user_id: userId, ...updates },
+        enqueuedAt: Date.now(),
+      });
     }
 
     function reset() {

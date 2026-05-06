@@ -11,10 +11,14 @@
  */
 
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
+import { useSyncStore } from "@/stores/sync";
 import { clock } from "@/stores/clock";
 
 const store = useMasteryStore();
+const syncStore = useSyncStore();
+const router = useRouter();
 
 const DEV_OFFSET_KEY = "__dev_day_offset";
 
@@ -52,10 +56,17 @@ function clearStore(): void {
   store.slots = [];
   store.freezeCount = 0;
   store.masteredArchive = [];
+  syncStore.clearQueue();
   dayOffset.value = 0;
   daysSimulated.value = 0;
   localStorage.removeItem(DEV_OFFSET_KEY);
   clock.now = () => new Date();
+}
+
+// ─── AuthView preview ─────────────────────────────────────────────────────────
+
+function previewAuthState(state: "loading" | "error"): void {
+  router.push({ name: "auth", query: { preview: state } });
 }
 </script>
 
@@ -70,6 +81,31 @@ function clearStore(): void {
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="6">
+        <!-- ── AuthView preview ───────────────────────────────────────────────── -->
+        <v-card rounded="lg" class="mb-4">
+          <v-card-title class="text-body-1 pt-4">AuthView states</v-card-title>
+          <v-card-text class="d-flex flex-column gap-2">
+            <v-btn
+              block
+              variant="tonal"
+              color="secondary"
+              prepend-icon="mdi-loading"
+              @click="previewAuthState('loading')"
+            >
+              Preview loading state
+            </v-btn>
+            <v-btn
+              block
+              variant="tonal"
+              color="error"
+              prepend-icon="mdi-alert-circle-outline"
+              @click="previewAuthState('error')"
+            >
+              Preview error state
+            </v-btn>
+          </v-card-text>
+        </v-card>
+
         <!-- ── Simulate new day ──────────────────────────────────────────────── -->
         <v-card rounded="lg" class="mb-4">
           <v-card-title class="text-body-1 pt-4">Time</v-card-title>
@@ -94,7 +130,7 @@ function clearStore(): void {
         <v-card rounded="lg" class="mb-4">
           <v-card-title class="text-body-1 pt-4">Freeze tokens</v-card-title>
           <v-card-text>
-            <v-row align="center" dense>
+            <v-row align="center" density="compact">
               <v-col>
                 <span class="text-body-2">
                   {{ store.freezeCount }} / {{ store.freezeCap }} available

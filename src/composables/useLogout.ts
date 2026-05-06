@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useProfileStore } from "@/stores/profile";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
+import { useSyncStore } from "@/stores/sync";
 
 export function useLogout() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export function useLogout() {
   const logout = async (redirectTo: string = "/auth") => {
     loggingOut.value = true;
     await supabase.auth.signOut();
+    useSyncStore().clearQueue();
     useProfileStore().reset();
     useAssessmentStore().clearAll();
     useMasteryStore().$patch({

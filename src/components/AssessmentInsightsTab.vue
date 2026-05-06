@@ -131,7 +131,7 @@ const chips = computed(() => {
         />
 
         <template v-else>
-          <v-row dense>
+          <v-row density="compact">
             <v-col
               v-for="item in [
                 { color: 'success', label: 'Good' },

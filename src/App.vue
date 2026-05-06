@@ -43,8 +43,10 @@ import AppSnackbar from "./components/AppSnackbar.vue";
 import { useMasteryStore } from "@/stores/mastery";
 import { useThemeStore } from "@/stores/theme";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
+import { useSyncStore } from "@/stores/sync";
 
 const masteryStore = useMasteryStore();
+const syncStore = useSyncStore();
 // Initialising here (not just in AppBarProfile) ensures the persisted theme
 // is applied on every page load, not only when the Profile tab is visited.
 useThemeStore();
@@ -57,6 +59,7 @@ useMasteryRecommendations();
 // persisted state has no mechanism to run logic between sessions.
 onMounted(() => {
   masteryStore.reconcileStreaks();
+  syncStore.init();
 });
 </script>
 

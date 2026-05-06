@@ -4,6 +4,9 @@ import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app.
 export type { SectionAnswers }; // re-export so existing imports from this module keep working
 
 import { SECTIONS } from "@/data/index";
+import { useSyncStore } from "@/stores/sync";
+import { useProfileStore } from "@/stores/profile";
+import { supabase } from "@/lib/supabaseClient";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -23,13 +26,11 @@ export const useAssessmentStore = defineStore("assessment", {
   }),
 
   getters: {
-    // Is a given section completed?
     isCompleted:
       (state) =>
       (sectionId: string): boolean =>
         sectionId in state.answers && state.answers[sectionId] !== undefined,
 
-    // Raw score for a section (sum of selected option points)
     rawScore:
       (state) =>
       (sectionId: string): number => {
@@ -38,7 +39,6 @@ export const useAssessmentStore = defineStore("assessment", {
         return Object.values(sectionAnswers).reduce((sum, v) => sum + v, 0);
       },
 
-    // Scaled score for a section: (raw / maxRaw) × scaledMax  →  rounded
     scaledScore() {
       return (sectionId: string): number => {
         const meta = SECTIONS.find((s) => s.id === sectionId);
@@ -48,10 +48,6 @@ export const useAssessmentStore = defineStore("assessment", {
       };
     },
 
-    // Overall score — only counts sections that have been answered.
-    // achieved / outOf reflect raw weighted points.
-    // normalized     → score out of 100 (fixed 325 denominator, never inflated)
-    // normalizedOutOf → grows as sections are completed; reaches 100 when all done
     overallScore(): {
       achieved: number;
       outOf: number;
@@ -71,12 +67,11 @@ export const useAssessmentStore = defineStore("assessment", {
       return {
         achieved,
         outOf,
-        normalized: Math.round((achieved / TOTAL_SCALED_MAX) * 100), // e.g. 74
-        normalizedOutOf: Math.round((outOf / TOTAL_SCALED_MAX) * 100), // e.g. 45 → 100
+        normalized: Math.round((achieved / TOTAL_SCALED_MAX) * 100),
+        normalizedOutOf: Math.round((outOf / TOTAL_SCALED_MAX) * 100),
       };
     },
 
-    // Convenience: all answered sections with their computed scores
     sectionResults(): Array<{
       meta: SectionMeta;
       raw: number;
@@ -94,6 +89,23 @@ export const useAssessmentStore = defineStore("assessment", {
     submitSection(sectionId: string, answers: SectionAnswers) {
       this.answers[sectionId] = { ...answers };
       this.completedAt[sectionId] = Date.now();
+
+      const userId = useProfileStore().profile?.user_id;
+      if (!userId) return;
+
+      useSyncStore().enqueue({
+        id: `assessment_answers:${userId}:${sectionId}`,
+        table: "assessment_answers",
+        operation: "upsert",
+        payload: {
+          user_id: userId,
+          section_id: sectionId,
+          answers: { ...answers },
+          score: this.scaledScore(sectionId),
+          completed_at: new Date(this.completedAt[sectionId]!).toISOString(),
+        },
+        enqueuedAt: Date.now(),
+      });
     },
 
     clearSection(sectionId: string) {
@@ -104,15 +116,34 @@ export const useAssessmentStore = defineStore("assessment", {
       this.answers = {};
       this.completedAt = {};
       this.recommendedHabitIds = [];
+      useSyncStore().dequeueByTable("assessment_answers");
+    },
+
+    setRecommendedHabits(ids: string[]) {
+      this.recommendedHabitIds = ids;
     },
 
     /**
-     * Stores the recommendation set. Called when the assessment is completed
-     * or when a mastered habit is retired — always overwrites so that
-     * reassessment or retirement can surface fresh candidates.
+     * Pull assessment answers from Supabase into local state.
+     * Local wins: if a section already has a local answer (queue may have a
+     * newer in-flight write), the remote row is skipped for that section.
+     * Throws on network or Supabase errors so the hydration caller can surface
+     * the error state.
      */
-    setRecommendedHabits(ids: string[]) {
-      this.recommendedHabitIds = ids;
+    async hydrateFromSupabase(userId: string) {
+      const { data, error } = await supabase
+        .from("assessment_answers")
+        .select("*")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      if (!data || data.length === 0) return;
+
+      for (const row of data) {
+        if (this.answers[row.section_id] !== undefined) continue;
+        this.answers[row.section_id] = row.answers as SectionAnswers;
+        this.completedAt[row.section_id] = new Date(row.completed_at).getTime();
+      }
     },
   },
 

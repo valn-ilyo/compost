@@ -338,3 +338,17 @@ export interface HabitPanelItem {
 
 /** String alias for a question id (e.g. 'q1', 'commute_mode'). */
 export type QuestionId = string;
+
+// ─── Sync ─────────────────────────────────────────────────────────────────────
+
+export interface SyncQueueItem {
+  /** Dedup key: 'table:pk1:pk2' */
+  id: string;
+  table: string;
+  operation: "upsert" | "delete";
+  payload: Record<string, unknown>;
+  /** Unix ms timestamp of when the item was enqueued. */
+  enqueuedAt: number;
+}
+
+export type SyncStatus = "offline" | "syncing" | "synced";

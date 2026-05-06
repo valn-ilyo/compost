@@ -1,10 +1,5 @@
 import { ref } from 'vue'
-
-interface NotificationOptions {
-  message: string
-  color?: 'success' | 'error' | 'info' | 'warning'
-  timeout?: number
-}
+import type { NotificationOptions } from '@/types/app.types'
 
 const isActive = ref(false)
 const message = ref('')

@@ -140,9 +140,15 @@ const chips = computed(() => {
                 { color: 'error', label: 'Poor' },
               ]"
               :key="item.label"
-              class="d-flex justify-center"
+              class="d-flex justify-center mt-1"
             >
-              <v-chip variant="text" label density="compact" class="text-mono">
+              <v-chip
+                variant="text"
+                label
+                density="compact"
+                :size="$vuetify.display.smAndDown ? 'small' : 'default'"
+                class="text-mono"
+              >
                 <template #prepend>
                   <v-icon icon="mdi-square" :color="item.color" class="me-1" />
                 </template>
@@ -244,9 +250,18 @@ const chips = computed(() => {
                   y: 0,
                   transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
                 }"
-                class="text-overline text-medium-emphasis mb-0"
+                class="text-overline text-medium-emphasis mb-0 d-flex align-center ga-2"
               >
-                SDG Connections
+                Connections :
+
+                <a
+                  href="https://sdgs.un.org/goals"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-info text-decoration-underline"
+                  @click.stop
+                  >sdgs.un.org</a
+                >
               </p>
               <v-icon
                 :icon="sdgOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"

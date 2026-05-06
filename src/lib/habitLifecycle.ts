@@ -1,4 +1,4 @@
-import type { HabitTemplate, UserHabit } from "@/types/app.types";
+import type { HabitTemplate, UserHabit, LogResult } from "@/types/app.types";
 import { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE } from "@/types/app.types";
 
 export { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE }
@@ -126,13 +126,6 @@ export function swapHabitInSlots(
 }
 
 // ─── Log ─────────────────────────────────────────────────────────────────────
-
-export interface LogResult {
-  /** True when a regular milestone freeze was earned (not the mastery reward). */
-  freezeEarned: boolean;
-  /** True when the habit just hit MASTERY_MILESTONE days and should receive the mastery reward. */
-  mastered: boolean;
-}
 
 /**
  * Applies a daily log to a habit.

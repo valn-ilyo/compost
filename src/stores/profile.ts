@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { supabase } from "@/lib/supabaseClient";
-import type { Profile } from "@/types/database.types";
+import type { ProfileRow, ProfileUpdate } from "@/types/database.types";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 
 export const useProfileStore = defineStore(
   "profile",
   () => {
     // 1. Database Table Data
-    const profile = ref<Profile | null>(null);
+    const profile = ref<ProfileRow | null>(null);
 
     // 2. Auth System Data (Separate to keep types clean)
     const userEmail = ref<string | null>(null);
@@ -32,7 +32,7 @@ export const useProfileStore = defineStore(
         // Fetch Auth User and Profile Table in parallel for better performance
         const [authRes, profileRes] = await Promise.all([
           supabase.auth.getUser(),
-          supabase.from("profiles").select("*").eq("id", userId).maybeSingle<Profile>(),
+          supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle<ProfileRow>(),
         ]);
 
         // Set Email from Auth (Lives in supabase.auth.users)
@@ -57,30 +57,31 @@ export const useProfileStore = defineStore(
       }
     }
 
-    async function updateProfile(updates: {
-      name: string;
-      roll_no: string;
-      gender?: string;
-      dob?: string;
-    }) {
+    async function updateProfile(updates: ProfileUpdate) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error("No user authenticated");
 
-      const { error } = await supabase.from("profiles").update(updates).eq("id", user.id);
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ user_id: user.id, ...updates }, { onConflict: "user_id" });
 
       if (error) throw error;
 
-      // Update local cache for the profile table data
+      // Update local cache
       if (profile.value) {
         profile.value = { ...profile.value, ...updates };
       } else {
         profile.value = {
-          id: user.id,
+          user_id: user.id,
+          name: null,
+          roll_no: null,
+          gender: null,
+          dob: null,
+          theme: null,
+          is_admin: false,
           ...updates,
-          gender: updates.gender ?? null,
-          dob: updates.dob ?? null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -95,7 +96,7 @@ export const useProfileStore = defineStore(
 
     return {
       profile,
-      userEmail, // Exposed for the "Not you?" button
+      userEmail,
       isComplete,
       loading,
       fetchProfile,
@@ -107,7 +108,6 @@ export const useProfileStore = defineStore(
     persist: {
       key: "profile-store",
       storage: localStorage,
-      // Persist both the profile data and the email
       paths: ["profile", "userEmail"],
     } as PersistenceOptions,
   },

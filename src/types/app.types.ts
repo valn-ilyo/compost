@@ -256,3 +256,85 @@ export type MasteredArchiveEntry = {
   name: string;
   icon: string;
 };
+
+// ─── Assessment store ─────────────────────────────────────────────────────────
+
+/** questionId → raw points (1–5) for a single section. */
+export type SectionAnswers = Record<string, number>;
+
+/** Internal state shape of the assessment store. */
+export interface AssessmentState {
+  answers: Partial<Record<string, SectionAnswers>>;
+  completedAt: Partial<Record<string, number>>; // unix ms timestamp
+  activeTab: string;
+  /**
+   * The fixed set of up to 3 habit template IDs recommended after the first
+   * completed assessment. Computed once and persisted so that acting on a
+   * recommendation (add / pause) never causes a replacement to appear.
+   * Reset to [] by clearAll() if the user retakes the assessment from scratch.
+   */
+  recommendedHabitIds: string[];
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export interface NotificationOptions {
+  message: string;
+  color?: "success" | "error" | "info" | "warning";
+  timeout?: number;
+}
+
+// ─── PWA ──────────────────────────────────────────────────────────────────────
+
+export interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+export interface NavigatorWithStandalone extends Navigator {
+  standalone?: boolean;
+}
+
+// ─── Sorted question ──────────────────────────────────────────────────────────
+
+/** A question paired with its score — the unit used by the insights pipeline. */
+export interface SortedQuestion {
+  sectionId: string;
+  questionId: string;
+  score: 1 | 2 | 3 | 4 | 5;
+}
+
+// ─── Streak reconciler ────────────────────────────────────────────────────────
+
+export interface ReconcileResult {
+  /**
+   * Final event list to assign to lastReconcileEvents.
+   * Either the new events from this run, or the pruned carry-over from a clean run.
+   */
+  events: ReconcileEvent[];
+  /** Updated freeze token balance after this reconcile pass. */
+  newFreezeCount: number;
+}
+
+// ─── Habit lifecycle ──────────────────────────────────────────────────────────
+
+export interface LogResult {
+  /** True when a regular milestone freeze was earned (not the mastery reward). */
+  freezeEarned: boolean;
+  /** True when the habit just hit MASTERY_MILESTONE days and should receive the mastery reward. */
+  mastered: boolean;
+}
+
+// ─── Component view models ────────────────────────────────────────────────────
+
+/** A single list row in InsightsHabitPanel — either a recommended template or an active habit. */
+export interface HabitPanelItem {
+  key: string;
+  icon: string;
+  iconColor: string;
+  name: string;
+  chip?: { color: string; icon: string; label: string };
+}
+
+/** String alias for a question id (e.g. 'q1', 'commute_mode'). */
+export type QuestionId = string;

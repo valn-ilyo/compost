@@ -104,7 +104,7 @@ router.beforeEach(async (to, _from) => {
     const profileStore = useProfileStore();
     const userId = session.user.id;
 
-    if (profileStore.profile !== null && profileStore.profile.id !== userId) {
+    if (profileStore.profile !== null && profileStore.profile.user_id !== userId) {
       profileStore.reset();
     }
 

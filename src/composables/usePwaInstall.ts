@@ -1,13 +1,5 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
-
-interface NavigatorWithStandalone extends Navigator {
-  standalone?: boolean;
-}
+import type { BeforeInstallPromptEvent, NavigatorWithStandalone } from "@/types/app.types";
 
 /**
  * Encapsulates all PWA install-prompt and standalone-mode detection logic.

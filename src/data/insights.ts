@@ -1,4 +1,4 @@
-import type { QuestionInsight, SectionMeta } from "../types/app.types";
+import type { QuestionInsight, SectionMeta, SortedQuestion } from "../types/app.types";
 
 export const QUESTION_INSIGHTS: QuestionInsight[] = [
   // ─── TRANSPORT ────────────────────────────────────────────────────────────────
@@ -649,7 +649,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "device_longevity",
     score: 5,
     icon: "mdi-cellphone-check",
-    text: "Using a device until it stops working, and repairing rather than replacing, spreads the manufacturing cost (roughly 70 to 80 kg CO2 for a smartphone) across the maximum possible years.",
+    text: "Using a device until it stops working, and repairing rather than replacing, spreads the manufacturing cost (roughly 70 to 80 kg CO₂ for a smartphone) across the maximum possible years.",
   },
   {
     sectionId: "consumption",
@@ -1358,7 +1358,7 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     questionId: "device_repair",
     score: 5,
     icon: "mdi-tools",
-    text: "Always choosing repair first extends device life and avoids repeating the manufacturing footprint (roughly 70 to 80 kg CO2 for a smartphone) for as long as the device functions.",
+    text: "Always choosing repair first extends device life and avoids repeating the manufacturing footprint (roughly 70 to 80 kg CO₂ for a smartphone) for as long as the device functions.",
   },
   {
     sectionId: "digital",
@@ -1389,14 +1389,6 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
     text: "Replacing immediately at every upgrade opportunity means devices are discarded with most of their life unused. Skip one upgrade cycle and get a repair quote on your current device first.",
   },
 ];
-
-// ─── Pipeline types ───────────────────────────────────────────────────────────
-
-export interface SortedQuestion {
-  sectionId: string;
-  questionId: string;
-  score: 1 | 2 | 3 | 4 | 5;
-}
 
 // ─── Step 2 — getSortedQuestions ─────────────────────────────────────────────
 

@@ -1,10 +1,7 @@
 import { defineStore } from "pinia";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type SectionAnswers = Record<string, number>; // questionId → points (1–5)
-
-import type { SectionMeta } from "../types/app.types";
+import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app.types";
+export type { SectionAnswers }; // re-export so existing imports from this module keep working
 
 import { SECTIONS } from "@/data/index";
 
@@ -16,19 +13,6 @@ import { SECTIONS } from "@/data/index";
 const TOTAL_SCALED_MAX = 325;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
-
-interface AssessmentState {
-  answers: Partial<Record<string, SectionAnswers>>;
-  completedAt: Partial<Record<string, number>>; // unix ms timestamp
-  activeTab: string;
-  /**
-   * The fixed set of up to 3 habit template IDs recommended after the first
-   * completed assessment. Computed once and persisted so that acting on a
-   * recommendation (add / pause) never causes a replacement to appear.
-   * Reset to [] by clearAll() if the user retakes the assessment from scratch.
-   */
-  recommendedHabitIds: string[];
-}
 
 export const useAssessmentStore = defineStore("assessment", {
   state: (): AssessmentState => ({

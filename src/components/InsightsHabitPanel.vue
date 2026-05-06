@@ -3,15 +3,7 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
 import { MAX_SLOTS } from "@/types/app.types";
-import type { HabitTemplate } from "@/types/app.types";
-
-interface Item {
-  key: string;
-  icon: string;
-  iconColor: string;
-  name: string;
-  chip?: { color: string; icon: string; label: string };
-}
+import type { HabitTemplate, HabitPanelItem } from "@/types/app.types";
 
 const props = defineProps<{
   templates: HabitTemplate[];
@@ -27,7 +19,7 @@ const isEmpty = computed(
   () => props.templates.length === 0 && masteryStore.activeHabits.length < MAX_SLOTS,
 );
 
-const items = computed((): Item[] => {
+const items = computed((): HabitPanelItem[] => {
   if (isEmpty.value) {
     return [
       {

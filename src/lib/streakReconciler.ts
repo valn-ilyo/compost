@@ -1,20 +1,8 @@
-import type { UserHabit, ReconcileEvent } from "@/types/app.types";
+import type { UserHabit, ReconcileEvent, ReconcileResult } from "@/types/app.types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 /** Maximum debt allowed when a tied group drains the freeze pool below zero. */
 const DEBT_FLOOR = -2;
-
-// ─── Result ───────────────────────────────────────────────────────────────────
-
-export interface ReconcileResult {
-  /**
-   * Final event list to assign to lastReconcileEvents.
-   * Either the new events from this run, or the pruned carry-over from a clean run.
-   */
-  events: ReconcileEvent[];
-  /** Updated freeze token balance after this reconcile pass. */
-  newFreezeCount: number;
-}
 
 // ─── Core ─────────────────────────────────────────────────────────────────────
 

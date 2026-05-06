@@ -2,7 +2,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useAssessmentStore, type SectionAnswers } from "@/stores/assessment";
+import { useAssessmentStore } from "@/stores/assessment";
+import type { SectionAnswers, QuestionId } from "@/types/app.types";
 import { questionRegistry } from "@/data/index";
 import { SECTIONS } from "../data/index";
 
@@ -17,8 +18,6 @@ const meta = SECTIONS.find((s) => s.id === sectionId);
 if (!meta || questions.length === 0) {
   router.replace("/assessment");
 }
-
-type QuestionId = string;
 
 const step = ref(1);
 const totalSteps = questions.length;

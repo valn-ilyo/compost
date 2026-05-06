@@ -32,15 +32,6 @@ function goToLog(): void {
 
 const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall();
 
-// DEV: override controls — these shadow the composable's reactive values
-const isDev = import.meta.env.DEV;
-const devShow = ref(true);
-const devIsIos = ref(false);
-
-const bannerShow = computed(() => (isDev ? devShow.value : showInstallBanner.value));
-const bannerHasPrompt = computed(() => (isDev ? !devIsIos.value : !!installPrompt.value));
-const bannerIsIos = computed(() => (isDev ? devIsIos.value : isIos.value));
-
 const cardWidth = ref<number>(0);
 
 function measureCard(el: Element | ComponentPublicInstance | null) {
@@ -140,40 +131,11 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
         </v-card>
 
         <PwaInstallBanner
-          :show="bannerShow"
-          :has-install-prompt="bannerHasPrompt"
-          :is-ios="bannerIsIos"
+          :show="showInstallBanner"
+          :has-install-prompt="!!installPrompt"
+          :is-ios="isIos"
           @install="triggerInstall"
-          @dismiss="showInstallBanner = false"
         />
-
-        <!-- DEV ONLY: banner control panel -->
-        <v-card v-if="isDev" variant="outlined" rounded density="compact">
-          <v-card-item>
-            <template #prepend>
-              <v-icon icon="mdi-bug" color="warning" size="small" />
-            </template>
-            <v-card-title class="text-label-small text-uppercase text-warning">
-              Banner dev controls
-            </v-card-title>
-          </v-card-item>
-          <v-card-text class="pt-0 d-flex flex-column ga-1">
-            <v-switch
-              v-model="devShow"
-              label="show banner"
-              color="warning"
-              density="compact"
-              hide-details
-            />
-            <v-switch
-              v-model="devIsIos"
-              label="iOS (off = Android)"
-              color="warning"
-              density="compact"
-              hide-details
-            />
-          </v-card-text>
-        </v-card>
       </v-col>
     </v-row>
   </v-container>

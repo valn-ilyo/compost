@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useLogout } from "@/composables/useLogout";
 import AppBarProfile from "@/components/AppBarProfile.vue";
-const { logout } = useLogout();
-const loggingOut = ref(false);
+
+const { logout, loggingOut } = useLogout();
 const store = useProfileStore();
-const handleLogout = async () => {
-  loggingOut.value = true;
-  await logout();
-};
 </script>
+
 <template>
   <AppBarProfile />
   <v-container class="pt-0">
@@ -91,16 +87,34 @@ const handleLogout = async () => {
           <v-divider />
           <v-list-item
             prepend-icon="mdi-logout"
-            title="Logout"
             base-color="error"
             link
             class="rounded-b-xl"
             size="large"
-            @click="handleLogout"
-            :loading="loggingOut"
-          />
+            :disabled="loggingOut"
+            @click="logout()"
+          >
+            <v-list-item-title :class="{ 'text-flashing': loggingOut }">
+              {{ loggingOut ? "Logging out…" : "Logout" }}
+            </v-list-item-title>
+          </v-list-item>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
+
+<style scoped>
+.text-flashing {
+  animation: flash 1s ease-in-out infinite;
+}
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+</style>

@@ -9,8 +9,6 @@ interface NavigatorWithStandalone extends Navigator {
   standalone?: boolean;
 }
 
-const DEV_SHOW_BANNER = import.meta.env.DEV;
-
 /**
  * Encapsulates all PWA install-prompt and standalone-mode detection logic.
  *
@@ -41,7 +39,7 @@ export function usePwaInstall() {
   function handleBeforeInstallPrompt(e: Event): void {
     e.preventDefault();
     installPrompt.value = e as BeforeInstallPromptEvent;
-    if ((DEV_SHOW_BANNER || isMobile()) && !isInStandaloneMode()) {
+    if (isMobile() && !isInStandaloneMode()) {
       showInstallBanner.value = true;
     }
   }
@@ -59,11 +57,7 @@ export function usePwaInstall() {
 
   onMounted(() => {
     isPwa.value = isInStandaloneMode();
-    if (
-      (DEV_SHOW_BANNER || isMobile()) &&
-      /iPhone|iPad|iPod/i.test(navigator.userAgent) &&
-      !isInStandaloneMode()
-    ) {
+    if (isMobile() && /iPhone|iPad|iPod/i.test(navigator.userAgent) && !isInStandaloneMode()) {
       isIos.value = true;
       showInstallBanner.value = true;
     }

@@ -35,11 +35,10 @@ const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstal
 // DEV: override controls — these shadow the composable's reactive values
 const isDev = import.meta.env.DEV;
 const devShow = ref(true);
-const devHasPrompt = ref(true);
 const devIsIos = ref(false);
 
 const bannerShow = computed(() => (isDev ? devShow.value : showInstallBanner.value));
-const bannerHasPrompt = computed(() => (isDev ? devHasPrompt.value : !!installPrompt.value));
+const bannerHasPrompt = computed(() => (isDev ? !devIsIos.value : !!installPrompt.value));
 const bannerIsIos = computed(() => (isDev ? devIsIos.value : isIos.value));
 
 const cardWidth = ref<number>(0);
@@ -167,15 +166,8 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
               hide-details
             />
             <v-switch
-              v-model="devHasPrompt"
-              label="has install prompt (Android)"
-              color="warning"
-              density="compact"
-              hide-details
-            />
-            <v-switch
               v-model="devIsIos"
-              label="is iOS"
+              label="iOS (off = Android)"
               color="warning"
               density="compact"
               hide-details

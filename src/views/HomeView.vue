@@ -4,9 +4,11 @@ import type { ComponentPublicInstance } from "vue";
 import { useRouter } from "vue-router";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
+import { usePwaInstall } from "@/composables/usePwaInstall";
 import { SECTIONS } from "@/data";
 import AppBarHome from "@/components/AppBarHome.vue";
 import ClimateHeadlines from "@/components/ClimateHeadlines.vue";
+import PwaInstallBanner from "@/components/PwaInstallBanner.vue";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();
@@ -27,6 +29,18 @@ const showAllDoneCard = computed(
 function goToLog(): void {
   router.push({ name: "mastery", query: { action: "log" } });
 }
+
+const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall();
+
+// DEV: override controls — these shadow the composable's reactive values
+const isDev = import.meta.env.DEV;
+const devShow = ref(true);
+const devHasPrompt = ref(true);
+const devIsIos = ref(false);
+
+const bannerShow = computed(() => (isDev ? devShow.value : showInstallBanner.value));
+const bannerHasPrompt = computed(() => (isDev ? devHasPrompt.value : !!installPrompt.value));
+const bannerIsIos = computed(() => (isDev ? devIsIos.value : isIos.value));
 
 const cardWidth = ref<number>(0);
 
@@ -124,6 +138,49 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
           <template #title>
             <div class="text-title-large mb-1">All logged for today</div>
           </template>
+        </v-card>
+
+        <PwaInstallBanner
+          :show="bannerShow"
+          :has-install-prompt="bannerHasPrompt"
+          :is-ios="bannerIsIos"
+          @install="triggerInstall"
+          @dismiss="showInstallBanner = false"
+        />
+
+        <!-- DEV ONLY: banner control panel -->
+        <v-card v-if="isDev" variant="outlined" rounded density="compact">
+          <v-card-item>
+            <template #prepend>
+              <v-icon icon="mdi-bug" color="warning" size="small" />
+            </template>
+            <v-card-title class="text-label-small text-uppercase text-warning">
+              Banner dev controls
+            </v-card-title>
+          </v-card-item>
+          <v-card-text class="pt-0 d-flex flex-column ga-1">
+            <v-switch
+              v-model="devShow"
+              label="show banner"
+              color="warning"
+              density="compact"
+              hide-details
+            />
+            <v-switch
+              v-model="devHasPrompt"
+              label="has install prompt (Android)"
+              color="warning"
+              density="compact"
+              hide-details
+            />
+            <v-switch
+              v-model="devIsIos"
+              label="is iOS"
+              color="warning"
+              density="compact"
+              hide-details
+            />
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>

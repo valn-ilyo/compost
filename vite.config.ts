@@ -13,15 +13,13 @@ export default defineConfig({
     vue(),
     //vueDevTools(),
     VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
-      workbox: {
-        // Remove precache entries from old SW versions when a new one activates,
-        // preventing stale assets from being served after an update.
-        cleanupOutdatedCaches: true,
-        // Serve index.html from the SW precache for all navigation requests.
-        // This means the SW — not the browser HTTP cache — controls which
-        // index.html the user sees, so updates land as soon as the new SW activates.
-        navigateFallback: "/compost/index.html",
+      injectManifest: {
+        // Precache every asset type the app uses so it works fully offline.
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
       },
       manifest: {
         name: "Compost",

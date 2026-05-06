@@ -26,7 +26,10 @@
     "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.33",
     "vue-router": "^5.0.6",
-    "vuetify": "^4.0.6"
+    "vuetify": "^4.0.6",
+    "workbox-core": "^7.3.0",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0"
   },
   "devDependencies": {
     "@mdi/font": "^7.4.47",

@@ -8,7 +8,7 @@ const props = defineProps<{
   editMode?: boolean;
 }>();
 
-const emit = defineEmits<{ cancel: [] }>();
+defineEmits<{ cancel: [] }>();
 
 const { notify } = useNotifier();
 const router = useRouter();
@@ -36,8 +36,15 @@ const formData = reactive({
   dob: existingDob,
 });
 
+// Max DOB = 16 years ago (minimum age)
+const maxDob = new Date();
+maxDob.setFullYear(maxDob.getFullYear() - 16);
+
 const genderOptions = ["Male", "Female", "Prefer not to say"];
-const rules = { required: (v: string) => !!v || "Required" };
+const rules = {
+  required: (v: string) => !!v || "Required",
+  rollNo: (v: string) => /^[pu]\d{2}[a-z]{2,3}\d+$/i.test(v) || "Roll number not recognised.",
+};
 
 async function handleSubmit() {
   const { valid } = await form.value!.validate();
@@ -88,13 +95,17 @@ function onDateSelect(val: Date | null) {
     <v-text-field
       ref="rollField"
       v-model="formData.rollNo"
-      :rules="[rules.required]"
+      :rules="[rules.required, rules.rollNo]"
       label="Roll No"
       prepend-inner-icon="mdi-identifier"
       variant="outlined"
       clearable
       class="mb-2"
-      @keydown.enter.prevent="genderField?.focus(); genderMenu = true"
+      @input="formData.rollNo = formData.rollNo.toUpperCase()"
+      @keydown.enter.prevent="
+        genderField?.focus();
+        genderMenu = true;
+      "
     />
 
     <v-select
@@ -107,7 +118,10 @@ function onDateSelect(val: Date | null) {
       prepend-inner-icon="mdi-gender-male-female"
       variant="outlined"
       class="mb-2"
-      @update:model-value="dobField?.focus(); dobMenu = true"
+      @update:model-value="
+        dobField?.focus();
+        dobMenu = true;
+      "
     />
 
     <v-menu v-model="dobMenu" :close-on-content-click="false">
@@ -129,16 +143,18 @@ function onDateSelect(val: Date | null) {
           "
         />
       </template>
-      <v-date-picker :model-value="dobRaw" color="primary" @update:model-value="onDateSelect" />
+      <v-date-picker
+        :model-value="dobRaw"
+        :max="maxDob"
+        color="primary"
+        @update:model-value="onDateSelect"
+      />
     </v-menu>
 
     <v-card-actions v-if="editMode" class="px-0 pt-2 justify-end">
-      <v-btn
-        variant="text"
-        color="secondary"
-        class="text-none"
-        @click="$emit('cancel')"
-      >Cancel</v-btn>
+      <v-btn variant="text" color="secondary" class="text-none" @click="$emit('cancel')"
+        >Cancel</v-btn
+      >
       <v-btn
         :loading="loading"
         type="submit"
@@ -147,7 +163,8 @@ function onDateSelect(val: Date | null) {
         rounded="lg"
         class="text-none font-weight-bold"
         append-icon="mdi-check"
-      >Save</v-btn>
+        >Save</v-btn
+      >
     </v-card-actions>
 
     <v-card-actions v-else class="px-0 pt-2 justify-end">
@@ -159,7 +176,8 @@ function onDateSelect(val: Date | null) {
         rounded="lg"
         class="text-none font-weight-bold"
         append-icon="mdi-arrow-right"
-      >Continue</v-btn>
+        >Continue</v-btn
+      >
     </v-card-actions>
   </v-form>
 </template>

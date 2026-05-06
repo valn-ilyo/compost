@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useAssessmentStore } from "@/stores/assessment";
-import { getBadge, getTagline, WEAK_THRESHOLD } from "@/data/badge";
-import { getInsightsForAssessment } from "@/data/insights";
+import { getBadge, getTagline, getSortedSections, WEAK_THRESHOLD } from "@/data/badge";
+import { getSortedQuestions, getInsightsForAssessment } from "@/data/insights";
 import { HABIT_TEMPLATES } from "@/data/habits";
+import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
 import type { HabitTemplate } from "@/types/app.types";
+import { MAX_SLOTS } from "@/types/app.types";
 
 import { buildSdgChips } from "@/data/sdgs";
 import { scoreColor } from "@/lib/scoring";
@@ -20,14 +22,13 @@ import { useMasteryStore } from "@/stores/mastery";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();
+const { recommendedIds } = useMasteryRecommendations();
 
-// Switch label when all 3 active slots are filled OR all recommendations are consumed
-// (e.g. 2 active + 1 paused leaves linkedHabits empty but activeHabits.length is still 2)
-const habitsLabel = computed(() =>
-  masteryStore.activeHabits.length >= 3 || linkedHabits.value.length === 0
-    ? "What you're working on"
-    : "Recommendations",
-);
+const habitsLabel = computed(() => {
+  if (masteryStore.activeHabits.length >= MAX_SLOTS) return "What you're working on";
+  if (linkedHabits.value.length === 0) return "No recommendations";
+  return "Recommendations";
+});
 
 // ── Collapse state ─────────────────────────────────────────────────────────────
 const insightsOpen = ref(true);
@@ -45,8 +46,11 @@ const pct = computed(() => (outOf.value > 0 ? achieved.value / outOf.value : 0))
 const color = computed(() => scoreColor(pct.value));
 
 const badge = computed(() => getBadge(store.overallScore.normalized));
+
+// ── Sorted sections + weak list (single source of truth for both tagline and insights) ──
+const sortedSections = computed(() => getSortedSections(store.sectionResults));
 const weakSections = computed(() =>
-  store.sectionResults
+  sortedSections.value
     .filter((r) => r.scaled / r.meta.scaledMax < WEAK_THRESHOLD)
     .map((r) => r.meta.id),
 );
@@ -81,34 +85,17 @@ const sections = computed(() =>
 const incompleteSections = computed(() => SECTIONS.filter((s) => !completedIds.value.has(s.id)));
 
 // ── Insights ──────────────────────────────────────────────────────────────────
-// getInsightsForAssessment returns up to 9 actionable candidates so the recommendation
-// loop can always find 3 distinct habits even when merged habits share questions.
-// The Reflections panel only shows the first 4 actionable entries — same as before.
+// getInsightsForAssessment returns exactly 5 by construction — no slicing needed.
 const insights = computed(() => {
-  const all = getInsightsForAssessment(store.answers);
-  // Split: noHabit entries are marked isAffirmation=true but still contextual
-  // The affirmation is always the last item; noHabit entries are between the
-  // actionable block and the affirmation. We keep up to 4 non-affirmation,
-  // non-noHabit entries for display, plus all noHabit entries, plus the affirmation.
-  const actionable = all.filter((i) => !i.isAffirmation).slice(0, 4);
-  const noHabitContextual = all.filter((i) => i.isAffirmation && i.noHabit === true);
-  const affirmation = all.filter((i) => i.isAffirmation && !i.noHabit).slice(-1);
-  return [...actionable, ...noHabitContextual, ...affirmation];
+  if (!isComplete.value) return [];
+  const sortedQuestions = getSortedQuestions(store.answers, sortedSections.value);
+  return getInsightsForAssessment(sortedQuestions, weakSections.value);
 });
 const hasInsights = computed(() => isComplete.value && insights.value.length > 0);
 
 // ── Habit recommendations ─────────────────────────────────────────────────────
-// Use the persisted recommendedHabitIds as the single source of truth so that
-// ordering here matches the habit library exactly.
 const linkedHabits = computed(() =>
-  store.recommendedHabitIds
-    .filter(
-      (id) =>
-        !masteryStore.activeTemplateIds.has(id) &&
-        !masteryStore.pausedTemplateIds.has(id) &&
-        !masteryStore.masteredTemplateIds.has(id) &&
-        !masteryStore.masteredSlotTemplateIds.has(id),
-    )
+  recommendedIds.value
     .map((id) => HABIT_TEMPLATES.find((h) => h.id === id))
     .filter((h): h is HabitTemplate => h !== undefined),
 );
@@ -144,6 +131,26 @@ const chips = computed(() => {
         />
 
         <template v-else>
+          <v-row dense>
+            <v-col
+              v-for="item in [
+                { color: 'success', label: 'Good' },
+                { color: 'info', label: 'Okay' },
+                { color: 'warning', label: 'Fair' },
+                { color: 'error', label: 'Poor' },
+              ]"
+              :key="item.label"
+              class="d-flex justify-center"
+            >
+              <v-chip variant="text" label density="compact" class="text-mono">
+                <template #prepend>
+                  <v-icon icon="mdi-square" :color="item.color" class="me-1" />
+                </template>
+                {{ item.label }}
+              </v-chip>
+            </v-col>
+          </v-row>
+
           <InsightsScoreHero v-bind="heroProps" />
 
           <InsightsBreakdownBars :sections="sections" />
@@ -189,10 +196,9 @@ const chips = computed(() => {
             </v-expand-transition>
           </template>
 
+          <!-- ── No recommendations — commendation state ── -->
           <!-- ── Suggested Habits ── -->
-          <template
-            v-if="isComplete && (masteryStore.activeHabits.length > 0 || linkedHabits.length > 0)"
-          >
+          <template v-if="isComplete">
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"
               role="button"

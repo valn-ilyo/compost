@@ -1,30 +1,29 @@
-// ─── Types ────────────────────────────────────────────────────────────────────
-// Note: update Badge in app.types.ts to match BadgeTaglines shape below.
+import type { Badge, BadgeTaglines, SectionMeta } from "../types/app.types";
 
-type SectionId = "transport" | "food" | "energy" | "consumption" | "waste" | "water" | "digital";
-
-interface BadgeTaglines {
-  /** Fallback when no weak sections exist or a focused key is missing. */
-  default: string;
-  /** Exactly one section below the weak threshold — reference it by name. */
-  focused: Partial<Record<SectionId, string>>;
-  /** Exactly two sections below the weak threshold. */
-  split: string;
-  /** Three or more sections below the weak threshold. */
-  broad: string;
-}
-
-export interface Badge {
-  id: string;
-  label: string;
-  minScore: number;
-  maxScore: number;
-  taglines: BadgeTaglines;
-}
+export type { Badge, BadgeTaglines };
 
 // ─── Threshold ────────────────────────────────────────────────────────────────
 // A section is "weak" when its scaled score is below this fraction of its max.
 export const WEAK_THRESHOLD = 0.5;
+
+// ─── Step 1 — getSortedSections ───────────────────────────────────────────────
+
+/**
+ * Sort section results weakest → strongest.
+ * Tiebreaker 1: scaledMax ascending (lower-weight section first).
+ * Tiebreaker 2: stable sort preserves SECTIONS declaration order.
+ */
+export function getSortedSections(
+  sectionResults: Array<{ meta: SectionMeta; scaled: number }>,
+): Array<{ meta: SectionMeta; scaled: number }> {
+  return [...sectionResults].sort((a, b) => {
+    const fracA = a.scaled / a.meta.scaledMax;
+    const fracB = b.scaled / b.meta.scaledMax;
+    if (fracA !== fracB) return fracA - fracB;
+    if (a.meta.scaledMax !== b.meta.scaledMax) return a.meta.scaledMax - b.meta.scaledMax;
+    return 0; // stable — declaration order preserved
+  });
+}
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
 // Ordered lowest to highest. getBadge() finds the first match.
@@ -103,7 +102,7 @@ export const BADGES: Badge[] = [
         food: "Strong foundations taking hold. Food is the habit that still needs the most consistency.",
         energy: "Most of your habits are locking in. Energy use is the remaining area to work on.",
         consumption:
-          "Good progress across the board. Consumption is the last habit that still needs attention.",
+          "Good progress across the board. Consumption is the one habit still to address.",
         waste: "Solid across most sections. Waste is where your habits are still developing.",
         water:
           "Good consistency showing through. Water efficiency is the one area left to bring in line.",
@@ -130,7 +129,7 @@ export const BADGES: Badge[] = [
         food: "A strong profile with one gap. Food choices are the habit still to refine.",
         energy: "Leading in most areas. Energy is the one blind spot left.",
         consumption:
-          "Almost everything dialled in. Consumption habits are the last thing to bring up to your own standard.",
+          "Almost everything dialled in. Consumption habits are the one thing still to bring up to your own standard.",
         waste:
           "Excellent across the board. Waste is the one area that does not reflect how well you are doing elsewhere.",
         water: "Strong performance throughout. Water efficiency is the habit left to lock in.",
@@ -156,12 +155,11 @@ export const BADGES: Badge[] = [
         transport:
           "Exceptional commitment almost everywhere. Transport is the one remaining area where your habits can still go further.",
         food: "A near-complete profile. Food is the one final habit to bring to the same level as everything else.",
-        energy:
-          "Champion-level habits across most sections. Energy is the last thing left to push.",
+        energy: "Champion-level habits across most sections. Energy is the one thing left to push.",
         consumption:
           "Remarkable consistency throughout. Consumption is the one remaining gap in an otherwise strong profile.",
         waste:
-          "Outstanding across almost every section. Waste is the last thing standing between you and an exemplary profile.",
+          "Outstanding across almost every section. Waste is the one thing standing between you and an exemplary profile.",
         water: "Exceptional habits across the board. Water is the one area with room left to grow.",
         digital: "Extraordinary commitment throughout. Digital habits are the final piece.",
       },
@@ -211,7 +209,8 @@ export function getBadge(score: number): Badge {
  * underperforming sections (those below WEAK_THRESHOLD).
  *
  * @param badge         - result of getBadge()
- * @param weakSections  - section ids where (scaled / scaledMax) < WEAK_THRESHOLD
+ * @param weakSections  - section ids where (scaled / scaledMax) < WEAK_THRESHOLD,
+ *                        ordered weakest → strongest (from getSortedSections)
  */
 export function getTagline(badge: Badge, weakSections: string[]): string {
   if (weakSections.length === 0) {
@@ -219,7 +218,7 @@ export function getTagline(badge: Badge, weakSections: string[]): string {
   }
 
   if (weakSections.length === 1) {
-    const sectionId = weakSections[0] as SectionId;
+    const sectionId = weakSections[0] as keyof Badge["taglines"]["focused"];
     return badge.taglines.focused[sectionId] ?? badge.taglines.default;
   }
 

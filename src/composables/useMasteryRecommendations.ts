@@ -1,13 +1,15 @@
 import { computed, watch } from "vue";
 import { SECTIONS } from "@/data";
 import { HABIT_TEMPLATES } from "@/data/habits";
-import { getInsightsForAssessment } from "@/data/insights";
+import { getSortedSections } from "@/data/badge";
+import { getSortedQuestions } from "@/data/insights";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
+import { MAX_SLOTS } from "@/types/app.types";
 
 /**
  * Manages the fixed set of up to 3 recommended habits derived from assessment
- * insights. The set is computed once on assessment completion and persisted.
+ * results. The set is computed once on assessment completion and persisted.
  * Acting on a recommendation (add/pause) only hides it from the display list —
  * it never triggers a refill. Recomputes when answers change (reassessment) or
  * when a mastered habit is retired and a better candidate may be available.
@@ -21,24 +23,29 @@ export function useMasteryRecommendations() {
   );
 
   function recomputeRecommendations(): void {
-    const insights = getInsightsForAssessment(assessmentStore.answers);
+    // Build the same sorted question pipeline used by insights.
+    const sortedSections = getSortedSections(assessmentStore.sectionResults);
+    const sortedQuestions = getSortedQuestions(assessmentStore.answers, sortedSections);
+
+    // Walk worst → best. For each question, find the first HABIT_TEMPLATE that
+    // covers it, hasn't been picked yet, and isn't mastered. Take up to MAX_SLOTS.
+    // Score 4 or 5 means the behaviour is already strong — skip for recommendations.
     const seen = new Set<string>();
     const matched: string[] = [];
 
-    for (const insight of insights.filter((i) => !i.isAffirmation)) {
-      if (matched.length >= 3) break;
-      const h = HABIT_TEMPLATES.find(
+    for (const { sectionId, questionId, score } of sortedQuestions) {
+      if (score >= 4) continue;
+      if (matched.length >= MAX_SLOTS) break;
+      const template = HABIT_TEMPLATES.find(
         (h) =>
-          h.covers.some(
-            (c) => c.sectionId === insight.sectionId && c.questionId === insight.questionId,
-          ) &&
+          h.covers.some((c) => c.sectionId === sectionId && c.questionId === questionId) &&
           !seen.has(h.id) &&
           !store.masteredTemplateIds.has(h.id) &&
           !store.masteredSlotTemplateIds.has(h.id),
       );
-      if (h) {
-        seen.add(h.id);
-        matched.push(h.id);
+      if (template) {
+        seen.add(template.id);
+        matched.push(template.id);
       }
     }
 

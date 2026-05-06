@@ -13,23 +13,18 @@ const handleLogout = async () => {
 </script>
 <template>
   <AppBarProfile />
-  <v-container>
+  <v-container class="pt-0">
     <v-row justify="center">
       <v-col cols="12" sm="10" md="8" lg="6" xl="4">
-        <!-- avatar + name -->
-        <div
+        <!-- name -->
+        <h1
           v-motion
           :initial="{ opacity: 0, y: 24 }"
           :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
-          class="d-flex flex-column align-center text-center"
+          class="font-condensed font-weight-bold text-onSurface text-center"
         >
-          <v-avatar size="128" color="primary-container" class="border-md">
-            <v-icon icon="mdi-account" size="64" color="primary" />
-          </v-avatar>
-          <h1 class="text-h5 font-condensed font-weight-bold text-onSurface">
-            {{ store.profile?.name || "No name set" }}
-          </h1>
-        </div>
+          {{ store.profile?.name || "No name set" }}
+        </h1>
         <!-- details section -->
         <div
           v-motion

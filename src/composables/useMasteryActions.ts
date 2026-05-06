@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { HABIT_TEMPLATES } from "@/data/habits";
 import { useNotifier } from "@/composables/useNotifier";
 import { useMasteryStore } from "@/stores/mastery";
+import { MAX_SLOTS } from "@/types/app.types";
 import type { HabitTemplate } from "@/types/app.types";
 
 /**
@@ -21,7 +22,7 @@ export function useMasteryActions() {
   function handleAdd(templateId: string): void {
     const template = HABIT_TEMPLATES.find((t) => t.id === templateId);
     if (!template) return;
-    if (store.usedSlots >= 3) {
+    if (store.usedSlots >= MAX_SLOTS) {
       pendingTemplate.value = template;
       swapOpen.value = true;
     } else {
@@ -32,7 +33,7 @@ export function useMasteryActions() {
   function handleResume(habitId: string): void {
     const habit = store.pausedHabits.find((h) => h.id === habitId);
     if (!habit) return;
-    if (store.activeHabits.length >= 3) {
+    if (store.activeHabits.length >= MAX_SLOTS) {
       const template = HABIT_TEMPLATES.find((t) => t.id === habit.templateId);
       if (!template) return;
       pendingTemplate.value = template;

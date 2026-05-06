@@ -25,12 +25,6 @@ const items = ref([
     to: "/mastery",
   },
   {
-    title: "Learn",
-    iconOutline: "mdi-school-outline",
-    iconFilled: "mdi-school",
-    to: "/learn",
-  },
-  {
     title: "Profile",
     iconOutline: "mdi-account-outline",
     iconFilled: "mdi-account",

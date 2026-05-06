@@ -64,11 +64,17 @@ export interface ClockDisplay {
 
 // ─── Badge ────────────────────────────────────────────────────────────────────
 
+type SectionId = "transport" | "food" | "energy" | "consumption" | "waste" | "water" | "digital";
+
 export interface BadgeTaglines {
-  focused: string;
-  split: string;
-  broad: string;
+  /** Fallback when no weak sections exist or a focused key is missing. */
   default: string;
+  /** Exactly one section below the weak threshold — reference it by name. */
+  focused: Partial<Record<SectionId, string>>;
+  /** Exactly two sections below the weak threshold. */
+  split: string;
+  /** Three or more sections below the weak threshold. */
+  broad: string;
 }
 
 export interface Badge {
@@ -78,11 +84,7 @@ export interface Badge {
   minScore: number;
   /** Inclusive upper bound */
   maxScore: number;
-  /**
-   * Taglines keyed by the weakest section id.
-   * Values contain specific copy based on scoring distribution.
-   */
-  taglines: Record<string, BadgeTaglines>;
+  taglines: BadgeTaglines;
 }
 
 // ─── SDG ──────────────────────────────────────────────────────────────────────
@@ -93,11 +95,28 @@ export interface SDG {
   /** e.g. 6 */
   number: number;
   name: string;
-  /** One-liner shown when the chip is tapped / linked to Learn view */
+  /** One-liner shown when the chip is tapped
   description: string;
   /** Section ids that contribute to this goal */
   sectionIds: string[];
 }
+
+/** View-model produced by buildSdgChips — an SDG paired with its worst-performing colour. */
+export interface SdgChip {
+  sdg: SDG;
+  color: string;
+}
+
+// ─── Mastery constants ────────────────────────────────────────────────────────
+
+/** Maximum number of habit slots a user can fill simultaneously. */
+export const MAX_SLOTS = 3;
+
+/** Number of consecutive Yes logs required to earn a freeze token. */
+export const FREEZE_MILESTONE = 22;
+
+/** Number of consecutive Yes logs required to master a habit. */
+export const MASTERY_MILESTONE = 66;
 
 // ─── Insights ─────────────────────────────────────────────────────────────────
 
@@ -121,10 +140,6 @@ export interface QuestionInsight {
    * never silently burns an actionable pick.
    */
   noHabit?: boolean;
-}
-
-export interface SelectedInsight extends QuestionInsight {
-  isAffirmation: boolean;
 }
 
 /**
@@ -216,7 +231,7 @@ export interface UserHabit {
    */
   freezeUsed: boolean;
   /**
-   * True when the habit has reached the 66-day mastery milestone.
+   * True when the habit has reached the MASTERY_MILESTONE-day mastery milestone.
    * Mastered habits cannot be logged and are excluded from activeHabits computed,
    * but still occupy a slot until the user explicitly retires them.
    */

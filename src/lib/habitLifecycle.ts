@@ -1,9 +1,7 @@
 import type { HabitTemplate, UserHabit } from "@/types/app.types";
+import { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE } from "@/types/app.types";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-export const MAX_SLOTS = 3;
-export const FREEZE_MILESTONE = 22;
+export { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -132,7 +130,7 @@ export function swapHabitInSlots(
 export interface LogResult {
   /** True when a regular milestone freeze was earned (not the mastery reward). */
   freezeEarned: boolean;
-  /** True when the habit just hit 66 days and should receive the mastery reward. */
+  /** True when the habit just hit MASTERY_MILESTONE days and should receive the mastery reward. */
   mastered: boolean;
 }
 
@@ -161,7 +159,7 @@ export function logHabitInSlots(
     const wasConsecutive = habit.lastLoggedDate === yesterday || habit.lastLoggedDate === null;
     habit.streak = wasConsecutive ? habit.streak + 1 : 1;
 
-    if (habit.streak === 66) {
+    if (habit.streak === MASTERY_MILESTONE) {
       mastered = true;
       habit.isMastered = true;
       // Mastery reward is applied by the store (unconditional freeze grant).

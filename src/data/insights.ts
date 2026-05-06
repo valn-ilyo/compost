@@ -1,4 +1,4 @@
-import type { QuestionInsight, SelectedInsight } from "../types/app.types";
+import type { QuestionInsight, SectionMeta } from "../types/app.types";
 
 export const QUESTION_INSIGHTS: QuestionInsight[] = [
   // ─── TRANSPORT ────────────────────────────────────────────────────────────────
@@ -1390,11 +1390,27 @@ export const QUESTION_INSIGHTS: QuestionInsight[] = [
   },
 ];
 
-// ─── Selection ────────────────────────────────────────────────────────────────
+// ─── Pipeline types ───────────────────────────────────────────────────────────
 
-export function getInsightsForAssessment(
+export interface SortedQuestion {
+  sectionId: string;
+  questionId: string;
+  score: 1 | 2 | 3 | 4 | 5;
+}
+
+// ─── Step 2 — getSortedQuestions ─────────────────────────────────────────────
+
+/**
+ * Flatten all answers and sort them worst → best:
+ *   primary   — section order from getSortedSections (weakest section first)
+ *   secondary — score ascending within each section
+ */
+export function getSortedQuestions(
   answers: Partial<Record<string, Record<string, number>>>,
-): SelectedInsight[] {
+  sortedSections: Array<{ meta: SectionMeta; scaled: number }>,
+): SortedQuestion[] {
+  const sectionOrder = new Map(sortedSections.map((r, i) => [r.meta.id, i]));
+
   const all = Object.entries(answers).flatMap(([sectionId, qs]) =>
     Object.entries(qs ?? {}).map(([questionId, score]) => ({
       sectionId,
@@ -1403,38 +1419,84 @@ export function getInsightsForAssessment(
     })),
   );
 
-  if (all.length === 0) return [];
+  return all.sort((a, b) => {
+    const orderA = sectionOrder.get(a.sectionId) ?? Infinity;
+    const orderB = sectionOrder.get(b.sectionId) ?? Infinity;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.score - b.score;
+  });
+}
 
-  const sorted = [...all].sort((a, b) => a.score - b.score);
+// ─── Step 4 — getInsightsForAssessment ───────────────────────────────────────
 
-  const key = (q: { sectionId: string; questionId: string }) => `${q.sectionId}::${q.questionId}`;
+/**
+ * Pick exactly 5 insights from the sorted question pool.
+ *
+ * Slots 1–4 — section-aware allocation:
+ *   default (0 weak) → treat as broad, using sortedQuestions section order
+ *   focused (1 weak) → 4 from section 1
+ *   dual    (2 weak) → 2 from section 1, 2 from section 2
+ *   broad   (3+ weak)→ 2 from section 1, 1 from section 2, 1 from section 3
+ *
+ * Slot 5 — search remaining pool strongest → weakest for score >= 4.
+ *   Found     → that question (renders green in the view via score check)
+ *   Not found → worst remaining question (renders default)
+ *
+ * No isAffirmation flag. The view checks score >= 4 for colour directly.
+ */
+export function getInsightsForAssessment(
+  sortedQuestions: SortedQuestion[],
+  weakSections: string[],
+): QuestionInsight[] {
+  if (sortedQuestions.length === 0) return [];
 
-  const isNoHabit = (sectionId: string, questionId: string): boolean =>
-    QUESTION_INSIGHTS.some(
-      (i) => i.sectionId === sectionId && i.questionId === questionId && i.noHabit === true,
-    );
+  const key = (q: SortedQuestion) => `${q.sectionId}::${q.questionId}`;
 
-  const affirmation = sorted[sorted.length - 1]!;
+  // Derive section priority from sortedQuestions for the default (0 weak) case.
+  // sortedQuestions is already weakest-section-first so unique section order is correct.
+  const sectionOrder = [...new Set(sortedQuestions.map((q) => q.sectionId))];
+  const prioritySections = weakSections.length > 0 ? weakSections : sectionOrder;
 
-  const actionableCandidates: typeof sorted = [];
-  for (const q of sorted) {
-    if (actionableCandidates.length >= 9) break;
-    if (key(q) !== key(affirmation) && !isNoHabit(q.sectionId, q.questionId))
-      actionableCandidates.push(q);
+  const used = new Set<string>();
+
+  function pickFromSection(sectionId: string, n: number): SortedQuestion[] {
+    const result: SortedQuestion[] = [];
+    for (const q of sortedQuestions) {
+      if (result.length >= n) break;
+      if (q.sectionId === sectionId && !used.has(key(q))) {
+        result.push(q);
+        used.add(key(q));
+      }
+    }
+    return result;
   }
 
-  const noHabitPicks = sorted.filter(
-    (q) => key(q) !== key(affirmation) && isNoHabit(q.sectionId, q.questionId),
-  );
+  const slots: SortedQuestion[] = [];
 
-  const picks = [...actionableCandidates, ...noHabitPicks, affirmation];
+  if (weakSections.length === 1) {
+    // focused: 4 from the one weak section
+    slots.push(...pickFromSection(prioritySections[0]!, 4));
+  } else if (weakSections.length === 2) {
+    // dual: 2 + 2
+    slots.push(...pickFromSection(prioritySections[0]!, 2));
+    slots.push(...pickFromSection(prioritySections[1]!, 2));
+  } else {
+    // broad (3+ weak) or default (0 weak treated as broad): 2 + 1 + 1
+    slots.push(...pickFromSection(prioritySections[0]!, 2));
+    slots.push(...pickFromSection(prioritySections[1]!, 1));
+    slots.push(...pickFromSection(prioritySections[2]!, 1));
+  }
 
-  return picks.flatMap(({ sectionId, questionId, score }, index) => {
+  // Slot 5: remaining pool, iterated strongest → weakest
+  const remaining = sortedQuestions.filter((q) => !used.has(key(q))).reverse();
+  const affirmation = remaining.find((q) => q.score >= 4) ?? remaining[remaining.length - 1];
+  if (affirmation) slots.push(affirmation);
+
+  // Resolve slots to QuestionInsight entries
+  return slots.flatMap(({ sectionId, questionId, score }) => {
     const insight = QUESTION_INSIGHTS.find(
       (i) => i.sectionId === sectionId && i.questionId === questionId && i.score === score,
     );
-    if (!insight) return [];
-    const isAff = score >= 4 || insight.noHabit === true || index === picks.length - 1;
-    return [{ ...insight, isAffirmation: isAff }];
+    return insight ? [insight] : [];
   });
 }

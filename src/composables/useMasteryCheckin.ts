@@ -1,6 +1,7 @@
 import { computed, ref, watch } from "vue";
 import { useMasteryStore } from "@/stores/mastery";
 import { todayISO } from "@/lib/habitDate";
+import { MASTERY_MILESTONE } from "@/types/app.types";
 import type { UserHabit } from "@/types/app.types";
 
 /**
@@ -42,8 +43,8 @@ export function useMasteryCheckin() {
   const daysToNextMastery = computed(() => {
     const habits = store.activeHabits.filter((h) => h.streak >= 1);
     if (habits.length === 0) return null;
-    // Range 1–66: 1 = log today to master, matching daysToNextFreeze (1–22) convention.
-    return Math.min(...habits.map((h) => 66 - (h.streak % 66)));
+    // Range 1–MASTERY_MILESTONE: 1 = log today to master, matching daysToNextFreeze (1–FREEZE_MILESTONE) convention.
+    return Math.min(...habits.map((h) => MASTERY_MILESTONE - (h.streak % MASTERY_MILESTONE)));
   });
 
   const masteredToday = computed(() =>

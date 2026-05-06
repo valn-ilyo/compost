@@ -2,7 +2,16 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
+import { MAX_SLOTS } from "@/types/app.types";
 import type { HabitTemplate } from "@/types/app.types";
+
+interface Item {
+  key: string;
+  icon: string;
+  iconColor: string;
+  name: string;
+  chip?: { color: string; icon: string; label: string };
+}
 
 const props = defineProps<{
   templates: HabitTemplate[];
@@ -11,16 +20,49 @@ const props = defineProps<{
 const router = useRouter();
 const masteryStore = useMasteryStore();
 
-// A "slot" is only meaningful if there are still recommendations to fill it.
-// If all 3 recommendations are consumed (active or paused), treat as full
-// even if fewer than 3 are strictly active — so "Swap one out" shows correctly.
-const hasSlot = computed(() => masteryStore.activeHabits.length < 3 && props.templates.length > 0);
-
-const enriched = computed(() => props.templates);
-
-const listLength = computed(() =>
-  hasSlot.value ? enriched.value.length : masteryStore.activeHabits.length,
+const hasSlot = computed(
+  () => masteryStore.activeHabits.length < MAX_SLOTS && props.templates.length > 0,
 );
+const isEmpty = computed(
+  () => props.templates.length === 0 && masteryStore.activeHabits.length < MAX_SLOTS,
+);
+
+const items = computed((): Item[] => {
+  if (isEmpty.value) {
+    return [
+      {
+        key: "empty",
+        icon: "mdi-check-circle-outline",
+        iconColor: "success",
+        name: "Your habits are strong where it counts. Browse the library to go further.",
+      },
+    ];
+  }
+  if (hasSlot.value) {
+    return props.templates.map((t) => ({
+      key: t.id,
+      icon: t.icon,
+      iconColor: "secondary",
+      name: t.name,
+    }));
+  }
+  return masteryStore.activeHabits.map((h) => ({
+    key: h.id,
+    icon: "mdi-check-bold",
+    iconColor: "success",
+    name: h.name,
+    chip: {
+      color: h.streak > 0 ? "error" : "success",
+      icon: h.streak > 0 ? "mdi-fire" : "mdi-sprout",
+      label: h.streak > 0 ? `${h.streak}d` : "New",
+    },
+  }));
+});
+
+const btnLabel = computed(() => {
+  if (isEmpty.value) return "Explore";
+  return hasSlot.value ? "Start a habit" : "Swap one out";
+});
 
 function goToMastery(): void {
   router.push({ name: "mastery" });
@@ -28,7 +70,6 @@ function goToMastery(): void {
 </script>
 
 <template>
-  <!-- Card fades + lifts in as a whole -->
   <v-card
     v-motion
     :initial="{ opacity: 0, y: 16, scale: 0.98 }"
@@ -44,68 +85,34 @@ function goToMastery(): void {
     class="overflow-hidden"
   >
     <v-list bg-color="transparent" class="py-2">
-      <!-- Slot available: recommendations -->
-      <template v-if="hasSlot">
-        <template v-for="(t, i) in enriched" :key="t.id">
-          <!-- Divider fades in between items -->
-          <v-divider v-if="i > 0" />
-          <v-list-item
-            v-motion
-            :initial="{ opacity: 0 }"
-            :enter="{
-              opacity: 1,
-              transition: { duration: 200, delay: 60 + i * 50 },
-            }"
-            density="compact"
-            class="py-3"
-            :ripple="false"
-          >
-            <template #prepend>
-              <v-icon :icon="t.icon" color="secondary" size="small" />
-            </template>
-            <v-list-item-title class="text-body-2 text-wrap">{{ t.name }}</v-list-item-title>
-          </v-list-item>
-        </template>
-      </template>
-
-      <!-- Full: active habits -->
-      <template v-else>
-        <template v-for="(habit, i) in masteryStore.activeHabits" :key="habit.id">
-          <v-divider v-if="i > 0" />
-          <v-list-item
-            v-motion
-            :initial="{ opacity: 0 }"
-            :enter="{
-              opacity: 1,
-              transition: { duration: 200, delay: 60 + i * 50 },
-            }"
-            density="compact"
-            class="py-3"
-            :ripple="false"
-          >
-            <template #prepend>
-              <v-icon icon="mdi-check-bold" color="success" size="small" class="opacity-100" />
-            </template>
-            <v-list-item-title class="text-body-2 text-wrap">{{ habit.name }}</v-list-item-title>
-            <template #append>
-              <!-- Chip bounces in last, after its row -->
-              <v-chip
-                v-motion
-                :initial="{ opacity: 0 }"
-                :enter="{
-                  opacity: 1,
-                  transition: { duration: 200, delay: 140 + i * 50 },
-                }"
-                :color="habit.streak > 0 ? 'error' : 'success'"
-                variant="text"
-                :prepend-icon="habit.streak > 0 ? 'mdi-fire' : 'mdi-sprout'"
-                label
-              >
-                {{ habit.streak > 0 ? `${habit.streak}d` : "New" }}
-              </v-chip>
-            </template>
-          </v-list-item>
-        </template>
+      <template v-for="(item, i) in items" :key="item.key">
+        <v-divider v-if="i > 0" />
+        <v-list-item
+          v-motion
+          :initial="{ opacity: 0 }"
+          :enter="{ opacity: 1, transition: { duration: 200, delay: 60 + i * 50 } }"
+          density="compact"
+          class="py-3"
+          :ripple="false"
+        >
+          <template #prepend>
+            <v-icon :icon="item.icon" :color="item.iconColor" class="opacity-100" />
+          </template>
+          <v-list-item-title class="text-body-2 text-wrap">{{ item.name }}</v-list-item-title>
+          <template v-if="item.chip" #append>
+            <v-chip
+              v-motion
+              :initial="{ opacity: 0 }"
+              :enter="{ opacity: 1, transition: { duration: 200, delay: 140 + i * 50 } }"
+              :color="item.chip.color"
+              :prepend-icon="item.chip.icon"
+              variant="text"
+              label
+            >
+              {{ item.chip.label }}
+            </v-chip>
+          </template>
+        </v-list-item>
       </template>
     </v-list>
 
@@ -116,7 +123,12 @@ function goToMastery(): void {
         :enter="{
           opacity: 1,
           y: 0,
-          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 100 + listLength * 50 },
+          transition: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 22,
+            delay: 100 + items.length * 50,
+          },
         }"
         variant="text"
         color="primary"
@@ -124,7 +136,7 @@ function goToMastery(): void {
         append-icon="mdi-arrow-right"
         @click="goToMastery"
       >
-        {{ hasSlot ? "Start a habit" : "Swap one out" }}
+        {{ btnLabel }}
       </v-btn>
     </v-card-actions>
   </v-card>

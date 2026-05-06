@@ -9,13 +9,12 @@ import type {
 import {
   addHabitToSlots,
   logHabitInSlots,
-  MAX_SLOTS,
-  FREEZE_MILESTONE,
   pauseHabitInSlots,
   removeHabitFromSlots,
   resumeHabitInSlots,
   swapHabitInSlots,
 } from "@/lib/habitLifecycle";
+import { MAX_SLOTS, FREEZE_MILESTONE } from "@/types/app.types";
 import { reconcile } from "@/lib/streakReconciler";
 import { todayISO, yesterdayISO } from "@/lib/habitDate";
 

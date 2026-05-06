@@ -1,4 +1,6 @@
-import type { SDG } from '../types/app.types'
+import type { SDG, SdgChip } from '../types/app.types'
+
+export type { SdgChip }
 
 export const SDGS: SDG[] = [
   {
@@ -90,11 +92,6 @@ const TIER_RANK: Record<string, number> = {
   warning: 1,
   info: 2,
   success: 3,
-}
-
-export interface SdgChip {
-  sdg: SDG
-  color: string
 }
 
 export function buildSdgChips(

@@ -6,6 +6,7 @@ import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
 import { SECTIONS } from "@/data";
 import AppBarHome from "@/components/AppBarHome.vue";
+import ClimateHeadlines from "@/components/ClimateHeadlines.vue";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();
@@ -40,7 +41,9 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
   <AppBarHome />
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" md="8">
+      <v-col cols="12" md="8" class="d-flex flex-column ga-3">
+        <ClimateHeadlines />
+
         <template v-if="nextSection">
           <v-tooltip
             :text="nextSection.description"
@@ -91,7 +94,6 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
             scale: 1,
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
           }"
-          :class="nextSection ? 'mt-3' : ''"
           color="primary-container"
           variant="flat"
           rounded
@@ -114,7 +116,6 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
             scale: 1,
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
           }"
-          :class="nextSection ? 'mt-3' : ''"
           color="primary-container"
           variant="flat"
           rounded

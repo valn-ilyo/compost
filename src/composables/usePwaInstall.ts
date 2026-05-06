@@ -9,20 +9,16 @@ interface NavigatorWithStandalone extends Navigator {
   standalone?: boolean;
 }
 
-/**
- * Encapsulates all PWA install-prompt and standalone-mode detection logic.
- *
- * Returns reactive state and handlers ready to bind in the template:
- * - `isPwa`             — whether the app is running in standalone/installed mode
- * - `isIos`            — whether the device is iOS (needs manual Add to Home Screen)
- * - `installPrompt`    — the captured beforeinstallprompt event (null on iOS / unsupported)
- * - `showInstallBanner`— whether the install banner should be visible
- * - `triggerInstall()` — calls the native install prompt and handles the outcome
- */
+const STORAGE_KEY = "pwa-installable";
+
+// Module-level so the event survives composable unmount/remount within the
+// same page session (e.g. navigating away and back to HomeView).
+let deferredPrompt: BeforeInstallPromptEvent | null = null;
+
 export function usePwaInstall() {
   const isPwa = ref(false);
   const isIos = ref(false);
-  const installPrompt = ref<BeforeInstallPromptEvent | null>(null);
+  const installPrompt = ref<BeforeInstallPromptEvent | null>(deferredPrompt);
   const showInstallBanner = ref(false);
 
   function isMobile(): boolean {
@@ -36,31 +32,69 @@ export function usePwaInstall() {
     );
   }
 
-  function handleBeforeInstallPrompt(e: Event): void {
-    e.preventDefault();
-    installPrompt.value = e as BeforeInstallPromptEvent;
-    if (isMobile() && !isInStandaloneMode()) {
+  function evaluateBanner(): void {
+    if (isInStandaloneMode() || !isMobile()) return;
+
+    if (isIos.value) {
+      showInstallBanner.value = true;
+      return;
+    }
+
+    // Show banner if we have a live prompt OR Chrome told us it was
+    // installable in a previous session.
+    if (installPrompt.value || localStorage.getItem(STORAGE_KEY) === "true") {
       showInstallBanner.value = true;
     }
   }
 
+  function handleBeforeInstallPrompt(e: Event): void {
+    e.preventDefault();
+    deferredPrompt = e as BeforeInstallPromptEvent;
+    installPrompt.value = deferredPrompt;
+    localStorage.setItem(STORAGE_KEY, "true");
+    evaluateBanner();
+  }
+
   async function triggerInstall(): Promise<void> {
-    const prompt = installPrompt.value;
-    if (!prompt) return;
-    await prompt.prompt();
-    const { outcome } = await prompt.userChoice;
-    if (outcome === "accepted") {
-      showInstallBanner.value = false;
+    if (!installPrompt.value) return;
+
+    try {
+      await installPrompt.value.prompt();
+      const { outcome } = await installPrompt.value.userChoice;
+
+      if (outcome === "accepted") {
+        deferredPrompt = null;
+        installPrompt.value = null;
+        showInstallBanner.value = false;
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      // If dismissed, keep the flag — Chrome may allow another attempt later.
+    } catch {
+      // prompt() threw — the event is stale (e.g. app was installed another
+      // way, or too much time passed). Clear everything.
+      deferredPrompt = null;
       installPrompt.value = null;
+      showInstallBanner.value = false;
+      localStorage.removeItem(STORAGE_KEY);
     }
   }
 
   onMounted(() => {
     isPwa.value = isInStandaloneMode();
-    if (isMobile() && /iPhone|iPad|iPod/i.test(navigator.userAgent) && !isInStandaloneMode()) {
+    if (isPwa.value) return; // already installed, nothing to do
+
+    if (isMobile() && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
       isIos.value = true;
-      showInstallBanner.value = true;
     }
+
+    // Sync module-level prompt into the ref in case it was captured before
+    // this composable instance mounted (e.g. event fired on a different view).
+    if (deferredPrompt) {
+      installPrompt.value = deferredPrompt;
+    }
+
+    evaluateBanner();
+
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   });
 

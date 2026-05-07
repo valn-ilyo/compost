@@ -7,6 +7,7 @@ import { useSyncStore } from "@/stores/sync";
 import { useProfileStore } from "@/stores/profile";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
+import { resetAllStores } from "@/composables/useLogout";
 
 const { notify } = useNotifier();
 const router = useRouter();
@@ -22,10 +23,9 @@ type AuthState = "login" | "loading" | "error";
 const authState = ref<AuthState>("login");
 const errorEmail = ref<string | null>(null);
 const sessionExpiredMsg = ref("");
+const googleLoading = ref(false);
 
 // ─── Login ────────────────────────────────────────────────────────────────────
-
-const googleLoading = ref(false);
 
 const loginWithGoogle = async () => {
   sessionExpiredMsg.value = "";
@@ -41,7 +41,7 @@ const loginWithGoogle = async () => {
       googleLoading.value = false;
       notify({ message: `Login failed: ${error.message}`, color: "error" });
     }
-    // success: browser navigating away, leave loading as true
+    // success: browser navigating away, leave googleLoading true
   } catch (err) {
     googleLoading.value = false;
     notify({
@@ -71,6 +71,10 @@ async function runHydration() {
 
     const userId = session.user.id;
     const email = session.user.email ?? undefined;
+
+    // Reset all stores before hydrating — prevents stale localStorage data
+    // from a previous user's session bleeding into the new one.
+    resetAllStores();
 
     await Promise.all([
       profileStore.fetchProfile(userId, email),

@@ -22,6 +22,7 @@ defineEmits<{
     color="secondary-container"
     variant="flat"
     rounded
+    density="compact"
   >
     <v-card-item>
       <template #prepend>
@@ -30,7 +31,7 @@ defineEmits<{
       <v-card-title class="text-title-large">Daily reminder</v-card-title>
     </v-card-item>
 
-    <v-card-text class="pt-0 text-body-medium text-on-secondary-container">
+    <v-card-text class="py-0 my-0 text-body-medium text-on-secondary-container">
       A nudge at 6:30 PM if you haven't logged for the day.
     </v-card-text>
 

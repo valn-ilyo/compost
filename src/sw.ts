@@ -40,3 +40,24 @@ self.addEventListener("push", (event) => {
     }),
   );
 });
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const target = "/compost/mastery?action=log";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // If the app is already open, focus it and navigate.
+      for (const client of clientList) {
+        if ("focus" in client) {
+          client.focus();
+          (client as WindowClient).navigate(target);
+          return;
+        }
+      }
+      // Otherwise open a new window.
+      self.clients.openWindow(target);
+    }),
+  );
+});

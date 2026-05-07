@@ -24,6 +24,7 @@ defineEmits<{
     color="secondary-container"
     variant="flat"
     rounded
+    density="compact"
   >
     <!-- Android: native prompt -->
     <template v-if="hasInstallPrompt">
@@ -33,20 +34,20 @@ defineEmits<{
         </template>
         <v-card-title>
           <div class="text-label-small text-uppercase">Get the app</div>
-          <div class="text-title-large mb-1">Install Compost</div>
+          <div class="text-title-large">Install Compost</div>
         </v-card-title>
       </v-card-item>
     </template>
 
     <!-- iOS: manual Add to Home Screen -->
     <template v-else-if="isIos">
-      <v-card-item>
+      <v-card-item class="pb-0">
         <template #prepend>
           <v-icon icon="mdi-apple" color="secondary" />
         </template>
         <v-card-title>
           <div class="text-label-small text-uppercase">Get the app</div>
-          <div class="text-title-large mb-1">Add to Home Screen</div>
+          <div class="text-title-large">Add to Home Screen</div>
         </v-card-title>
       </v-card-item>
     </template>

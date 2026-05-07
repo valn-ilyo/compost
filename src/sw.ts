@@ -30,9 +30,11 @@ registerRoute(new NavigationRoute(handler));
 self.addEventListener("push", (event) => {
   const data = event.data?.json() ?? {};
   const title: string = data.title ?? "Compost";
+  const body: string | undefined = data.body;
 
   event.waitUntil(
     self.registration.showNotification(title, {
+      body,
       icon: "/compost/pwa-192x192.png",
       badge: "/compost/pwa-64x64.png",
     }),

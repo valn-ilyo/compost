@@ -50,20 +50,35 @@ export function useNotificationPrompt() {
   /**
    * Called by the banner's "Enable reminders" button.
    * Requests permission then subscribes. Hides the banner on success or denial.
+   *
+   * NOTE: do not add any `await` before `Notification.requestPermission()` here.
+   * Chrome on Android requires the call to be synchronous within the user gesture.
+   * The SW is guaranteed ready by the time this can be called (see onMounted).
    */
   async function requestPermission(): Promise<void> {
     if (!("Notification" in window)) return;
 
-    const permission = await Notification.requestPermission();
-    showNotificationBanner.value = false;
+    try {
+      const permission = await Notification.requestPermission();
+      showNotificationBanner.value = false;
 
-    if (permission === "granted") {
-      await subscribeAndSave();
+      if (permission === "granted") {
+        await subscribeAndSave();
+      }
+    } catch (err) {
+      // Permission request failed (e.g. SW not ready, browser policy).
+      // Leave the banner visible so the user can try again.
+      console.error("[push] requestPermission failed:", err);
     }
   }
 
   onMounted(async () => {
     if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+
+    // Wait for the service worker to be active and controlling the page before
+    // showing the banner. Chrome on Android silently drops Notification.requestPermission()
+    // if the SW isn't ready yet — this ensures it's ready by the time the user taps.
+    await navigator.serviceWorker.ready;
 
     const permission = Notification.permission;
 

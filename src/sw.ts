@@ -35,8 +35,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: "/compost/icons/icon-192.png",
-      badge: "/compost/icons/icon-96.png",
+      icon: "/compost/pwa-192x192.png",
+      badge: "/compost/pwa-64x64.png",
     }),
   );
 });

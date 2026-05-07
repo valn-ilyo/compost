@@ -41,12 +41,15 @@ export function useNotificationPrompt() {
 
       if (!endpoint || !p256dh || !auth) return;
 
-      // Upsert on user_id so that if the browser rotates the push subscription
-      // (new endpoint) the row is updated rather than leaving a stale endpoint
-      // in the DB that the backend would send to a dead address.
+      // Upsert on (user_id, endpoint) — one row per user per device.
+      // If the browser rotates p256dh/auth for the same endpoint, the row is
+      // updated in place. A new device gets its own row.
       await supabase
         .from("push_subscriptions")
-        .upsert({ user_id: userData.user.id, endpoint, p256dh, auth }, { onConflict: "user_id" });
+        .upsert(
+          { user_id: userData.user.id, endpoint, p256dh, auth },
+          { onConflict: "user_id,endpoint" },
+        );
     } catch (e) {
       if (import.meta.env.DEV) console.warn("[push] subscribeAndSave failed", e);
       // subscription failed silently in prod — user can retry via the banner

@@ -83,6 +83,12 @@ async function runHydration() {
     ]);
 
     syncStore.setHydrated();
+    // Reconcile here — after setHydrated() — so sync.enqueue() is live and
+    // streak/freeze mutations get pushed to Supabase immediately.
+    // Do NOT call this from App.vue onMounted: enqueue() is a no-op until
+    // isHydrated is true, so any reconcile mutations fired before this point
+    // are never written to Supabase, causing stale state on a second device.
+    masteryStore.reconcileStreaks();
 
     const next = (route.query.next as string) || "/";
     await router.push(next);

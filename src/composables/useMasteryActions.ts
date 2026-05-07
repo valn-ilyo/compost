@@ -33,7 +33,7 @@ export function useMasteryActions() {
   function handleResume(habitId: string): void {
     const habit = store.pausedHabits.find((h) => h.id === habitId);
     if (!habit) return;
-    if (store.activeHabits.length >= MAX_SLOTS) {
+    if (store.usedSlots >= MAX_SLOTS) {
       const template = HABIT_TEMPLATES.find((t) => t.id === habit.templateId);
       if (!template) return;
       pendingTemplate.value = template;

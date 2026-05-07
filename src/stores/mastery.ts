@@ -401,6 +401,12 @@ export const useMasteryStore = defineStore(
 
       // ── Habit slots ──────────────────────────────────────────────────────────
 
+      // Capture before the loop — the loop pushes remote rows into slots, so
+      // checking slots.value.length === 0 *after* would always be false when
+      // the user has remote data. We need the pre-hydration count to detect a
+      // "fresh device with no local data" scenario for freeze count below.
+      const localSlotCount = slots.value.length;
+
       const localTemplateIds = new Set(slots.value.map((h) => h.templateId));
 
       for (const row of slotsRes.data ?? []) {
@@ -431,7 +437,7 @@ export const useMasteryStore = defineStore(
       // Only take from remote if local is a clean slate — no slots at all before
       // this hydration run. If the user had local data, local wins.
 
-      if (stateRes.data && slots.value.length === 0) {
+      if (stateRes.data && localSlotCount === 0) {
         freezeCount.value = stateRes.data.freeze_count;
       }
 

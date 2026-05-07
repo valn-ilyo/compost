@@ -59,12 +59,13 @@ useThemeStore();
 // view the user lands on first — not just when MasteryView mounts.
 useMasteryRecommendations();
 
-// Reconcile streaks every time the app is opened.
-// This catches missed days that occurred while the app was closed —
-// persisted state has no mechanism to run logic between sessions.
+// Reconcile streaks on every app open — but only after hydration is complete
+// so that sync.enqueue() is live and reconcile mutations reach Supabase.
+// The actual reconcileStreaks() call lives in AuthView.runHydration() right
+// after syncStore.setHydrated(). Calling it here (before hydration) would
+// cause reconcile to mutate local state while enqueue() is still a no-op,
+// so the streak resets would never be pushed to Supabase.
 onMounted(() => {
-  masteryStore.reconcileStreaks();
-
   // Register the reconnect callback before init() attaches the online listener.
   // When the device comes back online, we re-pull from Supabase first so the
   // local stores reflect what other devices wrote while offline, then drain

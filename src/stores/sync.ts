@@ -149,6 +149,11 @@ export const useSyncStore = defineStore(
       }
     }
 
+    // Concurrency guard: prevents two simultaneous drain() calls (e.g. from
+    // setHydrated() and the online event handler firing together on reconnect)
+    // from racing over the same queue items.
+    let draining = false;
+
     /**
      * Flush the queue to Supabase sequentially.
      *
@@ -163,67 +168,79 @@ export const useSyncStore = defineStore(
      */
     async function drain() {
       if (!isOnline.value || !isHydrated.value || queue.value.length === 0) return;
+      if (draining) return;
+      draining = true;
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      if (!session) return; // no valid session — leave queue intact for after next sign-in
+        if (!session) return; // no valid session — leave queue intact for after next sign-in
 
-      // Cast to any: table names are dynamic strings validated by ON_CONFLICT map above.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = supabase as any;
+        // Cast to any: table names are dynamic strings validated by ON_CONFLICT map above.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const db = supabase as any;
 
-      const totalStart = performance.now();
-      const totalItems = queue.value.length;
-      console.log(`[sync] drain started — ${totalItems} item(s) in queue`);
+        const totalStart = performance.now();
+        const totalItems = queue.value.length;
+        console.log(`[sync] drain started — ${totalItems} item(s) in queue`);
 
-      const i = 0;
-      while (i < queue.value.length) {
-        const item = queue.value[i]!;
-        const itemStart = performance.now();
+        const i = 0;
+        while (i < queue.value.length) {
+          const item = queue.value[i]!;
+          const itemStart = performance.now();
 
-        try {
-          if (item.operation === "upsert") {
-            const onConflict = ON_CONFLICT[item.table];
-            const { error } = await db
-              .from(item.table)
-              .upsert(item.payload, onConflict ? { onConflict } : undefined);
+          try {
+            if (item.operation === "upsert") {
+              const onConflict = ON_CONFLICT[item.table];
+              const { error } = await db
+                .from(item.table)
+                .upsert(item.payload, onConflict ? { onConflict } : undefined);
 
-            if (error) {
-              console.warn(`[sync] upsert failed on table="${item.table}" id="${item.id}"`, error);
-              // 401 / JWT expired — abort the whole drain
-              if (error.status === 401 || error.code === "PGRST301") return;
-              // Network / 5xx — stop here, retry on next online event
-              return;
+              if (error) {
+                console.warn(
+                  `[sync] upsert failed on table="${item.table}" id="${item.id}"`,
+                  error,
+                );
+                // 401 / JWT expired — abort the whole drain
+                if (error.status === 401 || error.code === "PGRST301") return;
+                // Network / 5xx — stop here, retry on next online event
+                return;
+              }
+            } else {
+              // delete — payload contains only PK fields
+              const { error } = await db.from(item.table).delete().match(item.payload);
+
+              if (error) {
+                console.warn(
+                  `[sync] delete failed on table="${item.table}" id="${item.id}"`,
+                  error,
+                );
+                if (error.status === 401 || error.code === "PGRST301") return;
+                return;
+              }
             }
-          } else {
-            // delete — payload contains only PK fields
-            const { error } = await db.from(item.table).delete().match(item.payload);
 
-            if (error) {
-              console.warn(`[sync] delete failed on table="${item.table}" id="${item.id}"`, error);
-              if (error.status === 401 || error.code === "PGRST301") return;
-              return;
-            }
+            const itemMs = (performance.now() - itemStart).toFixed(1);
+            console.log(
+              `[sync] ✓ ${item.operation} table="${item.table}" id="${item.id}" — ${itemMs}ms`,
+            );
+
+            // Success — remove from queue without advancing i (array shifted left)
+            queue.value.splice(i, 1);
+          } catch (err) {
+            console.warn(`[sync] network error on table="${item.table}" id="${item.id}"`, err);
+            // Network error (fetch threw) — stop draining, retry on next online event
+            return;
           }
-
-          const itemMs = (performance.now() - itemStart).toFixed(1);
-          console.log(
-            `[sync] ✓ ${item.operation} table="${item.table}" id="${item.id}" — ${itemMs}ms`,
-          );
-
-          // Success — remove from queue without advancing i (array shifted left)
-          queue.value.splice(i, 1);
-        } catch (err) {
-          console.warn(`[sync] network error on table="${item.table}" id="${item.id}"`, err);
-          // Network error (fetch threw) — stop draining, retry on next online event
-          return;
         }
-      }
 
-      const totalMs = (performance.now() - totalStart).toFixed(1);
-      console.log(`[sync] drain complete — ${totalItems} item(s) in ${totalMs}ms`);
+        const totalMs = (performance.now() - totalStart).toFixed(1);
+        console.log(`[sync] drain complete — ${totalItems} item(s) in ${totalMs}ms`);
+      } finally {
+        draining = false;
+      }
     }
 
     return {

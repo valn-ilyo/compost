@@ -48,7 +48,11 @@ function close(): void {
       <v-card-title
         v-motion
         :initial="{ opacity: 0, y: 8 }"
-        :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 } }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 },
+        }"
         class="pt-5 px-4"
       >
         Swap a habit
@@ -60,8 +64,13 @@ function close(): void {
         :enter="{ opacity: 1, transition: { duration: 200, delay: 100 } }"
         class="px-4 pb-4 text-wrap"
       >
-        You have 3 active habits. Choose one to replace. Any streak it has will be paused, not
-        deleted.
+        <template v-if="store.activeHabits.length === 0">
+          All 3 slots are mastered. Retire a habit to add something new.
+        </template>
+        <template v-else>
+          You have 3 active habits. Choose one to replace. Any streak it has will be paused, not
+          deleted.
+        </template>
       </v-card-subtitle>
 
       <v-divider />
@@ -106,7 +115,9 @@ function close(): void {
         }"
         class="pa-4 pt-2"
       >
-        <v-btn block variant="tonal" rounded="lg" @click="close">Cancel</v-btn>
+        <v-btn block variant="tonal" rounded="lg" @click="close">
+          {{ store.activeHabits.length === 0 ? "Close" : "Cancel" }}
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-bottom-sheet>

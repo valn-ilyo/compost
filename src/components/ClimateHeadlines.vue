@@ -1,10 +1,34 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useClimateClock } from "@/composables/useClimateClock";
 
 const { loading, tickerItems } = useClimateClock();
 
 const activeIndex = ref(0);
+const progress = ref(0);
+
+const INTERVAL = 5000;
+let rafId: number | null = null;
+let startTime: number | null = null;
+
+function tick(now: number) {
+  if (startTime === null) startTime = now;
+  progress.value = Math.min(((now - startTime) / INTERVAL) * 100, 100);
+  rafId = requestAnimationFrame(tick);
+}
+
+function resetProgress() {
+  if (rafId !== null) cancelAnimationFrame(rafId);
+  progress.value = 0;
+  startTime = null;
+  rafId = requestAnimationFrame(tick);
+}
+
+watch(activeIndex, () => resetProgress());
+onMounted(() => resetProgress());
+onBeforeUnmount(() => {
+  if (rafId !== null) cancelAnimationFrame(rafId);
+});
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -14,7 +38,17 @@ function formatDate(iso: string): string {
 
 <template>
   <v-sheet>
-    <v-chip label variant="text" class="text-uppercase">Good news about the planet.</v-chip>
+    <v-chip label variant="text" class="text-uppercase">
+      Good news about the planet.
+      <template #append>
+        <v-progress-circular
+          :model-value="progress"
+          size="12"
+          width="1.5"
+          class="ml-2 headline-progress"
+        />
+      </template>
+    </v-chip>
 
     <!-- Skeleton -->
     <v-card
@@ -82,9 +116,7 @@ function formatDate(iso: string): string {
             >
               {{ item.headline }}
             </v-card-title>
-
             <v-spacer />
-
             <v-card-actions class="py-0">
               <v-spacer />
               <v-btn
@@ -136,8 +168,10 @@ function formatDate(iso: string): string {
   -webkit-line-clamp: 3;
   line-clamp: 3;
 }
-
 :deep(.v-skeleton-loader__bone) {
   margin: 0;
+}
+:deep(.headline-progress .v-progress-circular__overlay) {
+  transition: none;
 }
 </style>

@@ -25,8 +25,11 @@ const sessionExpiredMsg = ref("");
 
 // ─── Login ────────────────────────────────────────────────────────────────────
 
+const googleLoading = ref(false);
+
 const loginWithGoogle = async () => {
   sessionExpiredMsg.value = "";
+  googleLoading.value = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -35,9 +38,12 @@ const loginWithGoogle = async () => {
       },
     });
     if (error) {
+      googleLoading.value = false;
       notify({ message: `Login failed: ${error.message}`, color: "error" });
     }
+    // success: browser navigating away, leave loading as true
   } catch (err) {
+    googleLoading.value = false;
     notify({
       message: err instanceof Error ? err.message : "An unexpected error occurred",
       color: "error",
@@ -236,6 +242,8 @@ onMounted(async () => {
             color="background"
             variant="flat"
             elevation="1"
+            :loading="googleLoading"
+            :disabled="googleLoading"
             @click="loginWithGoogle"
           >
             <template #prepend>

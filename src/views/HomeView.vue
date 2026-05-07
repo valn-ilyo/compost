@@ -35,7 +35,7 @@ function goToLog(): void {
 
 const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall();
 
-const { showNotificationBanner, debugLog, requestPermission } = useNotificationPrompt();
+const { showNotificationBanner, requestPermission } = useNotificationPrompt();
 
 const cardWidth = ref<number>(0);
 
@@ -128,19 +128,6 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
           :show="showNotificationBanner && masteryStore.activeHabits.length > 0"
           @enable="requestPermission"
         />
-
-        <!-- TEMP DEBUG: remove after push notifications are confirmed working -->
-        <v-card v-if="debugLog.length > 0" color="surface-variant" variant="flat" rounded>
-          <v-card-text>
-            <div
-              v-for="(line, i) in debugLog"
-              :key="i"
-              style="font-family: monospace; font-size: 11px; line-height: 1.6"
-            >
-              {{ line }}
-            </div>
-          </v-card-text>
-        </v-card>
       </v-col>
     </v-row>
   </v-container>

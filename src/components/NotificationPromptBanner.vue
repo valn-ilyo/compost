@@ -27,20 +27,17 @@ defineEmits<{
       <template #prepend>
         <v-icon icon="mdi-bell-outline" color="secondary" />
       </template>
-      <v-card-title>
-        <div class="text-label-small text-uppercase">Daily reminder</div>
-        <div class="text-title-large mb-1">Enable notifications</div>
-      </v-card-title>
+      <v-card-title class="text-title-large">Daily reminder</v-card-title>
     </v-card-item>
 
     <v-card-text class="pt-0 text-body-medium text-on-secondary-container">
-      Get a nudge at 6:30 PM if you haven't logged your habits for the day.
+      A nudge at 6:30 PM if you haven't logged for the day.
     </v-card-text>
 
     <v-card-actions>
       <v-spacer />
       <v-btn variant="flat" rounded="lg" color="secondary" @click="$emit('enable')">
-        Enable reminders
+        Turn on
       </v-btn>
     </v-card-actions>
   </v-card>

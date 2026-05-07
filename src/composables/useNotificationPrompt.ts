@@ -3,14 +3,8 @@ import { supabase } from "@/lib/supabaseClient";
 
 export function useNotificationPrompt() {
   const showNotificationBanner = ref(false);
-  const debugLog = ref<string[]>([]);
 
   const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
-
-  function log(msg: string) {
-    console.log("[push]", msg);
-    debugLog.value.push(msg);
-  }
 
   function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -20,104 +14,61 @@ export function useNotificationPrompt() {
   }
 
   async function subscribeAndSave(): Promise<void> {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      log("ERROR: serviceWorker or PushManager not available");
-      return;
-    }
-
-    if (!VAPID_PUBLIC_KEY) {
-      log("ERROR: VITE_VAPID_PUBLIC_KEY is not set");
-      return;
-    }
-
-    log("VAPID key present: " + VAPID_PUBLIC_KEY.slice(0, 12) + "...");
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    if (!VAPID_PUBLIC_KEY) return;
 
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
-      log("ERROR: no authenticated user");
-      return;
-    }
-
-    log("user: " + userData.user.id);
+    if (!userData.user) return;
 
     try {
-      log("waiting for SW...");
       const registration = await navigator.serviceWorker.ready;
-      log("SW ready, subscribing...");
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
 
-      log("subscribed to push");
-
       const json = subscription.toJSON();
       const endpoint = json.endpoint;
       const p256dh = json.keys?.["p256dh"];
       const auth = json.keys?.["auth"];
 
-      if (!endpoint || !p256dh || !auth) {
-        log("ERROR: subscription missing keys");
-        return;
-      }
+      if (!endpoint || !p256dh || !auth) return;
 
-      log("upserting to supabase...");
-
-      const { error } = await supabase
+      await supabase
         .from("push_subscriptions")
         .upsert({ user_id: userData.user.id, endpoint, p256dh, auth }, { onConflict: "endpoint" });
-
-      if (error) {
-        log("ERROR: upsert failed: " + error.message);
-      } else {
-        log("SUCCESS: subscription saved");
-      }
-    } catch (err: unknown) {
-      log("ERROR: " + (err instanceof Error ? err.message : String(err)));
+    } catch {
+      // subscription failed silently — user can retry via the banner
     }
   }
 
   async function requestPermission(): Promise<void> {
-    if (!("Notification" in window)) {
-      log("ERROR: Notification API not available");
-      return;
-    }
-
-    log("requesting permission...");
+    if (!("Notification" in window)) return;
 
     try {
       const permission = await Notification.requestPermission();
-      log("permission result: " + permission);
       showNotificationBanner.value = false;
 
       if (permission === "granted") {
         await subscribeAndSave();
       }
-    } catch (err: unknown) {
-      log("ERROR: requestPermission threw: " + (err instanceof Error ? err.message : String(err)));
+    } catch {
+      // permission request failed — banner stays visible for retry
     }
   }
 
   onMounted(async () => {
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-      log("ERROR: Notification or SW not supported");
-      return;
-    }
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
 
-    log("onMounted: waiting for SW...");
     await navigator.serviceWorker.ready;
-    log("onMounted: SW ready, permission=" + Notification.permission);
 
-    const permission = Notification.permission;
-
-    if (permission === "default") {
+    if (Notification.permission === "default") {
       showNotificationBanner.value = true;
-    } else if (permission === "granted") {
-      log("onMounted: already granted, re-subscribing...");
-      subscribeAndSave().catch((err) => log("ERROR: " + String(err)));
+    } else if (Notification.permission === "granted") {
+      subscribeAndSave().catch(() => {});
     }
   });
 
-  return { showNotificationBanner, debugLog, requestPermission };
+  return { showNotificationBanner, requestPermission };
 }

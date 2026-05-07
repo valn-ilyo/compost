@@ -31,6 +31,18 @@ export const useSyncStore = defineStore(
      */
     const isHydrated = ref(false);
 
+    /**
+     * Optional async callback registered by App.vue.
+     * Called when the device comes back online, before the queue is drained.
+     * This is where the caller re-hydrates all stores from Supabase so that
+     * the drain pushes state that already reflects what other devices wrote.
+     */
+    let reconnectCallback: (() => Promise<void>) | null = null;
+
+    function onReconnect(cb: () => Promise<void>) {
+      reconnectCallback = cb;
+    }
+
     // ─── Computed ────────────────────────────────────────────────────────────
 
     const status = computed<SyncStatus>(() => {
@@ -48,9 +60,25 @@ export const useSyncStore = defineStore(
     function init() {
       isOnline.value = navigator.onLine;
 
-      window.addEventListener("online", () => {
+      window.addEventListener("online", async () => {
         isOnline.value = true;
-        if (isHydrated.value && queue.value.length > 0) {
+        if (!isHydrated.value) return;
+
+        // Re-pull from Supabase before draining so the queue reflects what
+        // other devices wrote while this one was offline. Without this step,
+        // the drain would push a stale snapshot and potentially overwrite
+        // progress made on another device (even with the DB-side merge guards).
+        if (reconnectCallback) {
+          try {
+            await reconnectCallback();
+          } catch {
+            // Hydration failed (network still flaky, session expired, etc.).
+            // Leave the queue intact — the next online event will retry.
+            return;
+          }
+        }
+
+        if (queue.value.length > 0) {
           drain();
         }
       });
@@ -204,6 +232,7 @@ export const useSyncStore = defineStore(
       isHydrated,
       status,
       init,
+      onReconnect,
       enqueue,
       dequeueByTable,
       clearQueue,

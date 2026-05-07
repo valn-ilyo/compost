@@ -44,8 +44,13 @@ import { useMasteryStore } from "@/stores/mastery";
 import { useThemeStore } from "@/stores/theme";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
 import { useSyncStore } from "@/stores/sync";
+import { useAssessmentStore } from "@/stores/assessment";
+import { useProfileStore } from "@/stores/profile";
+import { supabase } from "@/lib/supabaseClient";
 
 const masteryStore = useMasteryStore();
+const assessmentStore = useAssessmentStore();
+const profileStore = useProfileStore();
 const syncStore = useSyncStore();
 // Initialising here (not just in AppBarProfile) ensures the persisted theme
 // is applied on every page load, not only when the Profile tab is visited.
@@ -59,6 +64,27 @@ useMasteryRecommendations();
 // persisted state has no mechanism to run logic between sessions.
 onMounted(() => {
   masteryStore.reconcileStreaks();
+
+  // Register the reconnect callback before init() attaches the online listener.
+  // When the device comes back online, we re-pull from Supabase first so the
+  // local stores reflect what other devices wrote while offline, then drain
+  // the queue so local changes are pushed on top of that truth.
+  syncStore.onReconnect(async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const userId = session.user.id;
+    const email = session.user.email ?? undefined;
+
+    await Promise.all([
+      profileStore.fetchProfile(userId, email),
+      assessmentStore.hydrateFromSupabase(userId),
+      masteryStore.hydrateFromSupabase(userId),
+    ]);
+  });
+
   syncStore.init();
 });
 </script>

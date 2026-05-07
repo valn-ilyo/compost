@@ -38,6 +38,7 @@ function slotPayload(userId: string, habit: UserHabit): Record<string, unknown> 
     is_paused: habit.isPaused,
     is_mastered: habit.isMastered,
     freeze_used: habit.freezeUsed,
+    updated_at: new Date().toISOString(),
   };
 }
 
@@ -280,7 +281,11 @@ export const useMasteryStore = defineStore(
           id: `mastery_state:${userId}`,
           table: "mastery_state",
           operation: "upsert",
-          payload: { user_id: userId, freeze_count: freezeCount.value },
+          payload: {
+            user_id: userId,
+            freeze_count: freezeCount.value,
+            updated_at: new Date().toISOString(),
+          },
           enqueuedAt: Date.now(),
         });
       }
@@ -360,7 +365,11 @@ export const useMasteryStore = defineStore(
           id: `mastery_state:${userId}`,
           table: "mastery_state",
           operation: "upsert",
-          payload: { user_id: userId, freeze_count: newFreezeCount },
+          payload: {
+            user_id: userId,
+            freeze_count: newFreezeCount,
+            updated_at: new Date().toISOString(),
+          },
           enqueuedAt: Date.now(),
         });
       }

@@ -24,3 +24,19 @@ cleanupOutdatedCaches();
 // so deep links and refreshes work offline and after updates.
 const handler = createHandlerBoundToURL("/compost/index.html");
 registerRoute(new NavigationRoute(handler));
+
+// ─── Push notifications ───────────────────────────────────────────────────────
+
+self.addEventListener("push", (event) => {
+  const data = event.data?.json() ?? {};
+  const title: string = data.title ?? "Compost";
+  const body: string = data.body ?? "Time to log your habits.";
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon: "/compost/icons/icon-192.png",
+      badge: "/compost/icons/icon-96.png",
+    }),
+  );
+});

@@ -5,10 +5,13 @@ import { useRouter } from "vue-router";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
 import { usePwaInstall } from "@/composables/usePwaInstall";
+import { useNotificationPrompt } from "@/composables/useNotificationPrompt";
 import { SECTIONS } from "@/data";
 import AppBarHome from "@/components/AppBarHome.vue";
 import ClimateHeadlines from "@/components/ClimateHeadlines.vue";
 import PwaInstallBanner from "@/components/PwaInstallBanner.vue";
+import NotificationPromptBanner from "@/components/NotificationPromptBanner.vue";
+import AllLoggedCard from "@/components/AllLoggedCard.vue";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();
@@ -31,6 +34,8 @@ function goToLog(): void {
 }
 
 const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall();
+
+const { showNotificationBanner, requestPermission } = useNotificationPrompt();
 
 const cardWidth = ref<number>(0);
 
@@ -110,31 +115,18 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
           </template>
         </v-card>
 
-        <v-card
-          v-if="showAllDoneCard"
-          v-motion
-          :initial="{ opacity: 0, y: 28, scale: 0.96 }"
-          :enter="{
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
-          }"
-          color="primary-container"
-          variant="flat"
-          rounded
-          prepend-icon="mdi-check-decagram"
-        >
-          <template #title>
-            <div class="text-title-large mb-1">All logged for today</div>
-          </template>
-        </v-card>
+        <AllLoggedCard v-if="showAllDoneCard" />
 
         <PwaInstallBanner
           :show="showInstallBanner"
           :has-install-prompt="!!installPrompt"
           :is-ios="isIos"
           @install="triggerInstall"
+        />
+
+        <NotificationPromptBanner
+          :show="showNotificationBanner && masteryStore.activeHabits.length > 0"
+          @enable="requestPermission"
         />
       </v-col>
     </v-row>

@@ -7,6 +7,7 @@ import { useMasteryCheckin } from "@/composables/useMasteryCheckin";
 import { useMasteryActions } from "@/composables/useMasteryActions";
 import HabitCard from "@/components/HabitCard.vue";
 import HabitLibrary from "@/components/HabitLibrary.vue";
+import AllLoggedCard from "@/components/AllLoggedCard.vue";
 import MasteryCheckinSheet from "@/components/MasteryCheckInSheet.vue";
 import MasterySwapSheet from "@/components/MasterySwapSheet.vue";
 import MasteryFreezeInfo from "@/components/MasteryFreezeInfo.vue";
@@ -134,7 +135,7 @@ onMounted(() => {
               </TransitionGroup>
             </v-card>
 
-            <!-- log all button — only shown when there are loggable active habits -->
+            <!-- log all button — only shown when there are unlogged active habits -->
             <v-expand-transition>
               <div v-if="!showAllLogged && store.activeHabits.length > 0">
                 <v-btn
@@ -150,6 +151,13 @@ onMounted(() => {
                     <span :key="logLabel" class="label-text">{{ logLabel }}</span>
                   </Transition>
                 </v-btn>
+              </div>
+            </v-expand-transition>
+
+            <!-- all done card — shown once everything is logged -->
+            <v-expand-transition>
+              <div v-if="showAllLogged">
+                <AllLoggedCard class="mb-6" />
               </div>
             </v-expand-transition>
           </div>

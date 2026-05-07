@@ -23,10 +23,16 @@ export function useNotificationPrompt() {
     try {
       const registration = await navigator.serviceWorker.ready;
 
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
+      // Reuse an existing subscription if one exists — avoids throwing when
+      // subscribe() is called again with the same VAPID key. If the VAPID key
+      // has rotated, getSubscription() returns null and we create a fresh one.
+      const existing = await registration.pushManager.getSubscription();
+      const subscription =
+        existing ??
+        (await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        }));
 
       const json = subscription.toJSON();
       const endpoint = json.endpoint;
@@ -35,11 +41,15 @@ export function useNotificationPrompt() {
 
       if (!endpoint || !p256dh || !auth) return;
 
+      // Upsert on user_id so that if the browser rotates the push subscription
+      // (new endpoint) the row is updated rather than leaving a stale endpoint
+      // in the DB that the backend would send to a dead address.
       await supabase
         .from("push_subscriptions")
-        .upsert({ user_id: userData.user.id, endpoint, p256dh, auth }, { onConflict: "endpoint" });
-    } catch {
-      // subscription failed silently — user can retry via the banner
+        .upsert({ user_id: userData.user.id, endpoint, p256dh, auth }, { onConflict: "user_id" });
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("[push] subscribeAndSave failed", e);
+      // subscription failed silently in prod — user can retry via the banner
     }
   }
 
@@ -53,7 +63,8 @@ export function useNotificationPrompt() {
       if (permission === "granted") {
         await subscribeAndSave();
       }
-    } catch {
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("[push] requestPermission failed", e);
       // permission request failed — banner stays visible for retry
     }
   }
@@ -66,7 +77,11 @@ export function useNotificationPrompt() {
     if (Notification.permission === "default") {
       showNotificationBanner.value = true;
     } else if (Notification.permission === "granted") {
-      subscribeAndSave().catch(() => {});
+      // Re-run on every mount to keep the stored subscription fresh in case
+      // the browser rotated the push subscription since the last session.
+      subscribeAndSave().catch((e) => {
+        if (import.meta.env.DEV) console.warn("[push] subscribeAndSave failed on mount", e);
+      });
     }
   });
 

@@ -1,3 +1,23 @@
+import type { BeforeInstallPromptEvent } from "@/types/app.types";
+
+declare global {
+  interface Window {
+    __pwaInstallPrompt: BeforeInstallPromptEvent | null;
+  }
+}
+
+// Capture beforeinstallprompt before Vue mounts — the event fires very early
+// and is often missed if we wait until onMounted to add the listener.
+window.__pwaInstallPrompt = null;
+window.addEventListener(
+  "beforeinstallprompt",
+  (e) => {
+    e.preventDefault();
+    window.__pwaInstallPrompt = e as BeforeInstallPromptEvent;
+  },
+  { once: true },
+);
+
 import { registerSW } from "virtual:pwa-register";
 
 // Register the service worker and schedule periodic update checks.

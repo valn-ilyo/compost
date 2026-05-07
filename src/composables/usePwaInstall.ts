@@ -49,10 +49,26 @@ export function usePwaInstall() {
 
   onMounted(() => {
     isPwa.value = isInStandaloneMode();
+
+    // iOS path — show manual Add to Home Screen instructions
     if (isMobile() && /iPhone|iPad|iPod/i.test(navigator.userAgent) && !isInStandaloneMode()) {
       isIos.value = true;
       showInstallBanner.value = true;
     }
+
+    // Consume the prompt captured in main.ts before Vue mounted.
+    // Without this, the event is missed on first load because
+    // beforeinstallprompt fires before onMounted runs.
+    const early = window.__pwaInstallPrompt;
+    if (early) {
+      installPrompt.value = early;
+      window.__pwaInstallPrompt = null;
+      if (isMobile() && !isInStandaloneMode()) {
+        showInstallBanner.value = true;
+      }
+    }
+
+    // Still listen for any future fires (e.g. after a dismissed prompt)
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   });
 

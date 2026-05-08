@@ -1,4 +1,4 @@
-<script setup lang="ts">
+yoururg-1-1cript setup lang="ts">
 import { computed, ref } from "vue";
 import type { ComponentPublicInstance } from "vue";
 import { useRouter } from "vue-router";
@@ -111,7 +111,7 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
           @click="goToLog"
         >
           <template #title>
-            <div class="text-title-large mb-1">Log your habits</div>
+            <div class="text-title-large">Log your habits</div>
           </template>
         </v-card>
 

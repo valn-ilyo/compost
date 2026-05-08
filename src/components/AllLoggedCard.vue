@@ -14,7 +14,7 @@
     prepend-icon="mdi-check-decagram"
   >
     <template #title>
-      <div class="text-title-large mb-1">All logged for today</div>
+      <div class="text-title-large">All logged for today</div>
     </template>
   </v-card>
 </template>

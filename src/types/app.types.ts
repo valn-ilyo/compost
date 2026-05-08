@@ -351,4 +351,4 @@ export interface SyncQueueItem {
   enqueuedAt: number;
 }
 
-export type SyncStatus = "offline" | "syncing" | "synced";
+export type SyncStatus = "offline" | "hydrating" | "syncing" | "synced";

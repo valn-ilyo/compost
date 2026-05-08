@@ -79,11 +79,16 @@ onMounted(() => {
     const userId = session.user.id;
     const email = session.user.email ?? undefined;
 
-    await Promise.all([
-      profileStore.fetchProfile(userId, email),
-      assessmentStore.hydrateFromSupabase(userId),
-      masteryStore.hydrateFromSupabase(userId),
-    ]);
+    syncStore.beginHydrating();
+    try {
+      await Promise.all([
+        profileStore.fetchProfile(userId, email),
+        assessmentStore.hydrateFromSupabase(userId),
+        masteryStore.hydrateFromSupabase(userId),
+      ]);
+    } finally {
+      syncStore.endHydrating();
+    }
   });
 
   syncStore.init();

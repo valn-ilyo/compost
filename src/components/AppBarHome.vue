@@ -7,18 +7,25 @@ const clockVisibleStore = useClockVisibleStore();
 const syncStore = useSyncStore();
 
 const cloudIcon = computed(() => {
+  if (syncStore.status === "hydrating") return "mdi-cloud-arrow-down-outline";
   if (syncStore.status === "synced") return "mdi-cloud-check-outline";
   if (syncStore.status === "syncing") return "mdi-cloud-sync-outline";
   return "mdi-cloud-off-outline";
 });
 
 const cloudColor = computed(() => {
+  if (syncStore.status === "hydrating") return "info";
   if (syncStore.status === "syncing") return "info";
   if (syncStore.status === "offline") return "error";
   return undefined;
 });
 
 const cloudTooltip = computed(() => {
+  if (syncStore.status === "hydrating") {
+    return syncStore.queue.length > 0
+      ? "Restoring your data. Changes will sync after."
+      : "Restoring your data.";
+  }
   if (syncStore.status === "synced") return "Data synced.";
   if (syncStore.status === "syncing") return "Syncing data.";
   return "You're offline. Data syncs when you reconnect.";
@@ -42,7 +49,9 @@ const cloudTooltip = computed(() => {
             v-bind="props"
             :icon="cloudIcon"
             :color="cloudColor"
-            :class="{ 'icon-flashing': syncStore.status === 'syncing' }"
+            :class="{
+              'icon-flashing': syncStore.status === 'syncing' || syncStore.status === 'hydrating',
+            }"
             :ripple="false"
             style="cursor: default"
           />

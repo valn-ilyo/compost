@@ -32,6 +32,13 @@ export const useSyncStore = defineStore(
     const isHydrated = ref(false);
 
     /**
+     * True while a Supabase hydration pull is in flight.
+     * Set by beginHydrating(); cleared by setHydrated() or endHydrating().
+     * Not persisted.
+     */
+    const isHydrating = ref(false);
+
+    /**
      * Optional async callback registered by App.vue.
      * Called when the device comes back online, before the queue is drained.
      * This is where the caller re-hydrates all stores from Supabase so that
@@ -45,8 +52,14 @@ export const useSyncStore = defineStore(
 
     // ─── Computed ────────────────────────────────────────────────────────────
 
+    // Priority: offline > hydrating > syncing > synced.
+    // Hydrating beats syncing even when both are true (reconnect path: isHydrated is
+    // already true so enqueue() is live, meaning drain() can fire mid-hydration).
+    // The pull must settle before outgoing writes are meaningful — showing "syncing"
+    // while remote state is still in flight would be misleading.
     const status = computed<SyncStatus>(() => {
       if (!isOnline.value) return "offline";
+      if (isHydrating.value) return "hydrating";
       if (queue.value.length > 0) return "syncing";
       return "synced";
     });
@@ -139,10 +152,21 @@ export const useSyncStore = defineStore(
       queue.value = [];
     }
 
+    /** Signal that a Supabase pull is starting. */
+    function beginHydrating() {
+      isHydrating.value = true;
+    }
+
+    /** Signal that a reconnect hydration pull finished (without calling setHydrated). */
+    function endHydrating() {
+      isHydrating.value = false;
+    }
+
     /**
      * Mark hydration as complete. Triggers a drain if online and queue is non-empty.
      */
     function setHydrated() {
+      isHydrating.value = false;
       isHydrated.value = true;
       if (isOnline.value && queue.value.length > 0) {
         drain();
@@ -186,9 +210,11 @@ export const useSyncStore = defineStore(
         const totalItems = queue.value.length;
         console.log(`[sync] drain started — ${totalItems} item(s) in queue`);
 
-        const i = 0;
-        while (i < queue.value.length) {
-          const item = queue.value[i]!;
+        // Always process queue[0]: on success it is spliced out so the next
+        // item shifts into position; on any failure we return immediately,
+        // leaving the item (and everything behind it) for the next drain call.
+        while (queue.value.length > 0) {
+          const item = queue.value[0]!;
           const itemStart = performance.now();
 
           try {
@@ -227,8 +253,7 @@ export const useSyncStore = defineStore(
               `[sync] ✓ ${item.operation} table="${item.table}" id="${item.id}" — ${itemMs}ms`,
             );
 
-            // Success — remove from queue without advancing i (array shifted left)
-            queue.value.splice(i, 1);
+            queue.value.splice(0, 1);
           } catch (err) {
             console.warn(`[sync] network error on table="${item.table}" id="${item.id}"`, err);
             // Network error (fetch threw) — stop draining, retry on next online event
@@ -247,9 +272,12 @@ export const useSyncStore = defineStore(
       queue,
       isOnline,
       isHydrated,
+      isHydrating,
       status,
       init,
       onReconnect,
+      beginHydrating,
+      endHydrating,
       enqueue,
       dequeueByTable,
       clearQueue,
@@ -261,7 +289,7 @@ export const useSyncStore = defineStore(
     persist: {
       key: "sync-store",
       storage: localStorage,
-      // Only queue survives page refresh; isOnline and isHydrated are runtime state.
+      // Only queue survives page refresh; isOnline, isHydrated, and isHydrating are runtime state.
       paths: ["queue"],
     } as PersistenceOptions,
   },

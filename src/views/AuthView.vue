@@ -76,6 +76,7 @@ async function runHydration() {
     // from a previous user's session bleeding into the new one.
     resetAllStores();
 
+    syncStore.beginHydrating();
     await Promise.all([
       profileStore.fetchProfile(userId, email),
       assessmentStore.hydrateFromSupabase(userId),
@@ -93,6 +94,7 @@ async function runHydration() {
     const next = (route.query.next as string) || "/";
     await router.push(next);
   } catch {
+    syncStore.endHydrating();
     const {
       data: { user },
     } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));

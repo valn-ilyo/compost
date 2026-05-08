@@ -1,4 +1,4 @@
-yoururg-1-1cript setup lang="ts">
+<script setup lang="ts">
 import { computed, ref } from "vue";
 import type { ComponentPublicInstance } from "vue";
 import { useRouter } from "vue-router";

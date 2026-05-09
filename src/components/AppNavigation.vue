@@ -33,9 +33,8 @@ const items = ref([
   },
 ]);
 
-const selected = ref<string>(); // will hold the active route path
+const selected = ref<string>();
 
-// Sync selected with current route on mount and route changes
 watch(
   () => route.path,
   (newPath) => {

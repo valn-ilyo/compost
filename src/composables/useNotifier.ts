@@ -24,7 +24,6 @@ function showNext() {
 export function useNotifier() {
   const notify = (options: NotificationOptions) => {
     if (isActive.value) {
-      // A notification is already showing — enqueue
       queue.value.push(options)
     } else {
       message.value = options.message
@@ -34,7 +33,6 @@ export function useNotifier() {
     }
   }
 
-  // Called by the snackbar component when it finishes closing
   const onClosed = () => {
     // Brief delay so the exit animation completes before the next one appears
     setTimeout(showNext, 300)

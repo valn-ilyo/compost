@@ -1,13 +1,9 @@
-import { reactive } from "vue"; // add this
+import { reactive } from "vue";
 
 export const clock = reactive({
-  // was: export const clock = {
   now: (): Date => new Date(),
 });
-// Restore any simulated day offset so refreshing the app mid-simulation
-// keeps the clock where DevView left it. Vite replaces import.meta.env.DEV
-// with false at build time so this entire block is dead-code-eliminated
-// in production — clock.now stays as () => new Date() and nothing ships.
+// DEV only: restore any simulated day offset (dead-code-eliminated in production).
 if (import.meta.env.DEV) {
   const stored = Number(localStorage.getItem("__dev_day_offset") ?? 0);
   if (stored) {
@@ -15,12 +11,7 @@ if (import.meta.env.DEV) {
   }
 }
 
-// Schedule a reactive clock.now reassignment at each UTC midnight.
-// Because clock is a reactive object, reassigning the property invalidates
-// every Vue computed that reads clock.now — allLoggedToday, unloggedToday,
-// isLoggedToday — so habits logged at 11:58 PM don't stay "logged today"
-// at 12:01 AM without a user interaction to trigger a recompute.
-// Skipped in DEV when a day-simulation offset is active so DevView stays consistent.
+// Reassign clock.now at UTC midnight to invalidate date-dependent computed values.
 function scheduleMidnightRefresh() {
   const msUntilMidnight = 86_400_000 - (Date.now() % 86_400_000);
   setTimeout(() => {

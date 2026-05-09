@@ -1,15 +1,4 @@
 <script setup lang="ts">
-/**
- * DevView — QA panel for the mastery store.
- *
- * This file is purely additive. Deleting it (along with the /dev route in
- * src/router/index.ts) leaves the production app completely intact.
- *
- * Time simulation is done via the shared clock in @/stores/clock. The offset
- * is persisted to localStorage so it survives page refreshes — clock.ts
- * restores it on module load.
- */
-
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";

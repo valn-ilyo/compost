@@ -52,11 +52,6 @@ export const useSyncStore = defineStore(
 
     // ─── Computed ────────────────────────────────────────────────────────────
 
-    // Priority: offline > hydrating > syncing > synced.
-    // Hydrating beats syncing even when both are true (reconnect path: isHydrated is
-    // already true so enqueue() is live, meaning drain() can fire mid-hydration).
-    // The pull must settle before outgoing writes are meaningful — showing "syncing"
-    // while remote state is still in flight would be misleading.
     const status = computed<SyncStatus>(() => {
       if (!isOnline.value) return "offline";
       if (isHydrating.value) return "hydrating";
@@ -200,22 +195,16 @@ export const useSyncStore = defineStore(
           data: { session },
         } = await supabase.auth.getSession();
 
-        if (!session) return; // no valid session — leave queue intact for after next sign-in
+        if (!session) return;
 
-        // Cast to any: table names are dynamic strings validated by ON_CONFLICT map above.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const db = supabase as any;
-
-        const totalStart = performance.now();
-        const totalItems = queue.value.length;
-        console.log(`[sync] drain started — ${totalItems} item(s) in queue`);
 
         // Always process queue[0]: on success it is spliced out so the next
         // item shifts into position; on any failure we return immediately,
         // leaving the item (and everything behind it) for the next drain call.
         while (queue.value.length > 0) {
           const item = queue.value[0]!;
-          const itemStart = performance.now();
 
           try {
             if (item.operation === "upsert") {
@@ -254,12 +243,6 @@ export const useSyncStore = defineStore(
                 return;
               }
             }
-
-            const itemMs = (performance.now() - itemStart).toFixed(1);
-            console.log(
-              `[sync] ✓ ${item.operation} table="${item.table}" id="${item.id}" — ${itemMs}ms`,
-            );
-
             queue.value.splice(0, 1);
           } catch (err) {
             console.warn(`[sync] network error on table="${item.table}" id="${item.id}"`, err);
@@ -272,8 +255,6 @@ export const useSyncStore = defineStore(
           }
         }
 
-        const totalMs = (performance.now() - totalStart).toFixed(1);
-        console.log(`[sync] drain complete — ${totalItems} item(s) in ${totalMs}ms`);
       } finally {
         draining = false;
       }

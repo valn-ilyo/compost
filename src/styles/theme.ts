@@ -13,8 +13,8 @@ export const theme = {
         background: "#F5FBF7",
         surface: "#F5FBF7",
         "surface-bright": "#F5FBF7",
-        "surface-light": "#EFF5F1", // surfaceContainerLow
-        "surface-variant": "#DEE4E0", // surfaceContainerHighest
+        "surface-light": "#EFF5F1",
+        "surface-variant": "#DEE4E0",
         "on-surface-variant": "#3F4945",
 
         outline: "#6F7975",
@@ -24,9 +24,9 @@ export const theme = {
         "inverse-on-surface": "#ECF2EE",
         "inverse-primary": "#85D6BF",
 
-        info: "#426277", // tertiary
-        success: "#0C6B59", // primary
-        warning: "#7A5900", // ⚠️ manual — no M3 token
+        info: "#426277",
+        success: "#0C6B59",
+        warning: "#7A5900",
 
         "primary-container": "#A1F2DB",
         "on-primary-container": "#005142",
@@ -52,7 +52,7 @@ export const theme = {
         surface: "#F5FBF7",
         "surface-bright": "#F5FBF7",
         "surface-light": "#EFF5F1",
-        "surface-variant": "#CDD3CF", // surfaceContainerHighest (MC)
+        "surface-variant": "#CDD3CF",
         "on-surface-variant": "#2F3835",
 
         outline: "#4B5551",
@@ -64,7 +64,7 @@ export const theme = {
 
         info: "#173A4D",
         success: "#003E33",
-        warning: "#7A5900", // ⚠️ manual
+        warning: "#7A5900",
 
         "primary-container": "#257A67",
         "on-primary-container": "#FFFFFF",
@@ -90,7 +90,7 @@ export const theme = {
         surface: "#F5FBF7",
         "surface-bright": "#F5FBF7",
         "surface-light": "#ECF2EE",
-        "surface-variant": "#C2C8C4", // surfaceContainerHighest (HC)
+        "surface-variant": "#C2C8C4",
         "on-surface-variant": "#000000",
 
         outline: "#252E2B",
@@ -102,7 +102,7 @@ export const theme = {
 
         info: "#092F42",
         success: "#003329",
-        warning: "#7A5900", // ⚠️ manual
+        warning: "#7A5900",
 
         "primary-container": "#005345",
         "on-primary-container": "#FFFFFF",
@@ -127,8 +127,8 @@ export const theme = {
         background: "#0E1513",
         surface: "#0E1513",
         "surface-bright": "#343B38",
-        "surface-light": "#171D1B", // surfaceContainerLow
-        "surface-variant": "#303634", // surfaceContainerHighest
+        "surface-light": "#171D1B",
+        "surface-variant": "#303634",
         "on-surface-variant": "#BFC9C4",
 
         outline: "#89938F",
@@ -140,7 +140,7 @@ export const theme = {
 
         info: "#A9CBE3",
         success: "#85D6BF",
-        warning: "#F5C842", // ⚠️ manual
+        warning: "#F5C842",
 
         "primary-container": "#005142",
         "on-primary-container": "#A1F2DB",
@@ -165,8 +165,8 @@ export const theme = {
         background: "#0E1513",
         surface: "#0E1513",
         "surface-bright": "#3F4643",
-        "surface-light": "#191F1D", // surfaceContainerLow
-        "surface-variant": "#393F3C", // surfaceContainerHighest
+        "surface-light": "#191F1D",
+        "surface-variant": "#393F3C",
         "on-surface-variant": "#D4DFDA",
 
         outline: "#AAB4B0",
@@ -178,7 +178,7 @@ export const theme = {
 
         info: "#BFE1FA",
         success: "#9BECD5",
-        warning: "#F5C842", // ⚠️ manual
+        warning: "#F5C842",
 
         "primary-container": "#4E9F8A",
         "on-primary-container": "#000000",
@@ -203,8 +203,8 @@ export const theme = {
         background: "#0E1513",
         surface: "#0E1513",
         "surface-bright": "#4B514F",
-        "surface-light": "#1B211F", // surfaceContainerLow
-        "surface-variant": "#424846", // surfaceContainerHighest
+        "surface-light": "#1B211F",
+        "surface-variant": "#424846",
         "on-surface-variant": "#FFFFFF",
 
         outline: "#E8F2ED",
@@ -216,7 +216,7 @@ export const theme = {
 
         info: "#E3F2FF",
         success: "#B3FFE9",
-        warning: "#F5C842", // ⚠️ manual
+        warning: "#F5C842",
 
         "primary-container": "#82D2BC",
         "on-primary-container": "#000E0A",

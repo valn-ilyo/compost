@@ -72,9 +72,8 @@ async function runHydration() {
     const userId = session.user.id;
     const email = session.user.email ?? undefined;
 
-    // Reset all stores before hydrating — prevents stale localStorage data
-    // from a previous user's session bleeding into the new one.
-    resetAllStores();
+    // Reset all stores before hydrating to prevent stale state from a previous session.
+        resetAllStores();
 
     syncStore.beginHydrating();
     await Promise.all([
@@ -84,12 +83,8 @@ async function runHydration() {
     ]);
 
     syncStore.setHydrated();
-    // Reconcile here — after setHydrated() — so sync.enqueue() is live and
-    // streak/freeze mutations get pushed to Supabase immediately.
-    // Do NOT call this from App.vue onMounted: enqueue() is a no-op until
-    // isHydrated is true, so any reconcile mutations fired before this point
-    // are never written to Supabase, causing stale state on a second device.
-    masteryStore.reconcileStreaks();
+    // Reconcile after setHydrated() so enqueue() is live.
+        masteryStore.reconcileStreaks();
 
     const next = (route.query.next as string) || "/";
     await router.push(next);
@@ -116,7 +111,6 @@ async function switchAccount() {
 // ─── On mount ─────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
-  // Dev preview — only active in development builds.
   if (import.meta.env.DEV && route.query.preview) {
     authState.value = route.query.preview as AuthState;
     if (route.query.preview === "error") {

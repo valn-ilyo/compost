@@ -70,11 +70,7 @@ function close(): void {
     :max-width="mdAndUp ? '50%' : undefined"
     @update:model-value="close"
   >
-    <!--
-      Small y offset + short duration — slides up from the bottom edge rather
-      than dropping in. Keeps it feeling native to a bottom sheet.
-    -->
-    <v-card
+        <v-card
       v-motion
       :initial="{ opacity: 0, y: 20 }"
       :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
@@ -104,7 +100,6 @@ function close(): void {
 
       <v-divider />
 
-      <!-- Items stagger in from the left, one after another. -->
       <v-list-item
         v-for="(habit, i) in store.activeHabits"
         :key="habit.id"
@@ -134,7 +129,6 @@ function close(): void {
         </template>
       </v-list-item>
 
-      <!-- Cancel fades in after the last item settles. -->
       <v-card-actions
         v-motion
         :initial="{ opacity: 0 }"

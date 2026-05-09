@@ -1,42 +1,3 @@
-<!--
-  UI COPY GUIDELINES
-
-  Voice: Honest Friend with clear eyes. Warm, direct, never preachy.
-  The app wants users to feel capable, not just feel good.
-
-  TONE RULES
-  - Short sentences. No corporate-speak.
-  - Contractions always: "you're" not "you are", "can't" not "cannot"
-  - No exclamation marks except very sparingly — they lose value fast
-  - No em dashes — use a period or restructure the sentence
-  - Never use the word "journey"
-  - Climate content earns a quieter, more serious register than habit/mastery content
-  - Destructive actions stay plain and direct — don't make dangerous buttons sound cute
-  - No toxic positivity: "You showed up. That matters." not "You're doing great!"
-
-  FORMATTING
-  - Numerals in labels and chips: "3 left", "2 days"
-  - Spell out in prose only when it reads unnaturally otherwise
-  - Validation errors: "Required" not "This field is required"
-  - Success toasts: state the fact, skip the celebration ("All assessments cleared.")
-
-  SYSTEM CONCEPTS — use these terms consistently
-  - "Freeze" / "Freezes": a token that protects a streak when a day is missed entirely
-  - "Freeze count": how many freezes the user currently holds
-  - "Streak debt": a negative freeze balance; occurs when tied habits are saved on credit
-  - "Milestone": a 22-day interval of Yes logs that earns one freeze (22, 44, 66...)
-  - "Tied habits": habits with equal streaks that missed on the same day; treated as a group
-  - Do not invent new names for these concepts
-
-  STREAK / FREEZE COPY SPECIFICALLY
-  - Debt at -1: "Debt clears in N days"
-  - Debt at -2: "Debt reduces in N days" (one freeze earned, not full clearance)
-  - Frozen chip: "${n}-day streak, frozen" (comma, not em dash)
-  - Paused toast: "[name] paused. Streak saved."
-  - Resumed toast: "[name] is back. Streak restored."
-  - Streak lost: acknowledge plainly, move on quickly — no dwelling, no sugarcoating
--->
-
 <script setup lang="ts">
 import { onMounted } from "vue";
 import AppSnackbar from "./components/AppSnackbar.vue";
@@ -90,11 +51,8 @@ onMounted(() => {
       syncStore.endHydrating();
     }
 
-    // Reconcile after endHydrating() so enqueue() is live and any streak
-    // resets or freeze deductions are immediately pushed to Supabase.
-    // This mirrors the same call in AuthView.runHydration() — without it,
-    // days missed while offline are never reconciled on reconnect.
-    masteryStore.reconcileStreaks();
+    // Reconcile after endHydrating() so enqueue() is live.
+        masteryStore.reconcileStreaks();
   });
 
   syncStore.init();

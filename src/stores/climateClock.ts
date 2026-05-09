@@ -1,4 +1,3 @@
-// stores/climateClock.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { NewsfeedItem, Lifeline } from '@/types/app.types'

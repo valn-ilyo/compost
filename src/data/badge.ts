@@ -21,12 +21,11 @@ export function getSortedSections(
     const fracB = b.scaled / b.meta.scaledMax;
     if (fracA !== fracB) return fracA - fracB;
     if (a.meta.scaledMax !== b.meta.scaledMax) return a.meta.scaledMax - b.meta.scaledMax;
-    return 0; // stable — declaration order preserved
+    return 0;
   });
 }
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
-// Ordered lowest to highest. getBadge() finds the first match.
 
 export const BADGES: Badge[] = [
   {

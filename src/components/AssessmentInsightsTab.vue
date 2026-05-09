@@ -32,16 +32,13 @@ const habitsLabel = computed(() => {
   return "Recommendations";
 });
 
-// ── Collapse state ─────────────────────────────────────────────────────────────
 const insightsOpen = ref(true);
 const habitsOpen = ref(true);
 const sdgOpen = ref(true);
 
-// ── Completeness ──────────────────────────────────────────────────────────────
 const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)));
 const isComplete = computed(() => SECTIONS.every((s) => completedIds.value.has(s.id)));
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
 const achieved = computed(() => store.overallScore.achieved);
 const outOf = computed(() => store.overallScore.outOf);
 const pct = computed(() => (outOf.value > 0 ? achieved.value / outOf.value : 0));
@@ -49,7 +46,6 @@ const color = computed(() => scoreColor(pct.value));
 
 const badge = computed(() => getBadge(store.overallScore.normalized));
 
-// ── Sorted sections + weak list (single source of truth for both tagline and insights) ──
 const sortedSections = computed(() => getSortedSections(store.sectionResults));
 const weakSections = computed(() =>
   sortedSections.value
@@ -69,7 +65,6 @@ const heroProps = computed(() => ({
     : "Partial picture. Finish the rest to see your full score.",
 }));
 
-// ── Breakdown bars ────────────────────────────────────────────────────────────
 const sections = computed(() =>
   store.sectionResults.map((r) => {
     const p = r.scaled / r.meta.scaledMax;
@@ -83,11 +78,8 @@ const sections = computed(() =>
   }),
 );
 
-// ── Incomplete sections ───────────────────────────────────────────────────────
 const incompleteSections = computed(() => SECTIONS.filter((s) => !completedIds.value.has(s.id)));
 
-// ── Insights ──────────────────────────────────────────────────────────────────
-// getInsightsForAssessment returns exactly 5 by construction — no slicing needed.
 const insights = computed(() => {
   if (!isComplete.value) return [];
   const sortedQuestions = getSortedQuestions(store.answers, sortedSections.value);
@@ -95,14 +87,12 @@ const insights = computed(() => {
 });
 const hasInsights = computed(() => isComplete.value && insights.value.length > 0);
 
-// ── Habit recommendations ─────────────────────────────────────────────────────
 const linkedHabits = computed(() =>
   recommendedIds.value
     .map((id) => HABIT_TEMPLATES.find((h) => h.id === id))
     .filter((h): h is HabitTemplate => h !== undefined),
 );
 
-// ── SDG chips ─────────────────────────────────────────────────────────────────
 const chips = computed(() => {
   const colorMap = Object.fromEntries(
     store.sectionResults.map((r) => [r.meta.id, scoreColor(r.scaled / r.meta.scaledMax)]),
@@ -184,7 +174,6 @@ const chips = computed(() => {
 
           <InsightsContinueAssessment v-if="!isComplete" :sections="incompleteSections" />
 
-          <!-- ── Insights ── -->
           <template v-if="hasInsights">
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"
@@ -216,8 +205,6 @@ const chips = computed(() => {
             </v-expand-transition>
           </template>
 
-          <!-- ── No recommendations — commendation state ── -->
-          <!-- ── Suggested Habits ── -->
           <template v-if="isComplete">
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"
@@ -252,7 +239,6 @@ const chips = computed(() => {
             </v-expand-transition>
           </template>
 
-          <!-- ── SDG Connections ── -->
           <template v-if="isComplete">
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"

@@ -6,8 +6,6 @@ declare global {
   }
 }
 
-// Capture beforeinstallprompt before Vue mounts — the event fires very early
-// and is often missed if we wait until onMounted to add the listener.
 window.__pwaInstallPrompt = null;
 window.addEventListener(
   "beforeinstallprompt",
@@ -20,10 +18,6 @@ window.addEventListener(
 
 import { registerSW } from "virtual:pwa-register";
 
-// Register the service worker and schedule periodic update checks.
-// autoUpdate handles the skipWaiting + page reload chain automatically;
-// the interval here is specifically for TWA and long-lived browser sessions
-// where no real navigation occurs and Chrome never re-checks the SW script.
 registerSW({
   immediate: true,
   onRegisteredSW(_swUrl, registration) {

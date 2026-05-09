@@ -53,14 +53,8 @@ export const useMasteryStore = defineStore(
     const freezeCount = ref(0);
     const masteredArchive = ref<MasteredArchiveEntry[]>([]);
 
-    /**
-     * Events produced by the most recent reconcileStreaks call.
-     * Not persisted — habitIds are session-scoped and become dangling references after
-     * a page reload. reconcileStreaks() re-runs on next open and regenerates any
-     * still-relevant events. Cleared per-habit when that habit is logged, and fully
-     * cleared by clearReconcileEvents() once all habits are logged today.
-     */
-    const lastReconcileEvents = ref<ReconcileEvent[]>([]);
+    // Not persisted — session-scoped. reconcileStreaks() regenerates on next open.
+        const lastReconcileEvents = ref<ReconcileEvent[]>([]);
 
     // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -147,8 +141,6 @@ export const useMasteryStore = defineStore(
       const result = pauseHabitInSlots(slots.value, id);
       if (result !== null) slots.value = result;
 
-      // Streak-0 habits are removed outright — clear any stale reconcile event
-      // so the UI doesn't show a "streak lost" banner for a habit that's gone.
       if (habit?.streak === 0) {
         lastReconcileEvents.value = lastReconcileEvents.value.filter((e) => e.habitId !== id);
       }
@@ -166,7 +158,6 @@ export const useMasteryStore = defineStore(
           enqueuedAt: Date.now(),
         });
       } else {
-        // Paused in place — upsert with is_paused: true
         useSyncStore().enqueue({
           id: `habit_slots:${userId}:${habit.templateId}`,
           table: "habit_slots",
@@ -200,7 +191,7 @@ export const useMasteryStore = defineStore(
     }
 
     function swapHabit(removeId: string, template: HabitTemplate): void {
-      if (activeTemplateIds.value.has(template.id)) return; // guard: template already active
+      if (activeTemplateIds.value.has(template.id)) return;
       // Capture outgoing habit before any mutation.
       const oldHabit = slots.value.find((h) => h.id === removeId);
       lastReconcileEvents.value = lastReconcileEvents.value.filter((e) => e.habitId !== removeId);
@@ -222,7 +213,6 @@ export const useMasteryStore = defineStore(
             enqueuedAt: Date.now(),
           });
         } else {
-          // Streak > 0 — paused in place by swapHabitInSlots
           const stillInSlots = slots.value.find((h) => h.id === removeId);
           sync.enqueue({
             id: `habit_slots:${userId}:${oldHabit.templateId}`,
@@ -234,7 +224,6 @@ export const useMasteryStore = defineStore(
         }
       }
 
-      // Enqueue new (incoming) habit
       const newHabit = slots.value.find((h) => h.templateId === template.id && !h.isPaused);
       if (newHabit) {
         sync.enqueue({
@@ -361,7 +350,6 @@ export const useMasteryStore = defineStore(
 
       const sync = useSyncStore();
 
-      // Enqueue only habits that were touched by this reconcile pass
       const affectedIds = new Set(events.map((e) => e.habitId));
       for (const habit of slots.value) {
         if (affectedIds.has(habit.id)) {
@@ -434,9 +422,6 @@ export const useMasteryStore = defineStore(
   {
     persist: {
       paths: ["slots", "freezeCount", "masteredArchive"],
-      // lastReconcileEvents intentionally excluded — habitIds are session-scoped
-      // and become dangling references after a page reload. reconcileStreaks()
-      // re-runs on next open and regenerates any still-relevant events.
     } as PersistenceOptions,
   },
 );

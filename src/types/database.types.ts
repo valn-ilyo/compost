@@ -1,10 +1,3 @@
-// src/types/database.types.ts
-//
-// Mirrors the Supabase schema exactly.
-// One interface per table, each with Row / Insert / Update variants.
-//   Row    — what you get back from a SELECT
-//   Insert — what you send for an INSERT (generated columns omitted)
-//   Update — partial Insert for PATCH/upsert
 
 // ─── profiles ─────────────────────────────────────────────────────────────────
 

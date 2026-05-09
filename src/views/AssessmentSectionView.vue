@@ -1,4 +1,3 @@
-<!-- src/views/AssessmentSectionView.vue -->
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -102,11 +101,7 @@ async function handleSubmit(): Promise<void> {
           </v-btn>
           <v-toolbar-title>{{ meta?.label }}</v-toolbar-title>
           <template #append>
-            <!--
-              Spring pop-in for the Done button. scale from 0.5 + slight y drop,
-              then overshoots back to 1 — gives it a satisfying "stamp" feel.
-            -->
-            <v-fade-transition v-if="isLastStep && lastAnswered">
+                      <v-fade-transition v-if="isLastStep && lastAnswered">
               <div
                 v-motion
                 :initial="{ opacity: 0, scale: 0.5, y: -8 }"
@@ -132,14 +127,7 @@ async function handleSubmit(): Promise<void> {
             <v-progress-linear :model-value="progress" color="primary" rounded />
           </template>
         </v-toolbar>
-
-        <!--
-          Direction-aware slide: forward goes left→right, back goes right→left.
-          Vuetify's v-window uses `transition` for increasing index,
-          `reverse-transition` for decreasing — but since we set navDirection
-          ourselves, we can also just rely on the default index behaviour here.
-        -->
-        <v-window
+                <v-window
           v-model="step"
           transition="slide-x-transition"
           reverse-transition="slide-x-reverse-transition"
@@ -150,17 +138,8 @@ async function handleSubmit(): Promise<void> {
             :key="question.id"
             :value="index + 1"
           >
-            <!--
-              :key="step" forces remount so every v-motion :initial → :enter
-              fires fresh on each step, regardless of window's own transition.
-            -->
-            <div :key="step" class="pt-2">
-              <!--
-                Expansion panel: drops in from above with a real spring so it
-                overshoots slightly and settles — the "bouncy card" feel.
-                Slightly rotated initial state adds personality.
-              -->
-              <v-expansion-panels
+                        <div :key="step" class="pt-2">
+                            <v-expansion-panels
                 v-motion
                 :initial="{ opacity: 0, y: -24, rotateX: 8 }"
                 :enter="{
@@ -286,10 +265,6 @@ async function handleSubmit(): Promise<void> {
   }
 }
 
-/*
-  Option selection flash: scale up, then settle — slightly more travel than
-  before so it reads as a real physical confirmation, not just a tick.
-*/
 .option-flash {
   animation: option-flash 240ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

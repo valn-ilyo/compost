@@ -1,11 +1,6 @@
 import type { HabitTemplate } from "../types/app.types";
 
-// Icons marked "no-outline" have no MDI outline counterpart — iconOutline === icon intentionally.
-// Verified against @mdi/svg v7.4.47 metadata.
-
 export const HABIT_TEMPLATES: HabitTemplate[] = [
-  // ── TRANSPORT ─────────────────────────────────────────────────────────────
-  // Q1 (commute_mode) + Q3 (commute_frequency) + Q5 (discretionary_mode) → merged
   {
     id: "shared_or_active_travel",
     covers: [
@@ -23,9 +18,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Walk any trip under 2 km. Use shared transport for everything else. Reserve a private vehicle only when no alternative exists.",
   },
 
-  // Q2 (commute_distance) — no habit: distance is a fixed fact, not a repeatable behaviour
-
-  // Q4 (short_trips)
   {
     id: "walk_short_trips",
     covers: [{ sectionId: "transport", questionId: "short_trips" }],
@@ -39,9 +31,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Under 2 km means walk, no exceptions. At that distance walking is usually as fast as waiting for transport.",
   },
 
-  // ── FOOD ──────────────────────────────────────────────────────────────────
-
-  // Q1 (diet_type)
   {
     id: "one_plant_based_meal",
     covers: [{ sectionId: "food", questionId: "diet_type" }],
@@ -55,7 +44,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Make lunch your plant-based meal every day. Lentils, legumes, grains, or vegetables, no meat or dairy.",
   },
 
-  // Q3 (leftovers) — also absorbs Q2 (plate_waste): both habits live at the moment food is
   // served. Serving a right-sized portion and boxing the rest are the same motion.
   {
     id: "box_leftovers_first",
@@ -73,7 +61,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Box the leftover portion before serving your plate. Food stored immediately gets eaten. Food left in the pot rarely does.",
   },
 
-  // Q4 (packaged_food)
   {
     id: "pack_a_home_snack",
     covers: [{ sectionId: "food", questionId: "packaged_food" }],
@@ -87,7 +74,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Pack a snack before you leave: fruit, home food, or a filled bottle. Hunger away from home is what drives packaged purchases.",
   },
 
-  // Q5 (local_food)
   {
     id: "local_or_unpackaged_food",
     covers: [{ sectionId: "food", questionId: "local_food" }],
@@ -101,8 +87,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "At every shopping trip, choose at least one item that is local, seasonal, or unpackaged. Start with the most available option near you.",
   },
 
-  // ── ENERGY ────────────────────────────────────────────────────────────────
-  // Q1 (lights_off) + Q4 (shared_space_energy) → merged
   {
     id: "lights_off_on_exit",
     covers: [
@@ -119,7 +103,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "One glance back before stepping out. If anything is running and the room will be empty, switch it off. This applies to every room regardless of whose it is.",
   },
 
-  // Q2 (standby_power)
   {
     id: "unplug_when_charged",
     covers: [{ sectionId: "energy", questionId: "standby_power" }],
@@ -133,7 +116,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Device full means charger out. Before sleeping, sweep the room and unplug every charger not actively charging something.",
   },
 
-  // Q3 (natural_light)
   {
     id: "daylight_first",
     covers: [{ sectionId: "energy", questionId: "natural_light" }],
@@ -147,7 +129,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Open curtains before touching any switch. Move your work spot near a window. Turn on electric light only when daylight is genuinely insufficient.",
   },
 
-  // Q5 (power_saving_mode)
   {
     id: "power_saving_mode_on",
     covers: [{ sectionId: "energy", questionId: "power_saving_mode" }],
@@ -179,9 +160,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Fill your bottle from the tap or filter before stepping out. Keep it next to your keys. A filled bottle removes the need for any single-use purchase. This habit covers both your water and waste sections.",
   },
 
-  // ── WATER ─────────────────────────────────────────────────────────────────
-
-  // Q1 (bathing_method)
   {
     id: "bucket_bath",
     covers: [{ sectionId: "water", questionId: "bathing_method" }],
@@ -195,7 +173,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Fill your bucket before entering the bathroom. Use only what is in it. A bucket bath uses 15-20 litres. A 10-minute shower uses 60-80.",
   },
 
-  // Q2 (tap_behaviour) — also absorbs Q6 (leak_reporting): noticing running water and
   // turning it off is the same attentiveness as noticing a dripping tap and reporting it.
   {
     id: "tap_off_while_soaping",
@@ -213,7 +190,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Soap or brush in hand means tap is off. Turn it on only to rinse. A running tap wastes 6 litres per idle minute.",
   },
 
-  // Q3 (dishwashing_method)
   {
     id: "basin_for_dishes",
     covers: [{ sectionId: "water", questionId: "dishwashing_method" }],
@@ -227,7 +203,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Fill the basin before starting. Wash everything in it. Use the running tap only for a final rinse. A filled basin uses 5-10 litres versus up to 30 with a running tap.",
   },
 
-  // Q4 (laundry_method) — two variants for machine vs hand-wash users
   {
     id: "full_machine_load_only",
     covers: [{ sectionId: "water", questionId: "laundry_method" }],
@@ -254,7 +229,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
   },
 
   // ── WASTE + WASTE — SHARED HABIT ─────────────────────────────────────────
-  // Q2 (waste_segregation) + Q6 (organic_waste) → merged
   {
     id: "food_scraps_in_wet_bin",
     covers: [
@@ -271,9 +245,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Food scraps are wet waste. One container next to the cooking area covers both questions. Every peel and scrap goes there, everything else in the dry bin.",
   },
 
-  // ── WASTE ─────────────────────────────────────────────────────────────────
-
-  // Q3 (disposable_cutlery)
   {
     id: "own_cup_and_cutlery",
     covers: [{ sectionId: "waste", questionId: "disposable_cutlery" }],
@@ -287,7 +258,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Pack a reusable cup and one set of cutlery in your bag before stepping out. Having your own removes the need to accept a disposable at any point.",
   },
 
-  // Q4 (reusable_bag)
   {
     id: "cloth_bag_every_trip",
     covers: [{ sectionId: "waste", questionId: "reusable_bag" }],
@@ -301,7 +271,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Keep a foldable bag inside your everyday bag permanently. Decline plastic bags at the counter. Having your own removes the only reason to accept one.",
   },
 
-  // Q5 (ewaste)
   {
     id: "store_ewaste_properly",
     covers: [{ sectionId: "waste", questionId: "ewaste" }],
@@ -315,7 +284,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Place the item in a dedicated container, not the regular bin. Find and save your nearest authorised e-waste collection point now. That step only needs to happen once.",
   },
 
-  // Q7 (food_waste)
   {
     id: "fridge_check_before_shopping",
     covers: [{ sectionId: "waste", questionId: "food_waste" }],
@@ -347,9 +315,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Get a repair quote before looking at any replacement. Battery, screen, and performance issues are typically fixable for a fraction of a new device. Repair is the first option, not the last.",
   },
 
-  // ── DIGITAL ───────────────────────────────────────────────────────────────
-
-  // Q1 (streaming_habits)
   {
     id: "stream_at_sd_quality",
     covers: [{ sectionId: "digital", questionId: "streaming_habits" }],
@@ -363,7 +328,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Set quality to SD or Auto in your app settings. On YouTube: Settings > Video Quality. On Netflix: Account > Playback Settings. SD uses roughly 20 times less data per hour than HD.",
   },
 
-  // Q2 (cloud_hygiene)
   {
     id: "monthly_digital_declutter",
     covers: [{ sectionId: "digital", questionId: "cloud_hygiene" }],
@@ -377,7 +341,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Spend 15 minutes each month deleting blurry photos, duplicate shots, unused downloads, and old cloud backups. Set the recurring reminder now.",
   },
 
-  // Q3 (email_hygiene)
   {
     id: "weekly_inbox_clear",
     covers: [{ sectionId: "digital", questionId: "email_hygiene" }],
@@ -391,7 +354,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Spend five minutes: delete promotional and spam emails, and unsubscribe from any list you did not open. Unsubscribing stops the email being generated again.",
   },
 
-  // Q4 (intentional_use)
   {
     id: "daily_screen_time_limit",
     covers: [{ sectionId: "digital", questionId: "intentional_use" }],
@@ -405,9 +367,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Open Screen Time on iOS or Digital Wellbeing on Android and set a daily limit of 30 minutes for social media apps. Configure it once. After that the daily check-in is the habit.",
   },
 
-  // ── CONSUMPTION ───────────────────────────────────────────────────────────
-
-  // Q1 (printing_habits)
   {
     id: "digital_before_print",
     covers: [{ sectionId: "consumption", questionId: "printing_habits" }],
@@ -421,7 +380,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Open the file on screen first. Read or annotate it digitally. Print only if digital is genuinely unusable for that specific task. Screen is the default, not paper.",
   },
 
-  // Q2 (clothing_purchases)
   {
     id: "shopping_list_first",
     covers: [{ sectionId: "consumption", questionId: "clothing_purchases" }],
@@ -435,7 +393,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Make your list the night before, not at the market. Write exactly what you need. At the market, buy only what is on the list.",
   },
 
-  // Q4 (circular_economy)
   {
     id: "secondhand_check_first",
     covers: [{ sectionId: "consumption", questionId: "circular_economy" }],

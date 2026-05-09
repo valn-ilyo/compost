@@ -73,6 +73,15 @@ const router = createRouter({
       ? [{ path: "/dev", name: "dev", component: () => import("@/views/DevView.vue") }]
       : []),
     {
+      path: "/docs",
+      redirect: "/docs/guide",
+    },
+    {
+      path: "/docs/:tab(guide|methodology|credits)",
+      name: "docs",
+      component: () => import("@/views/DocsView.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "not-found",
       component: () => import("@/views/NotFoundView.vue"),

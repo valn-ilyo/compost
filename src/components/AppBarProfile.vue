@@ -56,7 +56,7 @@ function clearAll() {
         </v-list>
       </v-menu>
 
-      <v-btn icon="mdi-information-variant" />
+      <v-btn icon="mdi-information-variant" to="/docs" />
     </template>
   </v-app-bar>
 

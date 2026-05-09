@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useLogout } from "@/composables/useLogout";
 import { useSyncStore } from "@/stores/sync";
+import { openFeedbackForm } from "@/lib/feedbackForm";
 import AppBarProfile from "@/components/AppBarProfile.vue";
 
 const { logout, loggingOut } = useLogout();
@@ -90,12 +91,20 @@ function handleLogoutClick() {
         >
           <v-list-item
             prepend-icon="mdi-pencil-outline"
-            title="Edit Profile"
+            title="Edit profile"
             append-icon="mdi-chevron-right"
             link
             to="/profile/edit"
             class="rounded-t-xl"
             size="large"
+          />
+          <v-divider />
+          <v-list-item
+            prepend-icon="mdi-message-outline"
+            title="Feedback & support"
+            append-icon="mdi-open-in-new"
+            size="large"
+            @click="openFeedbackForm"
           />
           <v-divider />
           <v-list-item

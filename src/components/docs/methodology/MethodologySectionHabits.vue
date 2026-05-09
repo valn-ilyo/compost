@@ -5,6 +5,19 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app.type
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Habit tracking</div>
   <v-card flat rounded="xl" class="mb-8">
+    <v-card-text class="pb-1">
+      <p class="text-body-2">
+        Each habit in the library maps to one or more specific assessment questions via a
+        <code>covers</code> field. A habit that covers <code>food → diet_type</code> is surfaced
+        when that question scores poorly. This mapping is the basis for both the insight
+        recommendations on the Insights tab and the habit library suggestions. One explanation of
+        this principle covers all habits; individual per-habit justifications are not listed
+        separately.
+      </p>
+    </v-card-text>
+
+    <v-divider />
+
     <v-list-item title="Streaks" class="pt-4" />
     <v-card-text class="pt-1 pb-3">
       <p class="text-body-2 mb-2">

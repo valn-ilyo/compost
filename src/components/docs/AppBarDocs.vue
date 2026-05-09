@@ -153,10 +153,10 @@ const INDEX: SearchEntry[] = [
     text: "Students Constantine Kharsyntiew content research. Lawanbiang Kshiar content research. Markordor Sohtun content research. Vivian Alexander L Nonglait software development. St. Anthony's College Shillong contributors team members.",
   },
   {
-    id: "credits-software-software",
+    id: "credits-stack-stack",
     tab: "credits",
-    anchor: "software",
-    section: "Software",
+    anchor: "stack",
+    section: "Stack",
     text: "Vue 3 Composition API reactive state component model. Vuetify Material Design 3 component library for Vue. Supabase authentication PostgreSQL database cross-device sync. Pinia store management persistence across sessions. vueuse motion spring keyframe animations Composition API. TypeScript type-safe data models stores composables. Vite vite-plugin-pwa build tooling offline Progressive Web App support. Material Design Icons open-source icon set Pictogrammers materialdesignicons.com. open source libraries dependencies.",
   },
   {

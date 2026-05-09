@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
+import { useOnline } from "@vueuse/core";
 import type { SyncQueueItem, SyncStatus } from "@/types/app.types";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 import { supabase } from "@/lib/supabaseClient";
@@ -22,8 +23,8 @@ export const useSyncStore = defineStore(
     /** Pending writes to Supabase. Persisted so the queue survives page refreshes. */
     const queue = ref<SyncQueueItem[]>([]);
 
-    /** Derived from navigator.onLine on init; updated via window events. Not persisted. */
-    const isOnline = ref(false);
+    /** Reactive online status via VueUse — no manual init or window listeners needed. */
+    const isOnline = useOnline();
 
     /**
      * True once hydration has completed (or been confirmed unnecessary).
@@ -63,13 +64,15 @@ export const useSyncStore = defineStore(
 
     /**
      * Call once from App.vue onMounted.
-     * Sets isOnline, attaches online/offline listeners, drains if ready.
+     * Wires the reconnect/drain logic to the reactive isOnline ref and
+     * performs an initial drain if already online and hydrated.
      */
     function init() {
-      isOnline.value = navigator.onLine;
-
-      window.addEventListener("online", async () => {
-        isOnline.value = true;
+      // isOnline is already reactive via useOnline — no window listeners needed.
+      // Move the reconnect + drain logic into a watcher so it fires whenever
+      // the device comes back online.
+      watch(isOnline, async (online) => {
+        if (!online) return;
         if (!isHydrated.value) return;
 
         // Re-pull from Supabase before draining so the queue reflects what
@@ -89,10 +92,6 @@ export const useSyncStore = defineStore(
         if (queue.value.length > 0) {
           drain();
         }
-      });
-
-      window.addEventListener("offline", () => {
-        isOnline.value = false;
       });
 
       if (isOnline.value && isHydrated.value && queue.value.length > 0) {

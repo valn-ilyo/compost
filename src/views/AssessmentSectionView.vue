@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from "vue";
+import { ref, computed, watch } from "vue";
+import { useTimeoutFn } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessmentStore } from "@/stores/assessment";
 import type { SectionAnswers, QuestionId } from "@/types/app.types";
@@ -41,18 +42,20 @@ const submitting = ref(false);
 const hintActive = ref(true);
 const flashingOptionKey = ref<string | null>(null);
 
+// useTimeoutFn auto-cancels on unmount — no manual clearTimeout or onUnmounted needed.
+// stop() is idempotent; calling it after the timeout has already fired is safe.
+const { stop } = useTimeoutFn(() => {
+  hintActive.value = false;
+}, 2000);
+
 function stopHint(): void {
   hintActive.value = false;
-  clearTimeout(hintTimer);
+  stop();
 }
-
-const hintTimer = setTimeout(stopHint, 2000);
 
 watch(expandedPanel, (val) => {
   if (val !== undefined) stopHint();
 });
-
-onUnmounted(() => clearTimeout(hintTimer));
 
 function goBack(): void {
   if (step.value === 1) {

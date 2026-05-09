@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { ComponentPublicInstance } from "vue";
+import { useElementSize } from "@vueuse/core";
 import { useRouter } from "vue-router";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
@@ -37,13 +38,12 @@ const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstal
 
 const { showNotificationBanner, requestPermission } = useNotificationPrompt();
 
-const cardWidth = ref<number>(0);
-
-function measureCard(el: Element | ComponentPublicInstance | null) {
-  if (el && "$el" in el) {
-    cardWidth.value = (el.$el as HTMLElement).getBoundingClientRect().width;
-  }
-}
+// useElementSize uses a ResizeObserver so cardWidth stays accurate on resize,
+// unlike the previous one-shot getBoundingClientRect snapshot.
+const cardRef = ref<ComponentPublicInstance | null>(null);
+const { width: cardWidth } = useElementSize(
+  computed(() => (cardRef.value as ComponentPublicInstance)?.$el as HTMLElement ?? null),
+);
 </script>
 
 <template>
@@ -62,7 +62,7 @@ function measureCard(el: Element | ComponentPublicInstance | null) {
             <template #activator="{ props: tooltipProps }">
               <v-card
                 v-bind="tooltipProps"
-                :ref="measureCard"
+                ref="cardRef"
                 v-motion
                 :initial="{ opacity: 0, y: 28, scale: 0.96 }"
                 :enter="{

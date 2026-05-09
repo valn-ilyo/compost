@@ -42,8 +42,10 @@
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">
           You can reset your assessment answers from the Assessment tab. Deleting your account
-          removes all stored data permanently. Contact the project maintainer to request full
-          account deletion.
+          removes all stored data permanently.
+          <!-- TODO: before handover, replace the line below with the actual contact name,
+               email address, or link to the feedback form. -->
+          Contact the project maintainer to request full account deletion.
         </p>
       </v-card-text>
     </v-card>

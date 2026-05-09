@@ -20,7 +20,7 @@ export function getSortedSections(
     const fracA = a.scaled / a.meta.scaledMax;
     const fracB = b.scaled / b.meta.scaledMax;
     if (fracA !== fracB) return fracA - fracB;
-    if (a.meta.scaledMax !== b.meta.scaledMax) return a.meta.scaledMax - b.meta.scaledMax;
+    if (a.meta.scaledMax !== b.meta.scaledMax) return b.meta.scaledMax - a.meta.scaledMax;
     return 0;
   });
 }

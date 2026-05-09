@@ -1,4 +1,5 @@
 import { ref, onMounted } from "vue";
+import { useMediaQuery } from "@vueuse/core";
 import type { BeforeInstallPromptEvent, NavigatorWithStandalone } from "@/types/app.types";
 
 // ── singleton state ─────────────────────────────────────────────────────────
@@ -7,13 +8,17 @@ const isIos = ref(false);
 const installPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const showInstallBanner = ref(false);
 
+// Reactive standalone detection — updates automatically if the user installs
+// the app mid-session, unlike a one-shot matchMedia().matches call.
+const isStandaloneMediaQuery = useMediaQuery("(display-mode: standalone)");
+
 function isMobile(): boolean {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 function isInStandaloneMode(): boolean {
   return (
-    window.matchMedia("(display-mode: standalone)").matches ||
+    isStandaloneMediaQuery.value ||
     (navigator as NavigatorWithStandalone).standalone === true
   );
 }

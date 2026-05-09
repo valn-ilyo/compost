@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { useRafFn } from "@vueuse/core";
 import { useClimateClock } from "@/composables/useClimateClock";
 
 const { loading, tickerItems } = useClimateClock();
@@ -8,27 +9,27 @@ const activeIndex = ref(0);
 const progress = ref(0);
 
 const INTERVAL = 5000;
-let rafId: number | null = null;
 let startTime: number | null = null;
 
-function tick(now: number) {
-  if (startTime === null) startTime = now;
-  progress.value = Math.min(((now - startTime) / INTERVAL) * 100, 100);
-  rafId = requestAnimationFrame(tick);
-}
+// useRafFn cancels the loop automatically on unmount — no rafId or
+// onBeforeUnmount needed.
+const { pause, resume } = useRafFn(
+  ({ timestamp }) => {
+    if (startTime === null) startTime = timestamp;
+    progress.value = Math.min(((timestamp - startTime) / INTERVAL) * 100, 100);
+  },
+  { immediate: false },
+);
 
 function resetProgress() {
-  if (rafId !== null) cancelAnimationFrame(rafId);
-  progress.value = 0;
+  pause();
   startTime = null;
-  rafId = requestAnimationFrame(tick);
+  progress.value = 0;
+  resume();
 }
 
 watch(activeIndex, () => resetProgress());
 onMounted(() => resetProgress());
-onBeforeUnmount(() => {
-  if (rafId !== null) cancelAnimationFrame(rafId);
-});
 
 function formatDate(iso: string): string {
   const d = new Date(iso);

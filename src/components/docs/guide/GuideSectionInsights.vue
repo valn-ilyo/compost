@@ -40,6 +40,22 @@
 
       <v-divider />
 
+      <v-list-item prepend-icon="mdi-lightbulb-outline" title="Five insights" class="pt-2" />
+      <v-card-text class="pt-1 pb-3">
+        <p class="text-body-2 mb-2">
+          After completing the assessment, five questions from your results are highlighted as
+          insights. They're drawn from your weakest sections when any exist, so the focus lands
+          where it would make the most difference.
+        </p>
+        <p class="text-body-2">
+          Any insight with a high score appears in green. That means it's something you're already
+          doing well. The fifth slot in particular looks for a high-scoring question first, so
+          there's usually at least one positive in the set.
+        </p>
+      </v-card-text>
+
+      <v-divider />
+
       <v-list-item prepend-icon="mdi-playlist-check" title="Habit recommendations" class="pt-2" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2">
@@ -53,8 +69,8 @@
       <v-list-item prepend-icon="mdi-leaf" title="SDG alignment" class="pt-2" />
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">
-          The Sustainable Development Goals your assessment answers relate to. The chips are
-          coloured by how well your habits are performing in each area.
+          The "Sustainable Development Goals" your assessment answers relate to. Each chip's colour
+          reflects how you're scoring in the sections that map to that goal.
         </p>
       </v-card-text>
     </v-card>

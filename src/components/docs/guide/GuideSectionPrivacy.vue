@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// No data derivation. Static prose.
+import { openFeedbackForm } from "@/lib/feedbackForm";
 </script>
 
 <template>
@@ -42,10 +42,10 @@
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">
           You can reset your assessment answers from the Assessment tab. Deleting your account
-          removes all stored data permanently.
-          <!-- TODO: before handover, replace the line below with the actual contact name,
-               email address, or link to the feedback form. -->
-          Contact the project maintainer to request full account deletion.
+          removes all stored data permanently. To request full account deletion,
+
+          <a class="text-primary" style="cursor: pointer" @click="openFeedbackForm">get in touch</a
+          >.
         </p>
       </v-card-text>
     </v-card>

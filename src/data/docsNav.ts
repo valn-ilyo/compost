@@ -22,7 +22,7 @@ export const methodologyNav: NavItem[] = [
   { id: "habits", label: "Habits", icon: "mdi-leaf-circle-outline" },
   { id: "insights", label: "Insights", icon: "mdi-lightbulb-outline" },
   { id: "questions", label: "Questions", icon: "mdi-help-circle-outline" },
-  { id: "limitations", label: "Limitations", icon: "mdi-alert-circle-outline" },
+  { id: "limitations", label: "Limitations", icon: "mdi-exclamation-thick" },
 ];
 
 export const creditsNav: NavItem[] = [

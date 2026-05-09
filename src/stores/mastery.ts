@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 import { computed, ref } from "vue";
 import type {
   HabitTemplate,
@@ -17,10 +18,9 @@ import {
 import { MAX_SLOTS, FREEZE_MILESTONE } from "@/types/app.types";
 import { reconcile } from "@/lib/streakReconciler";
 import { todayISO, yesterdayISO } from "@/lib/habitDate";
-import { supabase } from "@/lib/supabaseClient";
-import { HABIT_TEMPLATES } from "@/data/habits";
 import { useSyncStore } from "@/stores/sync";
 import { useProfileStore } from "@/stores/profile";
+import { hydrateFromSupabase as _hydrateFromSupabase } from "@/lib/masteryHydration";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -55,9 +55,10 @@ export const useMasteryStore = defineStore(
 
     /**
      * Events produced by the most recent reconcileStreaks call.
-     * Persisted so they survive a page refresh and remain visible on next open.
-     * Cleared per-habit when that habit is logged, and fully cleared by
-     * clearReconcileEvents() once all habits are logged today.
+     * Not persisted — habitIds are session-scoped and become dangling references after
+     * a page reload. reconcileStreaks() re-runs on next open and regenerates any
+     * still-relevant events. Cleared per-habit when that habit is logged, and fully
+     * cleared by clearReconcileEvents() once all habits are logged today.
      */
     const lastReconcileEvents = ref<ReconcileEvent[]>([]);
 
@@ -146,6 +147,12 @@ export const useMasteryStore = defineStore(
       const result = pauseHabitInSlots(slots.value, id);
       if (result !== null) slots.value = result;
 
+      // Streak-0 habits are removed outright — clear any stale reconcile event
+      // so the UI doesn't show a "streak lost" banner for a habit that's gone.
+      if (habit?.streak === 0) {
+        lastReconcileEvents.value = lastReconcileEvents.value.filter((e) => e.habitId !== id);
+      }
+
       const userId = useProfileStore().profile?.user_id;
       if (!userId || !habit) return;
 
@@ -171,6 +178,10 @@ export const useMasteryStore = defineStore(
     }
 
     function resumeHabit(id: string): void {
+      // Guard: resuming a paused slot must not push active+mastered past MAX_SLOTS.
+      // Mirrors the same invariant enforced in addHabit — the composable layer
+      // also checks this, but the store is the authoritative enforcer.
+      if (usedSlots.value >= MAX_SLOTS) return;
       resumeHabitInSlots(slots.value, id, todayISO(), yesterdayISO());
 
       const userId = useProfileStore().profile?.user_id;
@@ -189,6 +200,7 @@ export const useMasteryStore = defineStore(
     }
 
     function swapHabit(removeId: string, template: HabitTemplate): void {
+      if (activeTemplateIds.value.has(template.id)) return; // guard: template already active
       // Capture outgoing habit before any mutation.
       const oldHabit = slots.value.find((h) => h.id === removeId);
       lastReconcileEvents.value = lastReconcileEvents.value.filter((e) => e.habitId !== removeId);
@@ -255,6 +267,9 @@ export const useMasteryStore = defineStore(
       if (!result) return;
 
       if (result.mastered) {
+        // Unconditional — mastery always grants a freeze, even past the cap (overflow).
+        // Normal 22/44-day milestones are already blocked by the freezeCount < freezeCap
+        // guard inside logHabitInSlots, so overflow can only be reached via mastery.
         freezeCount.value++;
       } else if (result.freezeEarned) {
         freezeCount.value++;
@@ -379,84 +394,8 @@ export const useMasteryStore = defineStore(
       lastReconcileEvents.value = [];
     }
 
-    /**
-     * Pull habit slots, mastery state, and mastered archive from Supabase.
-     * Local wins: remote slots are skipped if a local slot with the same
-     * templateId already exists (the queue may have newer in-flight writes).
-     * freezeCount is only taken from remote if local slots are all empty
-     * (i.e. fresh device with no local data yet).
-     * Throws on network or Supabase errors so the hydration caller can surface
-     * the error state.
-     */
-    async function hydrateFromSupabase(userId: string) {
-      const [slotsRes, stateRes, archiveRes] = await Promise.all([
-        supabase.from("habit_slots").select("*").eq("user_id", userId),
-        supabase.from("mastery_state").select("*").eq("user_id", userId).maybeSingle(),
-        supabase.from("mastered_archive").select("*").eq("user_id", userId),
-      ]);
-
-      if (slotsRes.error) throw slotsRes.error;
-      if (stateRes.error) throw stateRes.error;
-      if (archiveRes.error) throw archiveRes.error;
-
-      // ── Habit slots ──────────────────────────────────────────────────────────
-
-      // Capture before the loop — the loop pushes remote rows into slots, so
-      // checking slots.value.length === 0 *after* would always be false when
-      // the user has remote data. We need the pre-hydration count to detect a
-      // "fresh device with no local data" scenario for freeze count below.
-      const localSlotCount = slots.value.length;
-
-      const localTemplateIds = new Set(slots.value.map((h) => h.templateId));
-
-      for (const row of slotsRes.data ?? []) {
-        if (localTemplateIds.has(row.template_id)) continue;
-
-        const template = HABIT_TEMPLATES.find((t) => t.id === row.template_id);
-        if (!template) continue; // template was removed from code — skip
-
-        slots.value.push({
-          id: String(Date.now() + Math.random()), // stable only for this session
-          templateId: row.template_id,
-          name: template.name,
-          icon: template.icon,
-          iconOutline: template.iconOutline,
-          sectionId: template.sectionId,
-          prompt: template.prompt,
-          when: template.when,
-          instruction: template.instruction,
-          streak: row.streak,
-          lastLoggedDate: row.last_logged_date,
-          isPaused: row.is_paused,
-          isMastered: row.is_mastered,
-          freezeUsed: row.freeze_used,
-        });
-      }
-
-      // ── Mastery state (freeze count) ─────────────────────────────────────────
-      // Only take from remote if local is a clean slate — no slots at all before
-      // this hydration run. If the user had local data, local wins.
-
-      if (stateRes.data && localSlotCount === 0) {
-        freezeCount.value = stateRes.data.freeze_count;
-      }
-
-      // ── Mastered archive ─────────────────────────────────────────────────────
-
-      const localArchivedIds = new Set(masteredArchive.value.map((e) => e.templateId));
-
-      for (const row of archiveRes.data ?? []) {
-        if (localArchivedIds.has(row.template_id)) continue;
-
-        const template = HABIT_TEMPLATES.find((t) => t.id === row.template_id);
-        if (!template) continue;
-
-        masteredArchive.value.push({
-          templateId: row.template_id,
-          name: template.name,
-          icon: template.icon,
-        });
-      }
+    async function hydrateFromSupabase(userId: string): Promise<void> {
+      await _hydrateFromSupabase(userId, slots, freezeCount, masteredArchive);
     }
 
     return {
@@ -492,5 +431,12 @@ export const useMasteryStore = defineStore(
       hydrateFromSupabase,
     };
   },
-  { persist: true },
+  {
+    persist: {
+      paths: ["slots", "freezeCount", "masteredArchive"],
+      // lastReconcileEvents intentionally excluded — habitIds are session-scoped
+      // and become dangling references after a page reload. reconcileStreaks()
+      // re-runs on next open and regenerates any still-relevant events.
+    } as PersistenceOptions,
+  },
 );

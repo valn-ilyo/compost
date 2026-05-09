@@ -1,13 +1,13 @@
 import type { HabitTemplate, UserHabit, LogResult } from "@/types/app.types";
 import { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE } from "@/types/app.types";
 
-export { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE }
+export { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function fromTemplate(template: HabitTemplate): UserHabit {
   return {
-    id: String(Date.now()),
+    id: String(Date.now() + Math.random()),
     templateId: template.id,
     name: template.name,
     icon: template.icon,
@@ -155,7 +155,9 @@ export function logHabitInSlots(
     if (habit.streak === MASTERY_MILESTONE) {
       mastered = true;
       habit.isMastered = true;
-      // Mastery reward is applied by the store (unconditional freeze grant).
+      // Mastery reward is applied by the store — unconditional, can overflow past freezeCap.
+      // Normal milestone grants (22, 44…) are blocked when freezeCount >= freezeCap,
+      // so overflow is only reachable via mastery.
     } else if (habit.streak % FREEZE_MILESTONE === 0 && freezeCount < freezeCap) {
       freezeEarned = true;
     }

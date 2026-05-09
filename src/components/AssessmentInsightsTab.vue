@@ -128,9 +128,21 @@ const chips = computed(() => {
           class="d-flex align-center"
           height="50vh"
           icon="mdi-chart-arc"
-          title="Nothing here yet"
-          text="Complete a section to see your first results."
-        />
+          title="Nothing to show yet"
+          text="Answer a few questions to see where you stand."
+        >
+          <template #actions>
+            <v-btn
+              variant="flat"
+              color="secondary"
+              rounded="lg"
+              prepend-icon="mdi-arrow-left"
+              @click="store.activeTab = 'checkin'"
+            >
+              Check-In
+            </v-btn>
+          </template>
+        </v-empty-state>
 
         <template v-else>
           <v-row density="compact">

@@ -14,3 +14,20 @@ if (import.meta.env.DEV) {
     clock.now = () => new Date(Date.now() + stored);
   }
 }
+
+// Schedule a reactive clock.now reassignment at each UTC midnight.
+// Because clock is a reactive object, reassigning the property invalidates
+// every Vue computed that reads clock.now — allLoggedToday, unloggedToday,
+// isLoggedToday — so habits logged at 11:58 PM don't stay "logged today"
+// at 12:01 AM without a user interaction to trigger a recompute.
+// Skipped in DEV when a day-simulation offset is active so DevView stays consistent.
+function scheduleMidnightRefresh() {
+  const msUntilMidnight = 86_400_000 - (Date.now() % 86_400_000);
+  setTimeout(() => {
+    if (!import.meta.env.DEV || !localStorage.getItem("__dev_day_offset")) {
+      clock.now = () => new Date();
+    }
+    scheduleMidnightRefresh();
+  }, msUntilMidnight);
+}
+scheduleMidnightRefresh();

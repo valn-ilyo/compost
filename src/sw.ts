@@ -6,6 +6,9 @@ import {
   createHandlerBoundToURL,
 } from "workbox-precaching";
 import { NavigationRoute, registerRoute } from "workbox-routing";
+import { CacheFirst, StaleWhileRevalidate } from "workbox-strategies";
+import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { ExpirationPlugin } from "workbox-expiration";
 
 declare let self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null }>;
@@ -24,6 +27,27 @@ cleanupOutdatedCaches();
 // so deep links and refreshes work offline and after updates.
 const handler = createHandlerBoundToURL("/compost/index.html");
 registerRoute(new NavigationRoute(handler));
+
+// ─── Google Fonts ─────────────────────────────────────────────────────────────
+// The CSS stylesheet varies by browser UA, so use StaleWhileRevalidate —
+// serve from cache immediately and update in the background.
+registerRoute(
+  ({ url }) => url.origin === "https://fonts.googleapis.com",
+  new StaleWhileRevalidate({ cacheName: "google-fonts-stylesheets" }),
+);
+
+// The actual woff2 files are content-addressed and immutable — CacheFirst
+// with a long expiry is correct and matches Google's own recommendation.
+registerRoute(
+  ({ url }) => url.origin === "https://fonts.gstatic.com",
+  new CacheFirst({
+    cacheName: "google-fonts-webfonts",
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxAgeSeconds: 60 * 60 * 24 * 365, maxEntries: 30 }),
+    ],
+  }),
+);
 
 // ─── Push notifications ───────────────────────────────────────────────────────
 
@@ -47,17 +71,19 @@ self.addEventListener("notificationclick", (event) => {
   const target = "/compost/#/mastery?action=log";
 
   event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      // If the app is already open, focus it and navigate.
-      for (const client of clientList) {
-        if ("focus" in client) {
-          client.focus();
-          (client as WindowClient).navigate(target);
-          return;
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then(async (clientList) => {
+        // If the app is already open, focus it and navigate.
+        for (const client of clientList) {
+          if ("focus" in client) {
+            await client.focus();
+            await (client as WindowClient).navigate(target);
+            return;
+          }
         }
-      }
-      // Otherwise open a new window.
-      self.clients.openWindow(target);
-    }),
+        // Otherwise open a new window.
+        self.clients.openWindow(target);
+      }),
   );
 });

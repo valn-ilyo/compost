@@ -54,7 +54,7 @@ export function useMasteryCheckin() {
   function resolveLogLabel(unlogged: number, total: number): string {
     if (unlogged === total) return "Log your habits";
     if (unlogged === 1) return "One left";
-    return "Two left to log";
+    return `${unlogged} left to log`;
   }
 
   function snapshotHabits(): void {

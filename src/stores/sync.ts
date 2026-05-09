@@ -231,7 +231,11 @@ export const useSyncStore = defineStore(
                 );
                 // 401 / JWT expired — abort the whole drain
                 if (error.status === 401 || error.code === "PGRST301") return;
-                // Network / 5xx — stop here, retry on next online event
+                // Network / 5xx — stop here and schedule a retry so the queue
+                // doesn't stall indefinitely if the device never goes offline.
+                setTimeout(() => {
+                  if (isOnline.value) drain();
+                }, 5_000);
                 return;
               }
             } else {
@@ -244,6 +248,9 @@ export const useSyncStore = defineStore(
                   error,
                 );
                 if (error.status === 401 || error.code === "PGRST301") return;
+                setTimeout(() => {
+                  if (isOnline.value) drain();
+                }, 5_000);
                 return;
               }
             }
@@ -256,7 +263,11 @@ export const useSyncStore = defineStore(
             queue.value.splice(0, 1);
           } catch (err) {
             console.warn(`[sync] network error on table="${item.table}" id="${item.id}"`, err);
-            // Network error (fetch threw) — stop draining, retry on next online event
+            // Network error (fetch threw) — stop draining and schedule a retry
+            // so the queue doesn't stall if the device never goes offline.
+            setTimeout(() => {
+              if (isOnline.value) drain();
+            }, 5_000);
             return;
           }
         }

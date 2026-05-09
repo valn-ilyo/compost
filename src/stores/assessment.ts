@@ -115,6 +115,7 @@ export const useAssessmentStore = defineStore("assessment", {
     clearAll() {
       this.answers = {};
       this.completedAt = {};
+      this.activeTab = "checkin";
       this.recommendedHabitIds = [];
       useSyncStore().dequeueByTable("assessment_answers");
     },

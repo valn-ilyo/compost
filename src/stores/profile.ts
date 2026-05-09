@@ -19,7 +19,7 @@ export const useProfileStore = defineStore(
       return nameFilled && rollFilled;
     });
 
-    async function fetchProfile(userId: string, email?: string) {
+    async function fetchProfile(userId: string, email?: string, forceRefresh = false) {
       console.log("[fetchProfile] called with email:", email);
       console.log(
         "[fetchProfile] early return check — profile:",
@@ -28,7 +28,9 @@ export const useProfileStore = defineStore(
         userEmail.value,
       );
 
-      if (profile.value !== null && userEmail.value !== null) return;
+      // forceRefresh bypasses the early-return so the reconnect path always
+      // pulls a fresh profile from Supabase rather than no-oping on the cached value.
+      if (!forceRefresh && profile.value !== null && userEmail.value !== null) return;
 
       console.log("[fetchProfile] proceeding, setting email...");
       if (email) userEmail.value = email;

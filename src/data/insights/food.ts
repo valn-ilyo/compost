@@ -1,0 +1,188 @@
+import type { QuestionInsight } from "@/types/app.types";
+
+export const FOOD_INSIGHTS: QuestionInsight[] = [
+  // diet_type
+  {
+    sectionId: "food",
+    questionId: "diet_type",
+    score: 5,
+    icon: "mdi-leaf",
+    text: "A plant-based or vegan diet sits at the low end of food-related emissions. That pattern is already the correct one and requires no adjustment.",
+  },
+  {
+    sectionId: "food",
+    questionId: "diet_type",
+    score: 4,
+    icon: "mdi-food-variant",
+    text: "A vegetarian diet removes the highest-emission food category. The remaining gap is dairy. Replacing dairy at one meal daily moves the footprint measurably lower.",
+  },
+  {
+    sectionId: "food",
+    questionId: "diet_type",
+    score: 3,
+    icon: "mdi-food-variant",
+    text: "A mostly plant-based diet with occasional meat still carries meat emissions. Add one more meat-free day per week: not a smaller portion, a full day without meat.",
+  },
+  {
+    sectionId: "food",
+    questionId: "diet_type",
+    score: 2,
+    icon: "mdi-food-variant",
+    text: "Non-vegetarian at most meals is a high-emission diet pattern. Replace one meal today with a legume or grain dish. One meal, one day, repeated daily is the mechanism of change.",
+  },
+  {
+    sectionId: "food",
+    questionId: "diet_type",
+    score: 1,
+    icon: "mdi-food-off",
+    text: "Red meat at nearly every meal carries the highest dietary footprint of any pattern. At your next meal containing beef or pork, replace it with chicken, fish, eggs, or lentils.",
+  },
+
+  // plate_waste
+  {
+    sectionId: "food",
+    questionId: "plate_waste",
+    score: 5,
+    icon: "mdi-food-off",
+    text: "Taking only what you'll eat means the full production cost of your food is never wasted. That discipline is applied at the right moment.",
+  },
+  {
+    sectionId: "food",
+    questionId: "plate_waste",
+    score: 4,
+    icon: "mdi-food-off",
+    text: "Wasting food once or twice a week is occasional but not zero. The specific fix is portion size at the point of serving: take less first, return for more if needed.",
+  },
+  {
+    sectionId: "food",
+    questionId: "plate_waste",
+    score: 3,
+    icon: "mdi-food-off",
+    text: "Wasting food three to four times a week means the serving habit consistently over-estimates. Switch to a smaller plate today. Plate size is the most direct control on how much you serve.",
+  },
+  {
+    sectionId: "food",
+    questionId: "plate_waste",
+    score: 2,
+    icon: "mdi-food-off",
+    text: "Discarding food nearly every day means every meal is generating avoidable waste. Serve half of what you think you want, eat it, then decide. That one pause prevents most daily plate waste.",
+  },
+  {
+    sectionId: "food",
+    questionId: "plate_waste",
+    score: 1,
+    icon: "mdi-food-off",
+    text: "Regularly discarding half-eaten food means the full production cost of that food is paid for nothing. Start by finishing everything on your plate today, even if it means serving less to begin.",
+  },
+
+  // leftovers
+  {
+    sectionId: "food",
+    questionId: "leftovers",
+    score: 5,
+    icon: "mdi-fridge-outline",
+    text: "Always saving and eating leftovers means cooked food is never wasted. The production cost of every meal is fully used.",
+  },
+  {
+    sectionId: "food",
+    questionId: "leftovers",
+    score: 4,
+    icon: "mdi-fridge-outline",
+    text: "Usually saving leftovers is close to the target. The gap is the occasions you don't. Date each container when you store it: dated leftovers get eaten, undated ones get forgotten.",
+  },
+  {
+    sectionId: "food",
+    questionId: "leftovers",
+    score: 3,
+    icon: "mdi-fridge-outline",
+    text: "Sometimes discarding leftovers means the storage habit is inconsistent. Box leftovers before you serve your plate, not after eating and not later. That timing is what makes the difference.",
+  },
+  {
+    sectionId: "food",
+    questionId: "leftovers",
+    score: 2,
+    icon: "mdi-fridge-outline",
+    text: "Usually discarding leftovers means cooked food is routinely wasted after production. After dinner tonight, wrap whatever remains and refrigerate it before leaving the kitchen.",
+  },
+  {
+    sectionId: "food",
+    questionId: "leftovers",
+    score: 1,
+    icon: "mdi-fridge-outline",
+    text: "Always discarding leftovers means the full cost of every meal beyond your plate is wasted. Before sleeping tonight, put any cooked food still out into the fridge.",
+  },
+
+  // packaged_food
+  {
+    sectionId: "food",
+    questionId: "packaged_food",
+    score: 5,
+    icon: "mdi-package-variant-closed-remove",
+    text: "Never buying packaged food means you carry no packaging waste from snacks or drinks and avoid the energy cost of processed food production.",
+  },
+  {
+    sectionId: "food",
+    questionId: "packaged_food",
+    score: 4,
+    icon: "mdi-package-variant-closed-remove",
+    text: "Buying packaged food once or twice a week is occasional. The gap is those specific moments: a packed item from home on every departure eliminates them.",
+  },
+  {
+    sectionId: "food",
+    questionId: "packaged_food",
+    score: 3,
+    icon: "mdi-package-variant-closed-remove",
+    text: "Three to four times a week is a frequent pattern driven by not having an alternative when hungry. Pack a snack every morning before you leave. That one preparation step removes the trigger for every packaged purchase.",
+  },
+  {
+    sectionId: "food",
+    questionId: "packaged_food",
+    score: 2,
+    icon: "mdi-package-variant-closed-remove",
+    text: "Once or twice daily means packaged food is a consistent habit. Fill your reusable bottle and pack one food item each morning. Start tomorrow.",
+  },
+  {
+    sectionId: "food",
+    questionId: "packaged_food",
+    score: 1,
+    icon: "mdi-package-variant-closed-remove",
+    text: "Multiple packaged purchases daily is the highest-waste food habit at this level. Tomorrow morning, fill a bottle and put a piece of fruit in your bag before leaving. That replaces one purchase immediately.",
+  },
+
+  // local_food
+  {
+    sectionId: "food",
+    questionId: "local_food",
+    score: 5,
+    icon: "mdi-store-outline",
+    text: "Buying mostly local, seasonal, or unpackaged food keeps transport emissions low and reduces packaging waste at the source. That pattern is already right.",
+  },
+  {
+    sectionId: "food",
+    questionId: "local_food",
+    score: 4,
+    icon: "mdi-store-outline",
+    text: "More than half local or fresh is a strong position. The gap is the remaining packaged or imported purchases. Identify the one most easily replaced and swap it on your next trip.",
+  },
+  {
+    sectionId: "food",
+    questionId: "local_food",
+    score: 3,
+    icon: "mdi-store-outline",
+    text: "Roughly half local and half packaged or imported means the habit isn't yet consistent. Set a minimum of one local or unpackaged item per shopping trip as a non-negotiable rule.",
+  },
+  {
+    sectionId: "food",
+    questionId: "local_food",
+    score: 2,
+    icon: "mdi-store-outline",
+    text: "Mostly packaged or imported options means local alternatives are not yet part of the shopping habit. Find your nearest market or fresh supplier this week and buy one item from it.",
+  },
+  {
+    sectionId: "food",
+    questionId: "local_food",
+    score: 1,
+    icon: "mdi-store-outline",
+    text: "Rarely or never buying local or seasonal produce means your food footprint from transport and packaging is near its maximum. Buy one seasonal or unpackaged item on your next shopping trip.",
+  },
+];

@@ -82,13 +82,19 @@ onMounted(() => {
     syncStore.beginHydrating();
     try {
       await Promise.all([
-        profileStore.fetchProfile(userId, email),
+        profileStore.fetchProfile(userId, email, true),
         assessmentStore.hydrateFromSupabase(userId),
         masteryStore.hydrateFromSupabase(userId),
       ]);
     } finally {
       syncStore.endHydrating();
     }
+
+    // Reconcile after endHydrating() so enqueue() is live and any streak
+    // resets or freeze deductions are immediately pushed to Supabase.
+    // This mirrors the same call in AuthView.runHydration() — without it,
+    // days missed while offline are never reconciled on reconnect.
+    masteryStore.reconcileStreaks();
   });
 
   syncStore.init();

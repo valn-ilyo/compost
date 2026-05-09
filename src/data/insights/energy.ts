@@ -1,0 +1,188 @@
+import type { QuestionInsight } from "@/types/app.types";
+
+export const ENERGY_INSIGHTS: QuestionInsight[] = [
+  // lights_off
+  {
+    sectionId: "energy",
+    questionId: "lights_off",
+    score: 5,
+    icon: "mdi-lightbulb-off-outline",
+    text: "Switching off every time you leave is a complete habit. Rooms you leave dark cost nothing to run.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "lights_off",
+    score: 4,
+    icon: "mdi-lightbulb-off-outline",
+    text: "Usually switching off is close to complete. The gap is the occasions you forget. A note on your door listing what to check closes that gap without any ongoing effort.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "lights_off",
+    score: 3,
+    icon: "mdi-lightbulb-off-outline",
+    text: "Occasional forgetting means the habit is not automatic yet. Pick one room and make it unconditional for one week. One room, fully consistent, builds the pattern for all rooms.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "lights_off",
+    score: 2,
+    icon: "mdi-lightbulb-off-outline",
+    text: "Rarely switching off means rooms run while empty most of the time. Stick a reminder on one door today and commit to one room. That room, every time.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "lights_off",
+    score: 1,
+    icon: "mdi-lightbulb-off-outline",
+    text: "Never switching off means every room runs continuously whether occupied or not. Switch one light off the next time you leave a room. That one act is where the habit begins.",
+  },
+
+  // standby_power
+  {
+    sectionId: "energy",
+    questionId: "standby_power",
+    score: 5,
+    icon: "mdi-power-plug-off",
+    text: "Unplugging immediately when charging is done eliminates phantom load from every charger in your space. That power draw is removed entirely.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "standby_power",
+    score: 4,
+    icon: "mdi-power-plug-off",
+    text: "Usually unplugging is close to complete. The remaining occasions are the gap. Make device at 100% the unconditional trigger to unplug.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "standby_power",
+    score: 3,
+    icon: "mdi-power-plug-off",
+    text: "Sometimes unplugging means chargers run on standby for hours regularly. Before sleeping tonight, unplug every charger not in active use. Make that a nightly routine.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "standby_power",
+    score: 2,
+    icon: "mdi-power-plug-off",
+    text: "Chargers left plugged in draw power continuously. Start with the charger by your bed: unplug it every morning as part of waking up.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "standby_power",
+    score: 1,
+    icon: "mdi-power-plug-off",
+    text: "Devices plugged in continuously means phantom load runs all day and night. Unplug one charger tonight before sleeping. That's the first action.",
+  },
+
+  // natural_light
+  {
+    sectionId: "energy",
+    questionId: "natural_light",
+    score: 5,
+    icon: "mdi-weather-sunny",
+    text: "Using natural light throughout the day means no electricity is drawn for lighting during daylight hours. That saving is automatic and daily.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "natural_light",
+    score: 4,
+    icon: "mdi-weather-sunny",
+    text: "Usually using daylight is a strong pattern. The gap is the times you switch lights on when daylight would suffice. Commit to no electric lights before noon as a daily rule.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "natural_light",
+    score: 3,
+    icon: "mdi-weather-sunny",
+    text: "Sometimes using daylight means electric lights run during hours when they're not needed. Move your primary work spot near a window and open curtains before sitting down every morning.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "natural_light",
+    score: 2,
+    icon: "mdi-weather-sunny",
+    text: "Rarely using daylight means electric lights run all day regardless of what's available outside. Open your curtains as the first act of every morning, before any switch.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "natural_light",
+    score: 1,
+    icon: "mdi-weather-sunny",
+    text: "Never using daylight means electric lighting runs from waking to dark. Open the curtains one morning this week instead of turning on the light and see how much you need the switch.",
+  },
+
+  // shared_space_energy
+  {
+    sectionId: "energy",
+    questionId: "shared_space_energy",
+    score: 5,
+    icon: "mdi-account-group-outline",
+    text: "Actively checking shared spaces before leaving extends your energy habit beyond your personal rooms. That consistency matters because shared spaces are left running most often.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "shared_space_energy",
+    score: 4,
+    icon: "mdi-account-group-outline",
+    text: "Usually checking is close to complete. The remaining gap is assuming someone else will handle it. Make the check your personal rule regardless of who else is in the room.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "shared_space_energy",
+    score: 3,
+    icon: "mdi-account-group-outline",
+    text: "Sometimes checking means shared spaces run unnecessarily on the days you don't. Pick one shared space you use daily and commit to always checking before you leave it.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "shared_space_energy",
+    score: 2,
+    icon: "mdi-account-group-outline",
+    text: "Rarely checking shared spaces, expecting others to act, means those spaces run continuously. Do the check yourself once today in any shared room you leave.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "shared_space_energy",
+    score: 1,
+    icon: "mdi-account-group-outline",
+    text: "Never checking shared spaces means they run after every departure. Look back once before leaving any shared room this week and switch off what is running.",
+  },
+
+  // power_saving_mode
+  {
+    sectionId: "energy",
+    questionId: "power_saving_mode",
+    score: 5,
+    icon: "mdi-brightness-auto",
+    text: "Power-saving and auto-brightness set permanently means device energy draw is reduced every hour without further decisions. The setting does the work.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "power_saving_mode",
+    score: 4,
+    icon: "mdi-brightness-auto",
+    text: "Usually enabled is nearly complete. The gap is the occasions you disable it. Set both as permanent defaults in your settings now so the question never arises.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "power_saving_mode",
+    score: 3,
+    icon: "mdi-brightness-auto",
+    text: "Enabling power-saving only when battery is low means your device runs at full draw most of the time. Go into settings today and enable both permanently: one action, permanent effect.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "power_saving_mode",
+    score: 2,
+    icon: "mdi-brightness-auto",
+    text: "High brightness and no power-saving means your device draws significantly more power than necessary all day. Enable auto-brightness now. That single change reduces screen energy use immediately.",
+  },
+  {
+    sectionId: "energy",
+    questionId: "power_saving_mode",
+    score: 1,
+    icon: "mdi-brightness-auto",
+    text: "Not using these settings means your devices run at maximum draw continuously. Open your phone settings now and enable auto-brightness. It takes thirty seconds.",
+  },
+];

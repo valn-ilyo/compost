@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
@@ -45,12 +45,23 @@ const {
   handleRetire,
 } = useMasteryActions();
 
-onMounted(() => {
+onMounted(async () => {
   if (route.query.action === "log" && store.activeHabits.length > 0) {
-    router.replace({ name: "mastery" });
+    await router.replace({ name: "mastery" });
     handleLogAll();
   }
 });
+
+// Handle notification deep link when already on this route (onMounted won't re-fire).
+watch(
+  () => route.query.action,
+  async (action) => {
+    if (action === "log" && store.activeHabits.length > 0) {
+      await router.replace({ name: "mastery" });
+      handleLogAll();
+    }
+  },
+);
 </script>
 
 <template>

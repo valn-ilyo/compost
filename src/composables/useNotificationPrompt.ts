@@ -61,11 +61,16 @@ export function useNotificationPrompt() {
 
     try {
       const permission = await Notification.requestPermission();
-      showNotificationBanner.value = false;
 
       if (permission === "granted") {
+        showNotificationBanner.value = false;
         await subscribeAndSave();
+      } else if (permission === "denied") {
+        // The system dialog was suppressed or the user explicitly denied.
+        // Hide the banner — there is nothing more the app can do.
+        showNotificationBanner.value = false;
       }
+      // "default" (dismissed without choosing): leave the banner visible for retry.
     } catch (e) {
       if (import.meta.env.DEV) console.warn("[push] requestPermission failed", e);
       // permission request failed — banner stays visible for retry

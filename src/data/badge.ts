@@ -10,7 +10,7 @@ export const WEAK_THRESHOLD = 0.5;
 
 /**
  * Sort section results weakest → strongest.
- * Tiebreaker 1: scaledMax ascending (lower-weight section first).
+ * Tiebreaker 1: scaledMax descending (higher-weight section first).
  * Tiebreaker 2: stable sort preserves SECTIONS declaration order.
  */
 export function getSortedSections(

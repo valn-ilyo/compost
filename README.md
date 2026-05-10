@@ -58,46 +58,16 @@ VITE_VAPID_PUBLIC_KEY=your-vapid-public-key
 
 `VITE_VAPID_PUBLIC_KEY` is only required if you want push notification support.
 
-### Install
+### Commands
 
 ```sh
 npm install --legacy-peer-deps
+npm run dev        # local dev server
+npm run build      # type-check + PWA assets + Vite build
+npm run lint       # oxlint + ESLint (both with --fix)
+npm run format     # oxfmt over src/
+npm run ship-it    # build then deploy to GitHub Pages
 ```
-
-### Develop
-
-```sh
-npm run dev
-```
-
-### Build
-
-The build pipeline runs type-checking, PWA asset generation, and Vite in sequence:
-
-```sh
-npm run build
-```
-
-### Preview the production build
-
-```sh
-npm run preview
-```
-
-### Lint and format
-
-```sh
-npm run lint     # oxlint + ESLint (both with --fix)
-npm run format   # oxfmt over src/
-```
-
-### Deploy to GitHub Pages
-
-```sh
-npm run ship-it  # build then gh-pages deploy
-```
-
-The GitHub Actions workflow in `.github/workflows/deploy.yml` runs this automatically on every push to `master`.
 
 ---
 
@@ -131,29 +101,6 @@ src/
 ├── utils/           # Pure utilities (scoring, streakReconciler, habitDate, habitLifecycle, clock, theme)
 └── views/           # Route-level view components
 ```
-
----
-
-## Documentation
-
-Full in-app documentation is available at the `/docs` route, covering:
-
-- **Guide** — getting started, assessment, habits and mastery, score and badges, insights, sync, privacy
-- **Methodology** — scoring model, section weighting rationale, badge taxonomy, insights algorithm, limitations, references
-- **Credits** — team, stack, license
-
-See [`METHODOLOGY.md`](./METHODOLOGY.md) for the full methodology as a standalone document.
-
----
-
-## IDE Setup
-
-[VS Code](https://code.visualstudio.com/) with the [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) extension. Disable Vetur if installed.
-
-**Recommended browser extensions for development:**
-
-- Chrome/Edge/Brave: [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) · [Enable Custom Object Formatters](http://bit.ly/object-formatters)
-- Firefox: [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/) · [Enable Custom Object Formatters](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
 
 ---
 

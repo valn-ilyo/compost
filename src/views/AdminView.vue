@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { VPie } from "vuetify/labs/VPie";
 import { useProfileStore } from "@/stores/profile";
@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AdminAnalytics {
+  available_years: number[];
   totals: {
     registered: number;
     assessment_started: number;
@@ -45,7 +46,7 @@ interface AdminAnalytics {
   }>;
 }
 
-// ── App bar — mirrors AppBarDocs exactly ─────────────────────────────────────
+// ── App bar ───────────────────────────────────────────────────────────────────
 
 const router = useRouter();
 const profileStore = useProfileStore();
@@ -56,26 +57,52 @@ function goBack() {
   router.push(cameFromApp ? { path: "/profile" } : { path: "/" });
 }
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ── Data & filters ────────────────────────────────────────────────────────────
 
 const analytics = ref<AdminAnalytics | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-onMounted(async () => {
-  const { data, error: rpcError } = await supabase.rpc("get_admin_analytics");
+const selectedYear = ref<number | null>(null);
+const selectedGender = ref<string | null>(null);
+
+const yearItems = computed(() => [
+  { title: "All", value: null },
+  ...(analytics.value?.available_years ?? []).map((yr) => ({
+    title: `Batch '${String(yr).padStart(2, "0")}`,
+    value: yr,
+  })),
+]);
+
+const genderItems = computed(() => [
+  { title: "All", value: null },
+  ...(analytics.value?.gender_breakdown ?? [])
+    .filter((g) => g.gender !== "Not specified")
+    .map((g) => ({ title: g.gender, value: g.gender })),
+]);
+
+// True when the current filter combination matches no users
+const isEmpty = computed(() => !!analytics.value && analytics.value.totals.registered === 0);
+
+async function fetchAnalytics() {
+  loading.value = true;
+  error.value = null;
+  const { data, error: rpcError } = await supabase.rpc("get_admin_analytics", {
+    p_year: selectedYear.value,
+    p_gender: selectedGender.value,
+  });
   if (rpcError) {
     error.value = rpcError.message;
   } else {
     analytics.value = data as AdminAnalytics;
   }
   loading.value = false;
-});
+}
+
+onMounted(fetchAnalytics);
+watch([selectedYear, selectedGender], fetchAnalytics);
 
 // ── Band distribution — VPie ──────────────────────────────────────────────────
-// Colors use rgb(var(--v-theme-X)) so they resolve from the active theme at
-// render time. VPieSegment sets style.color = props.color and the SVG path
-// uses fill:currentColor — so CSS custom property strings are the right hook.
 
 const BAND_COLORS: Record<string, string> = {
   "starting-out": "rgb(var(--v-theme-error))",
@@ -103,17 +130,7 @@ function bandPct(count: number): string {
   return Math.round((count / totalAssessed.value) * 100) + "%";
 }
 
-// ── Section averages — VSparkline ─────────────────────────────────────────────
-
-const SECTION_ABBREV: Record<string, string> = {
-  transport: "Trans.",
-  food: "Food",
-  energy: "Energy",
-  consumption: "Consum.",
-  waste: "Waste",
-  water: "Water",
-  digital: "Digital",
-};
+// ── Section averages ──────────────────────────────────────────────────────────
 
 const SECTION_CONFIG: Record<string, { label: string; icon: string }> = {
   transport: { label: "Transport", icon: "mdi-bus-multiple" },
@@ -125,16 +142,6 @@ const SECTION_CONFIG: Record<string, { label: string; icon: string }> = {
   digital: { label: "Digital", icon: "mdi-monitor-cellphone" },
 };
 
-const sparklineValues = computed(() =>
-  (analytics.value?.section_averages ?? []).map((s) => s.avg_pct),
-);
-
-const sparklineLabels = computed(() =>
-  (analytics.value?.section_averages ?? []).map(
-    (s) => SECTION_ABBREV[s.section_id] ?? s.section_id,
-  ),
-);
-
 function sectionColor(pct: number): string {
   if (pct >= 66) return "success";
   if (pct >= 51) return "warning";
@@ -143,9 +150,9 @@ function sectionColor(pct: number): string {
 
 // ── Habit adoption ────────────────────────────────────────────────────────────
 
-const maxHabitTotal = computed(() =>
-  Math.max(...(analytics.value?.habit_adoption.map((h) => h.total) ?? [1]), 1),
-);
+function habitPct(part: number, total: number): number {
+  return total ? Math.round((part / total) * 100) : 0;
+}
 
 // ── Gender ────────────────────────────────────────────────────────────────────
 
@@ -155,7 +162,7 @@ const totalGender = computed(
 </script>
 
 <template>
-  <!-- ── App bar — identical pattern to AppBarDocs ─────────────────────────── -->
+  <!-- ── App bar ────────────────────────────────────────────────────────────── -->
   <v-app-bar color="primary" flat class="border border-b">
     <template #prepend>
       <v-btn :icon="cameFromApp ? 'mdi-account-outline' : 'mdi-home-outline'" @click="goBack" />
@@ -166,7 +173,7 @@ const totalGender = computed(
   </v-app-bar>
 
   <v-main>
-    <v-container class="pt-4">
+    <v-container class="pt-4" fluid>
       <v-row justify="center">
         <v-col cols="12" sm="10" md="8" lg="6" xl="4">
           <div
@@ -179,17 +186,40 @@ const totalGender = computed(
             }"
           >
             <!-- ── Identity card ─────────────────────────────────────────── -->
-            <v-card rounded="xl" border flat class="mb-4">
+            <v-card flat class="mb-4 text-center">
               <v-list-item
-                prepend-icon="mdi-shield-account-outline"
                 :title="profileStore.profile?.name || 'Admin'"
                 :subtitle="profileStore.userEmail || ''"
-              >
-                <template #append>
-                  <v-chip color="primary" size="small" variant="tonal">Admin</v-chip>
-                </template>
-              </v-list-item>
+              />
             </v-card>
+
+            <!-- ── Filters ──────────────────────────────────────────────── -->
+            <div class="text-overline text-medium-emphasis px-1 mb-4">Filters</div>
+            <v-row dense class="mb-4">
+              <v-col cols="6">
+                <v-select
+                  v-model="selectedYear"
+                  label="Batch year"
+                  :items="yearItems"
+                  density="compact"
+                  rounded="xl"
+                  variant="outlined"
+                  hide-details
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-select
+                  v-model="selectedGender"
+                  label="Gender"
+                  :items="genderItems"
+                  density="compact"
+                  rounded="xl"
+                  variant="outlined"
+                  hide-details
+                  class="text-capitalize"
+                />
+              </v-col>
+            </v-row>
 
             <!-- ── Loading ───────────────────────────────────────────────── -->
             <template v-if="loading">
@@ -202,6 +232,35 @@ const totalGender = computed(
             <v-alert v-else-if="error" type="error" rounded="xl" class="mb-4">
               {{ error }}
             </v-alert>
+
+            <!-- ── Empty state ───────────────────────────────────────────── -->
+            <v-card v-else-if="isEmpty" rounded="xl" border flat class="mb-4">
+              <v-card-text class="text-center pa-8">
+                <v-icon
+                  icon="mdi-filter-off-outline"
+                  size="40"
+                  color="medium-emphasis"
+                  class="mb-3"
+                />
+                <div class="text-body-1 font-weight-medium mb-1">
+                  No users match this combination
+                </div>
+                <div class="text-body-2 text-medium-emphasis mb-4">
+                  Try adjusting the batch year or gender filter.
+                </div>
+                <v-btn
+                  variant="tonal"
+                  size="small"
+                  rounded="xl"
+                  @click="
+                    selectedYear = null;
+                    selectedGender = null;
+                  "
+                >
+                  Clear filters
+                </v-btn>
+              </v-card-text>
+            </v-card>
 
             <template v-else-if="analytics">
               <!-- ── 1. Totals ─────────────────────────────────────────── -->
@@ -249,7 +308,7 @@ const totalGender = computed(
                 </v-col>
               </v-row>
 
-              <!-- ── 2. Band distribution — VPie donut ─────────────────── -->
+              <!-- ── 2. Band distribution — VPie ───────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mb-1">Eco band distribution</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-card-text class="pa-4">
@@ -259,14 +318,13 @@ const totalGender = computed(
                       item-title="title"
                       item-value="value"
                       :size="200"
-                      :gap="2"
+                      :gap="0"
                       :hover-scale="1"
                       :legend="false"
                       :tooltip="false"
                     />
                   </div>
 
-                  <!-- Legend table -->
                   <v-table density="compact" class="mt-3">
                     <tbody>
                       <tr v-for="band in analytics.band_distribution" :key="band.id">
@@ -288,53 +346,65 @@ const totalGender = computed(
                 </v-card-text>
               </v-card>
 
-              <!-- ── 3. Section averages — VSparkline bar ───────────────── -->
+              <!-- ── 3. Section averages ───────────────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mb-1">Section averages</div>
               <v-card rounded="xl" border flat class="mb-4">
-                <v-card-text class="pa-4 pb-0">
-                  <v-sparkline
-                    type="bar"
-                    :model-value="sparklineValues"
-                    :labels="sparklineLabels"
-                    :max="100"
-                    :min="0"
-                    color="rgb(var(--v-theme-primary))"
-                    :height="90"
-                    :padding="8"
-                    show-labels
-                    auto-line-width
-                  />
-                </v-card-text>
-
-                <!-- Per-section chips below the chart -->
-                <v-divider />
-                <v-list lines="one" density="compact">
-                  <template
-                    v-for="(section, i) in analytics.section_averages"
-                    :key="section.section_id"
-                  >
-                    <v-divider v-if="i > 0" />
-                    <v-list-item
-                      :prepend-icon="SECTION_CONFIG[section.section_id]?.icon"
-                      :title="SECTION_CONFIG[section.section_id]?.label ?? section.section_id"
-                    >
-                      <template #append>
+                <v-table density="comfortable">
+                  <thead>
+                    <tr>
+                      <th colspan="2" class="text-left text-caption text-medium-emphasis">
+                        Section
+                      </th>
+                      <th class="text-left text-caption text-medium-emphasis">Avg. score</th>
+                      <th
+                        class="text-center text-caption text-medium-emphasis"
+                        style="white-space: nowrap"
+                      >
+                        Responses
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="section in analytics.section_averages" :key="section.section_id">
+                      <td style="width: 32px; padding-right: 0">
+                        <v-icon
+                          :icon="SECTION_CONFIG[section.section_id]?.icon"
+                          size="18"
+                          color="medium-emphasis"
+                        />
+                      </td>
+                      <td class="text-body-2" style="width: 110px; white-space: nowrap">
+                        {{ SECTION_CONFIG[section.section_id]?.label ?? section.section_id }}
+                      </td>
+                      <td>
                         <div class="d-flex align-center gap-2">
+                          <v-progress-linear
+                            :model-value="section.avg_pct"
+                            :color="sectionColor(section.avg_pct)"
+                            bg-color="surface-variant"
+                            rounded
+                            height="10"
+                            class="flex-grow-1"
+                          />
                           <v-chip
                             :color="sectionColor(section.avg_pct)"
                             size="x-small"
                             variant="tonal"
+                            style="min-width: 44px; justify-content: center"
                           >
                             {{ section.avg_pct }}%
                           </v-chip>
-                          <span class="text-caption text-medium-emphasis">
-                            {{ section.completion_count }} resp.
-                          </span>
                         </div>
-                      </template>
-                    </v-list-item>
-                  </template>
-                </v-list>
+                      </td>
+                      <td
+                        class="text-body-2 text-medium-emphasis text-center"
+                        style="white-space: nowrap; width: 48px"
+                      >
+                        {{ section.completion_count }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
               </v-card>
 
               <!-- ── 4. Habit states ───────────────────────────────────── -->
@@ -372,43 +442,33 @@ const totalGender = computed(
                 </v-col>
               </v-row>
 
-              <!-- ── 5. Habit adoption ─────────────────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Top habits</div>
+              <!-- ── 5. Habit adoption ─────────────────────────────────────────── -->
+              <div class="text-overline text-medium-emphasis px-1 mb-1">Habits</div>
               <v-card rounded="xl" border flat class="mb-4">
-                <v-list lines="two">
-                  <template v-for="(habit, i) in analytics.habit_adoption" :key="habit.template_id">
-                    <v-divider v-if="i > 0" />
-                    <v-list-item prepend-icon="mdi-leaf-circle-outline">
-                      <template #title>
-                        <span class="text-body-2">{{ habit.template_id }}</span>
-                      </template>
-                      <template #subtitle>
-                        <v-progress-linear
-                          :model-value="(habit.total / maxHabitTotal) * 100"
-                          color="primary"
-                          bg-color="surface-variant"
-                          rounded
-                          height="5"
-                          class="mt-1 mb-1"
-                        />
-                        <span class="text-caption text-medium-emphasis">
-                          {{ habit.active }} active · {{ habit.paused }} paused ·
-                          {{ habit.mastered }} mastered
-                        </span>
-                      </template>
-                      <template #append>
-                        <span class="text-body-2 font-weight-medium">{{ habit.total }}</span>
-                      </template>
-                    </v-list-item>
+                <v-data-table
+                  :headers="[
+                    { title: 'Habit', key: 'template_id', sortable: true },
+                    { title: 'Total', key: 'total', sortable: true, align: 'center' },
+                    { title: 'Active', key: 'active', sortable: true, align: 'center' },
+                    { title: 'Paused', key: 'paused', sortable: true, align: 'center' },
+                    { title: 'Mastered', key: 'mastered', sortable: true, align: 'center' },
+                  ]"
+                  :items="analytics.habit_adoption"
+                  :sort-by="[{ key: 'total', order: 'desc' }]"
+                  density="compact"
+                  hide-default-footer
+                  :items-per-page="-1"
+                >
+                  <template #item.active="{ item }">
+                    <span class="text-primary font-weight-medium">{{ item.active }}</span>
                   </template>
-                  <v-list-item
-                    v-if="!analytics.habit_adoption.length"
-                    title="No habits adopted yet"
-                    prepend-icon="mdi-information-outline"
-                    subtitle="Data will appear once users start tracking habits"
-                    disabled
-                  />
-                </v-list>
+                  <template #item.paused="{ item }">
+                    <span class="text-warning font-weight-medium">{{ item.paused }}</span>
+                  </template>
+                  <template #item.mastered="{ item }">
+                    <span class="text-secondary font-weight-medium">{{ item.mastered }}</span>
+                  </template>
+                </v-data-table>
               </v-card>
 
               <!-- ── 6. Gender breakdown ───────────────────────────────── -->

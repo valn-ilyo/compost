@@ -248,7 +248,10 @@ function goHome() {
 <template>
   <v-app-bar color="primary" flat class="border border-b">
     <template #prepend>
-      <v-btn :icon="cameFromApp ? 'mdi-account-outline' : 'mdi-home-outline'" @click="goHome" />
+      <v-btn
+        :icon="cameFromApp ? 'mdi-account-arrow-left-outline' : 'mdi-home-outline'"
+        @click="goHome"
+      />
     </template>
 
     <!-- Normal: title -->

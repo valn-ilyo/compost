@@ -48,11 +48,17 @@
 
       <v-list-item prepend-icon="mdi-delete-outline" title="Deleting your data" class="pt-2" />
       <v-card-text class="pt-1 pb-4">
+        <p class="text-body-2 mb-2">
+          Two self-service options are available from the
+          <v-icon size="14" class="mb-1">mdi-cog-outline</v-icon> menu on the Profile screen.
+        </p>
+        <p class="text-body-2 mb-2">
+          <strong>Reset assessments</strong> clears all your section answers and scores. Your habit
+          slots and profile are not affected.
+        </p>
         <p class="text-body-2">
-          You can reset your assessment answers from the Assessment tab. Deleting your account
-          removes all stored data permanently. To request full account deletion
-
-          <!-- //TODO -->
+          <strong>Delete account</strong> permanently removes your profile, answers, and habit data.
+          This cannot be undone.
         </p>
       </v-card-text>
     </v-card>

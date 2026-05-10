@@ -162,16 +162,31 @@ const habitNameMap = Object.fromEntries(HABIT_TEMPLATES.map((h) => [h.id, h.name
 
 // ── Gender ────────────────────────────────────────────────────────────────────
 
-const totalGender = computed(
-  () => analytics.value?.gender_breakdown.reduce((s, g) => s + g.count, 0) ?? 0,
+const GENDER_ORDER: Record<string, number> = { Male: 0, Female: 1 };
+
+const GENDER_COLORS: Record<string, string> = {
+  Male: "info",
+  Female: "error",
+  "N/A": "warning",
+};
+
+const genderBreakdown = computed(() =>
+  (analytics.value?.gender_breakdown ?? [])
+    .map((g) => ({ ...g, gender: g.gender === "Not specified" ? "N/A" : g.gender }))
+    .sort((a, b) => (GENDER_ORDER[a.gender] ?? 99) - (GENDER_ORDER[b.gender] ?? 99)),
 );
+
+const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.count, 0));
 </script>
 
 <template>
   <!-- ── App bar ────────────────────────────────────────────────────────────── -->
   <v-app-bar color="primary" flat class="border border-b">
     <template #prepend>
-      <v-btn :icon="cameFromApp ? 'mdi-account-outline' : 'mdi-home-outline'" @click="goBack" />
+      <v-btn
+        :icon="cameFromApp ? 'mdi-account-arrow-left-outline' : 'mdi-home-outline'"
+        @click="goBack"
+      />
     </template>
     <v-app-bar-title>
       <span class="font-condensed">Admin</span>
@@ -336,7 +351,7 @@ const totalGender = computed(
                   <v-table density="compact" class="mt-3">
                     <tbody>
                       <tr v-for="band in analytics.band_distribution" :key="band.id">
-                        <td style="width: 20px; padding-right: 0">
+                        <td style="padding-right: 0">
                           <div
                             class="rounded-circle"
                             style="width: 10px; height: 10px"
@@ -374,31 +389,31 @@ const totalGender = computed(
                   </thead>
                   <tbody>
                     <tr v-for="section in analytics.section_averages" :key="section.section_id">
-                      <td style="width: 32px; padding-right: 0">
+                      <td style="padding-right: 0">
                         <v-icon
                           :icon="SECTION_CONFIG[section.section_id]?.icon"
                           size="18"
                           color="medium-emphasis"
                         />
                       </td>
-                      <td class="text-body-2" style="width: 110px; white-space: nowrap">
+                      <td class="text-body-2" style="white-space: nowrap">
                         {{ SECTION_CONFIG[section.section_id]?.label ?? section.section_id }}
                       </td>
-                      <td>
-                        <div class="d-flex align-center gap-2">
+                      <td style="width: 100%">
+                        <div class="d-flex align-center gap-4">
                           <v-progress-linear
                             :model-value="section.avg_pct"
                             :color="sectionColor(section.avg_pct)"
-                            bg-color="surface-variant"
+                            :bg-color="sectionColor(section.avg_pct)"
                             rounded
                             height="10"
-                            class="flex-grow-1"
+                            class="flex-grow-1 mr-2"
                           />
                           <v-chip
                             :color="sectionColor(section.avg_pct)"
                             size="x-small"
                             variant="tonal"
-                            style="min-width: 44px; justify-content: center"
+                            style="justify-content: center"
                           >
                             {{ section.avg_pct }}%
                           </v-chip>
@@ -406,7 +421,7 @@ const totalGender = computed(
                       </td>
                       <td
                         class="text-body-2 text-medium-emphasis text-center"
-                        style="white-space: nowrap; width: 48px"
+                        style="white-space: nowrap"
                       >
                         {{ section.completion_count }}
                       </td>
@@ -466,7 +481,9 @@ const totalGender = computed(
                   density="compact"
                 >
                   <template #[`item.template_id`]="{ item }">
-                    <span>{{ habitNameMap[item.template_id] ?? item.template_id }}</span>
+                    <span style="white-space: nowrap">{{
+                      habitNameMap[item.template_id] ?? item.template_id
+                    }}</span>
                   </template>
                   <template #[`item.active`]="{ item }">
                     <span class="text-primary font-weight-medium">{{ item.active }}</span>
@@ -484,30 +501,38 @@ const totalGender = computed(
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Gender breakdown</div>
               <v-card rounded="xl" border flat class="mb-6">
                 <v-card-text class="pa-4">
-                  <div class="d-flex flex-column gap-3">
-                    <div
-                      v-for="g in analytics.gender_breakdown"
-                      :key="g.gender"
-                      class="d-flex align-center gap-3"
-                    >
-                      <span class="text-body-2 text-capitalize" style="min-width: 80px">
-                        {{ g.gender }}
-                      </span>
-                      <v-progress-linear
-                        :model-value="totalGender > 0 ? (g.count / totalGender) * 100 : 0"
-                        color="primary"
-                        bg-color="surface-variant"
-                        rounded
-                        height="6"
-                        class="flex-grow-1"
-                      />
-                      <span
-                        class="text-body-2 font-weight-medium"
-                        style="min-width: 28px; text-align: right"
-                      >
-                        {{ g.count }}
-                      </span>
-                    </div>
+                  <div
+                    style="
+                      display: grid;
+                      grid-template-columns: max-content 1fr max-content;
+                      /* bar cell now holds progress + chip via flex */
+                      align-items: center;
+                      gap: 0 12px;
+                      row-gap: 12px;
+                    "
+                  >
+                    <template v-for="g in genderBreakdown" :key="g.gender">
+                      <span class="text-body-2">{{ g.gender }}</span>
+                      <div class="d-flex align-center gap-4">
+                        <v-progress-linear
+                          :model-value="totalGender > 0 ? (g.count / totalGender) * 100 : 0"
+                          :color="GENDER_COLORS[g.gender] ?? 'primary'"
+                          :bg-color="GENDER_COLORS[g.gender] ?? 'primary'"
+                          rounded
+                          height="8"
+                          class="flex-grow-1 mr-2"
+                        />
+                        <v-chip
+                          :color="GENDER_COLORS[g.gender] ?? 'primary'"
+                          size="x-small"
+                          variant="tonal"
+                          style="justify-content: center"
+                        >
+                          {{ totalGender > 0 ? Math.round((g.count / totalGender) * 100) : 0 }}%
+                        </v-chip>
+                      </div>
+                      <span class="text-body-2 font-weight-medium">{{ g.count }}</span>
+                    </template>
                   </div>
                 </v-card-text>
               </v-card>

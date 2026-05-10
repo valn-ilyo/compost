@@ -54,7 +54,7 @@ export const useMasteryStore = defineStore(
     const masteredArchive = ref<MasteredArchiveEntry[]>([]);
 
     // Not persisted — session-scoped. reconcileStreaks() regenerates on next open.
-        const lastReconcileEvents = ref<ReconcileEvent[]>([]);
+    const lastReconcileEvents = ref<ReconcileEvent[]>([]);
 
     // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -421,7 +421,7 @@ export const useMasteryStore = defineStore(
   },
   {
     persist: {
-      paths: ["slots", "freezeCount", "masteredArchive"],
+      pick: ["slots", "freezeCount", "masteredArchive"],
     } as PersistenceOptions,
   },
 );

@@ -6,6 +6,7 @@ import { useSyncStore } from "@/stores/sync";
 declare module "vue-router" {
   interface RouteMeta {
     requiresAuth?: boolean;
+    requiresAdmin?: boolean;
   }
 }
 
@@ -82,6 +83,12 @@ const router = createRouter({
       component: () => import("@/views/DocsView.vue"),
     },
     {
+      meta: { requiresAuth: true, requiresAdmin: true },
+      path: "/admin",
+      name: "admin",
+      component: () => import("@/views/AdminView.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "not-found",
       component: () => import("@/views/NotFoundView.vue"),
@@ -140,6 +147,12 @@ router.beforeEach(async (to, _from) => {
     }
 
     if (profileStore.isComplete && to.name === "profile-onboarding") {
+      return { path: "/" };
+    }
+
+    // ── Admin-only routes ──────────────────────────────────────────────────────
+
+    if (to.meta.requiresAdmin && !profileStore.profile?.is_admin) {
       return { path: "/" };
     }
   }

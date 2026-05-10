@@ -253,7 +253,6 @@ export const useSyncStore = defineStore(
             return;
           }
         }
-
       } finally {
         draining = false;
       }
@@ -281,7 +280,7 @@ export const useSyncStore = defineStore(
       key: "sync-store",
       storage: localStorage,
       // Only queue survives page refresh; isOnline, isHydrated, and isHydrating are runtime state.
-      paths: ["queue"],
+      pick: ["queue"],
     } as PersistenceOptions,
   },
 );

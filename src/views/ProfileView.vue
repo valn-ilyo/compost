@@ -97,6 +97,16 @@ function handleLogoutClick() {
             class="rounded-t-xl"
             size="large"
           />
+          <template v-if="store.profile?.is_admin">
+            <v-divider />
+            <v-list-item
+              prepend-icon="mdi-shield-outline"
+              title="Admin"
+              link
+              to="/admin"
+              size="large"
+            />
+          </template>
           <v-divider />
           <v-list-item
             prepend-icon="mdi-comment-alert-outline"

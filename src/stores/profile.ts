@@ -96,7 +96,7 @@ export const useProfileStore = defineStore(
     persist: {
       key: "profile-store",
       storage: localStorage,
-      paths: ["profile", "userEmail"],
+      pick: ["profile", "userEmail"],
     } as PersistenceOptions,
   },
 );

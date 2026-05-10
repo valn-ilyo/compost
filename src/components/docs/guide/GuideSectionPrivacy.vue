@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import { openFeedbackForm } from "@/lib/feedbackForm";
-</script>
-
 <template>
   <section id="privacy">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Privacy</div>
@@ -42,10 +38,9 @@ import { openFeedbackForm } from "@/lib/feedbackForm";
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">
           You can reset your assessment answers from the Assessment tab. Deleting your account
-          removes all stored data permanently. To request full account deletion,
+          removes all stored data permanently. To request full account deletion
 
-          <a class="text-primary" style="cursor: pointer" @click="openFeedbackForm">get in touch</a
-          >.
+          <!-- //TODO -->
         </p>
       </v-card-text>
     </v-card>

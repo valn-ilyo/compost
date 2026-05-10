@@ -92,7 +92,6 @@ function handleLogoutClick() {
           <v-list-item
             prepend-icon="mdi-pencil-outline"
             title="Edit profile"
-            append-icon="mdi-chevron-right"
             link
             to="/profile/edit"
             class="rounded-t-xl"
@@ -100,10 +99,10 @@ function handleLogoutClick() {
           />
           <v-divider />
           <v-list-item
-            prepend-icon="mdi-message-outline"
+            prepend-icon="mdi-comment-alert-outline"
             title="Feedback & support"
-            append-icon="mdi-open-in-new"
             size="large"
+            link
             @click="openFeedbackForm"
           />
           <v-divider />

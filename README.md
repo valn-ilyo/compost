@@ -2,7 +2,7 @@
 
 **Find out what your daily habits actually cost the planet.**
 
-Compost is a Progressive Web App that estimates your personal environmental footprint across seven behavioural domains — transport, food, energy, consumption, waste, water, and digital use — and helps you build the habits to improve it.
+Compost is a Progressive Web App that estimates your personal environmental footprint across seven behavioural domains (transport, food, energy, consumption, waste, water, and digital use) and helps you build the habits to improve it.
 
 > Built as an academic project at **St. Anthony's College, Shillong**, supervised by Fr. Joby Joseph (Vice Principal) and Dr. Medari Janai Tham (Associate Professor).
 
@@ -12,12 +12,12 @@ Compost is a Progressive Web App that estimates your personal environmental foot
 
 - **Structured self-assessment** across seven sections, each weighted by its share of typical personal greenhouse gas emissions
 - **Normalised score (0–100)** with six badge tiers calibrated to an urban Indian context
-- **Insights tab** — five algorithmically selected questions surfaced from your weakest areas, plus one positive affirmation slot
-- **SDG alignment** — see which UN Sustainable Development Goals your profile touches
+- **Insights tab.** Five algorithmically selected questions surfaced from your weakest areas, plus one positive affirmation slot
+- **SDG alignment.** See which UN Sustainable Development Goals your profile touches
 - **Habit tracking** with streaks, freeze tokens, mastery, and a curated habit library mapped to assessment questions
-- **Offline-first** — the app works without a connection; queued changes sync automatically when you reconnect
+- **Offline-first.** The app works without a connection; queued changes sync automatically when you reconnect
 - **Cross-device sync** via Supabase (Google OAuth, no password required)
-- **Installable PWA** — add to your home screen on any platform
+- **Installable PWA.** Add to your home screen on any platform
 
 ---
 
@@ -77,7 +77,7 @@ npm run ship-it    # build then deploy to GitHub Pages
 src/
 ├── assets/          # Static assets (SVG illustrations)
 ├── components/
-│   ├── app/         # App shell — AppBar variants, AppNavigation, AppSnackbar
+│   ├── app/         # App shell: AppBar variants, AppNavigation, AppSnackbar
 │   ├── assessment/  # AssessmentCheckInTab, AssessmentInsightsTab
 │   ├── climate/     # ClimateClock, ClimateHeadlines
 │   ├── docs/        # In-app documentation (Guide, Methodology, Credits)
@@ -89,7 +89,7 @@ src/
 │   ├── profile/     # ProfileForm
 │   └── pwa/         # PwaInstallBanner
 ├── composables/     # Reusable Composition API logic (useClimateClock, useMastery*, …)
-├── data/            # Static content — habits, badges, assessment questions, SDGs
+├── data/            # Static content: habits, badges, assessment questions, SDGs
 │   ├── sections/    # Per-section question definitions
 │   └── insights/    # Per-section insight text
 ├── layouts/         # App shell layout (AppLayout)
@@ -106,4 +106,4 @@ src/
 
 ## License
 
-MIT — see [`LICENSE.md`](./LICENSE.md) for the full text.
+MIT. See [`LICENSE.md`](./LICENSE.md) for the full text.

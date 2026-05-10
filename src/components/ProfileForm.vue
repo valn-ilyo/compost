@@ -50,12 +50,11 @@ const rules = {
 
 // ── Roll number uniqueness check ──────────────────────────────────────────────
 
-type RollCheckState = "idle" | "checking" | "taken";
+type RollCheckState = "idle" | "taken";
 const rollCheckState = ref<RollCheckState>("idle");
 
 const rollHint = {
   idle: "",
-  checking: "Checking availability…",
   taken: "This roll number is already registered.",
 };
 
@@ -69,7 +68,6 @@ async function handleSubmit() {
     const trimmed = formData.rollNo.trim();
     const unchanged = trimmed.toLowerCase() === (profileStore.profile?.roll_no ?? "").toLowerCase();
     if (!unchanged) {
-      rollCheckState.value = "checking";
       const { data: available } = await supabase.rpc("is_roll_no_available", {
         p_roll_no: trimmed,
       });
@@ -127,8 +125,8 @@ function onDateSelect(val: Date | null) {
       v-model="formData.rollNo"
       :rules="[rules.required, rules.rollNo]"
       :disabled="disabled || loading"
-      :hint="rollCheckState !== 'checking' ? rollHint[rollCheckState] : undefined"
-      :persistent-hint="rollCheckState !== 'idle'"
+      :hint="rollHint[rollCheckState]"
+      :persistent-hint="rollCheckState === 'taken'"
       :error="rollCheckState === 'taken'"
       label="Roll No"
       prepend-inner-icon="mdi-identifier"
@@ -143,11 +141,7 @@ function onDateSelect(val: Date | null) {
         genderField?.focus();
         genderMenu = true;
       "
-    >
-      <template v-if="rollCheckState === 'checking'" #details>
-        <span class="text-flashing">{{ rollHint.checking }}</span>
-      </template>
-    </v-text-field>
+    />
 
     <v-select
       ref="genderField"
@@ -195,7 +189,12 @@ function onDateSelect(val: Date | null) {
     </v-menu>
 
     <v-card-actions v-if="editMode" class="px-0 pt-2 justify-end">
-      <v-btn variant="text" color="secondary" class="text-none" @click="$emit('cancel')"
+      <v-btn
+        variant="text"
+        color="secondary"
+        class="text-none"
+        :disabled="loading"
+        @click="$emit('cancel')"
         >Cancel</v-btn
       >
       <v-btn
@@ -226,18 +225,3 @@ function onDateSelect(val: Date | null) {
     </v-card-actions>
   </v-form>
 </template>
-
-<style scoped>
-.text-flashing {
-  animation: flash 1s ease-in-out infinite;
-}
-@keyframes flash {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-}
-</style>

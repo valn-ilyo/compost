@@ -193,7 +193,6 @@ onMounted(async () => {
         class="text-onSecondaryContainer w-100 w-sm-75 w-md-50 w-lg-33 pa-2 text-center"
         color="background"
         elevation="0"
-        style="opacity: 0"
       >
         <div
           v-motion
@@ -204,7 +203,7 @@ onMounted(async () => {
             rotate: 0,
             transition: { type: 'spring', stiffness: 260, damping: 22 },
           }"
-          style="opacity: 0; display: inline-block"
+          style="display: inline-block"
         >
           <v-icon icon="custom:sac" size="160" />
         </div>
@@ -218,7 +217,6 @@ onMounted(async () => {
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
           }"
           class="text-primary text-headline-medium font-weight-bold"
-          style="opacity: 0"
           >Compost</v-card-title
         >
 
@@ -230,7 +228,6 @@ onMounted(async () => {
             y: 0,
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 140 },
           }"
-          style="opacity: 0"
         >
           Find out what your daily habits actually cost the planet. Answer questions across
           transport, food, energy, and more. See where you stand and where small changes would
@@ -285,45 +282,42 @@ onMounted(async () => {
           </v-btn>
         </v-card-actions>
 
-        <p class="text-caption text-medium-emphasis mt-2">
-          <a
-            href="#"
-            class="text-medium-emphasis text-decoration-none"
-            style="opacity: 0.6"
-            @click.prevent="privacyDialog = true"
-            >How we handle your data</a
-          >
-        </p>
+        <v-btn
+          variant="text"
+          color="secondary"
+          size="small"
+          class="mt-2 mx-auto d-block text-none"
+          @click="privacyDialog = true"
+          >About your data</v-btn
+        >
       </v-card>
     </template>
 
     <!-- ── Privacy dialog ────────────────────────────────────────────────── -->
     <v-dialog v-model="privacyDialog" max-width="360">
       <v-card rounded="xl">
-        <v-card-text class="pa-5">
-          <p class="text-body-2 font-weight-medium mb-3">A quick heads-up</p>
-          <p class="text-body-2 text-medium-emphasis mb-3">
-            This app stores your assessment answers and habit activity on a remote server so your
-            progress is saved across devices.
+        <v-card-text class="text-body-2 text-medium-emphasis pt-5">
+          <p class="mb-2">
+            Your answers and habit activity are stored on a remote server so your progress syncs
+            across devices.
           </p>
-          <p class="text-body-2 text-medium-emphasis mb-3">
-            Administrators can see anonymised, aggregated statistics. No one can read your
-            individual responses.
+          <p class="mb-2">
+            Admins can see anonymised, aggregated statistics. No one can read your individual
+            responses.
           </p>
-          <p class="text-body-2 text-medium-emphasis">
-            You can delete your data at any time from your profile.
-          </p>
+          <p>You can delete your data at any time from your profile.</p>
         </v-card-text>
-        <v-card-actions class="px-5 pb-4 pt-0">
-          <v-spacer />
+        <v-card-actions class="px-4 pb-4">
           <v-btn
-            text="Got it"
-            variant="tonal"
-            rounded="xl"
-            size="small"
+            variant="flat"
+            color="primary"
+            rounded="lg"
+            flex="1"
             class="text-none"
             @click="privacyDialog = false"
-          />
+          >
+            Done
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

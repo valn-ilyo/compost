@@ -3,6 +3,7 @@ import { ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProfileStore } from "@/stores/profile";
 import { useNotifier } from "@/composables/useNotifier";
+import { supabase } from "@/lib/supabaseClient";
 
 const props = defineProps<{
   editMode?: boolean;
@@ -47,12 +48,39 @@ const rules = {
   rollNo: (v: string) => /^[pu]\d{2}[a-z]{2,3}\d+$/i.test(v) || "Roll number not recognised.",
 };
 
+// ── Roll number uniqueness check ──────────────────────────────────────────────
+
+type RollCheckState = "idle" | "checking" | "taken";
+const rollCheckState = ref<RollCheckState>("idle");
+
+const rollHint = {
+  idle: "",
+  checking: "Checking availability…",
+  taken: "This roll number is already registered.",
+};
+
 async function handleSubmit() {
   const { valid } = await form.value!.validate();
   if (!valid) return;
 
   loading.value = true;
   try {
+    // Uniqueness check — skip if roll number is unchanged (edit mode)
+    const trimmed = formData.rollNo.trim();
+    const unchanged = trimmed.toLowerCase() === (profileStore.profile?.roll_no ?? "").toLowerCase();
+    if (!unchanged) {
+      rollCheckState.value = "checking";
+      const { data: available } = await supabase.rpc("is_roll_no_available", {
+        p_roll_no: trimmed,
+      });
+      if (!available) {
+        rollCheckState.value = "taken";
+        loading.value = false;
+        return;
+      }
+      rollCheckState.value = "idle";
+    }
+
     await profileStore.updateProfile({
       name: formData.name,
       roll_no: formData.rollNo,
@@ -99,17 +127,27 @@ function onDateSelect(val: Date | null) {
       v-model="formData.rollNo"
       :rules="[rules.required, rules.rollNo]"
       :disabled="disabled || loading"
+      :hint="rollCheckState !== 'checking' ? rollHint[rollCheckState] : undefined"
+      :persistent-hint="rollCheckState !== 'idle'"
+      :error="rollCheckState === 'taken'"
       label="Roll No"
       prepend-inner-icon="mdi-identifier"
       variant="outlined"
       clearable
       class="mb-2"
-      @input="formData.rollNo = formData.rollNo.toUpperCase()"
+      @input="
+        formData.rollNo = formData.rollNo.toUpperCase();
+        rollCheckState = 'idle';
+      "
       @keydown.enter.prevent="
         genderField?.focus();
         genderMenu = true;
       "
-    />
+    >
+      <template v-if="rollCheckState === 'checking'" #details>
+        <span class="text-flashing">{{ rollHint.checking }}</span>
+      </template>
+    </v-text-field>
 
     <v-select
       ref="genderField"
@@ -188,3 +226,18 @@ function onDateSelect(val: Date | null) {
     </v-card-actions>
   </v-form>
 </template>
+
+<style scoped>
+.text-flashing {
+  animation: flash 1s ease-in-out infinite;
+}
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+</style>

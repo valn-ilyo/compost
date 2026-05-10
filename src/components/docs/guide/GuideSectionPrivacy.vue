@@ -34,6 +34,18 @@
 
       <v-divider />
 
+      <v-list-item prepend-icon="mdi-chart-arc" title="Anonymous analytics" class="pt-2" />
+      <v-card-text class="pt-1 pb-3">
+        <p class="text-body-2">
+          Administrators use aggregated, anonymised data to understand how the programme is being
+          used and where it can be improved. This includes figures such as habit adoption counts and
+          assessment score distributions. No information that could identify you personally is
+          included.
+        </p>
+      </v-card-text>
+
+      <v-divider />
+
       <v-list-item prepend-icon="mdi-delete-outline" title="Deleting your data" class="pt-2" />
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">

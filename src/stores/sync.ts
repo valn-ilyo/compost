@@ -219,6 +219,18 @@ export const useSyncStore = defineStore(
                 );
                 // 401 / JWT expired — abort the whole drain
                 if (error.status === 401 || error.code === "PGRST301") return;
+                // 23505 unique_violation — retrying will never succeed; drop the
+                // item so the queue doesn't stall. This is a last-resort guard;
+                // the frontend uniqueness check (is_roll_no_available RPC) should
+                // have caught this before the item was enqueued.
+                if (error.code === "23505") {
+                  console.error(
+                    `[sync] dropping unresolvable conflict on table="${item.table}" id="${item.id}"`,
+                    error,
+                  );
+                  queue.value.splice(0, 1);
+                  continue;
+                }
                 // Network / 5xx — stop here and schedule a retry so the queue
                 // doesn't stall indefinitely if the device never goes offline.
                 setTimeout(() => {

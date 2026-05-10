@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { VPie } from "vuetify/labs/VPie";
 import { useProfileStore } from "@/stores/profile";
 import { supabase } from "@/lib/supabaseClient";
+import { HABIT_TEMPLATES } from "@/data/habits";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -66,6 +67,10 @@ const error = ref<string | null>(null);
 const selectedYear = ref<number | null>(null);
 const selectedGender = ref<string | null>(null);
 
+// Stable gender list seeded on first unfiltered fetch — options never disappear when a
+// batch has zero female (or other) candidates, which would look like a bug.
+const baseGenders = ref<string[]>([]);
+
 const yearItems = computed(() => [
   { title: "All", value: null },
   ...(analytics.value?.available_years ?? []).map((yr) => ({
@@ -76,9 +81,7 @@ const yearItems = computed(() => [
 
 const genderItems = computed(() => [
   { title: "All", value: null },
-  ...(analytics.value?.gender_breakdown ?? [])
-    .filter((g) => g.gender !== "Not specified")
-    .map((g) => ({ title: g.gender, value: g.gender })),
+  ...baseGenders.value.map((g) => ({ title: g, value: g })),
 ]);
 
 // True when the current filter combination matches no users
@@ -95,6 +98,11 @@ async function fetchAnalytics() {
     error.value = rpcError.message;
   } else {
     analytics.value = data as AdminAnalytics;
+    if (baseGenders.value.length === 0) {
+      baseGenders.value = (data as AdminAnalytics).gender_breakdown
+        .map((g) => g.gender)
+        .filter((g) => g !== "Not specified");
+    }
   }
   loading.value = false;
 }
@@ -150,9 +158,7 @@ function sectionColor(pct: number): string {
 
 // ── Habit adoption ────────────────────────────────────────────────────────────
 
-function habitPct(part: number, total: number): number {
-  return total ? Math.round((part / total) * 100) : 0;
-}
+const habitNameMap = Object.fromEntries(HABIT_TEMPLATES.map((h) => [h.id, h.name]));
 
 // ── Gender ────────────────────────────────────────────────────────────────────
 
@@ -264,7 +270,7 @@ const totalGender = computed(
 
             <template v-else-if="analytics">
               <!-- ── 1. Totals ─────────────────────────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Overview</div>
+              <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Overview</div>
               <v-row dense class="mb-4">
                 <v-col cols="6">
                   <v-card rounded="xl" border flat>
@@ -309,7 +315,9 @@ const totalGender = computed(
               </v-row>
 
               <!-- ── 2. Band distribution — VPie ───────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Eco band distribution</div>
+              <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">
+                Eco band distribution
+              </div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-card-text class="pa-4">
                   <div class="d-flex justify-center">
@@ -347,7 +355,7 @@ const totalGender = computed(
               </v-card>
 
               <!-- ── 3. Section averages ───────────────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Section averages</div>
+              <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Section averages</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-table density="comfortable">
                   <thead>
@@ -408,7 +416,7 @@ const totalGender = computed(
               </v-card>
 
               <!-- ── 4. Habit states ───────────────────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Habit states</div>
+              <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habit states</div>
               <v-row dense class="mb-4">
                 <v-col cols="4">
                   <v-card rounded="xl" border flat>
@@ -443,7 +451,7 @@ const totalGender = computed(
               </v-row>
 
               <!-- ── 5. Habit adoption ─────────────────────────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Habits</div>
+              <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habits</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-data-table
                   :headers="[
@@ -456,23 +464,24 @@ const totalGender = computed(
                   :items="analytics.habit_adoption"
                   :sort-by="[{ key: 'total', order: 'desc' }]"
                   density="compact"
-                  hide-default-footer
-                  :items-per-page="-1"
                 >
-                  <template #item.active="{ item }">
+                  <template #[`item.template_id`]="{ item }">
+                    <span>{{ habitNameMap[item.template_id] ?? item.template_id }}</span>
+                  </template>
+                  <template #[`item.active`]="{ item }">
                     <span class="text-primary font-weight-medium">{{ item.active }}</span>
                   </template>
-                  <template #item.paused="{ item }">
+                  <template #[`item.paused`]="{ item }">
                     <span class="text-warning font-weight-medium">{{ item.paused }}</span>
                   </template>
-                  <template #item.mastered="{ item }">
+                  <template #[`item.mastered`]="{ item }">
                     <span class="text-secondary font-weight-medium">{{ item.mastered }}</span>
                   </template>
                 </v-data-table>
               </v-card>
 
               <!-- ── 6. Gender breakdown ───────────────────────────────── -->
-              <div class="text-overline text-medium-emphasis px-1 mb-1">Gender breakdown</div>
+              <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Gender breakdown</div>
               <v-card rounded="xl" border flat class="mb-6">
                 <v-card-text class="pa-4">
                   <div class="d-flex flex-column gap-3">

@@ -24,6 +24,7 @@ const authState = ref<AuthState>("login");
 const errorEmail = ref<string | null>(null);
 const sessionExpiredMsg = ref("");
 const googleLoading = ref(false);
+const privacyDialog = ref(false);
 
 // ─── Login ────────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ async function runHydration() {
     const email = session.user.email ?? undefined;
 
     // Reset all stores before hydrating to prevent stale state from a previous session.
-        resetAllStores();
+    resetAllStores();
 
     syncStore.beginHydrating();
     await Promise.all([
@@ -84,7 +85,7 @@ async function runHydration() {
 
     syncStore.setHydrated();
     // Reconcile after setHydrated() so enqueue() is live.
-        masteryStore.reconcileStreaks();
+    masteryStore.reconcileStreaks();
 
     const next = (route.query.next as string) || "/";
     await router.push(next);
@@ -283,7 +284,48 @@ onMounted(async () => {
             </template>
           </v-btn>
         </v-card-actions>
+
+        <p class="text-caption text-medium-emphasis mt-2">
+          <a
+            href="#"
+            class="text-medium-emphasis text-decoration-none"
+            style="opacity: 0.6"
+            @click.prevent="privacyDialog = true"
+            >How we handle your data</a
+          >
+        </p>
       </v-card>
     </template>
+
+    <!-- ── Privacy dialog ────────────────────────────────────────────────── -->
+    <v-dialog v-model="privacyDialog" max-width="360">
+      <v-card rounded="xl">
+        <v-card-text class="pa-5">
+          <p class="text-body-2 font-weight-medium mb-3">A quick heads-up</p>
+          <p class="text-body-2 text-medium-emphasis mb-3">
+            This app stores your assessment answers and habit activity on a remote server so your
+            progress is saved across devices.
+          </p>
+          <p class="text-body-2 text-medium-emphasis mb-3">
+            Administrators can see anonymised, aggregated statistics. No one can read your
+            individual responses.
+          </p>
+          <p class="text-body-2 text-medium-emphasis">
+            You can delete your data at any time from your profile.
+          </p>
+        </v-card-text>
+        <v-card-actions class="px-5 pb-4 pt-0">
+          <v-spacer />
+          <v-btn
+            text="Got it"
+            variant="tonal"
+            rounded="xl"
+            size="small"
+            class="text-none"
+            @click="privacyDialog = false"
+          />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-sheet>
 </template>

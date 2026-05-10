@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import { useMediaQuery } from "@vueuse/core";
-import type { BeforeInstallPromptEvent, NavigatorWithStandalone } from "@/types/app.types";
+import type { BeforeInstallPromptEvent, NavigatorWithStandalone } from "@/types/app";
 
 // ── singleton state ─────────────────────────────────────────────────────────
 const isPwa = ref(false);

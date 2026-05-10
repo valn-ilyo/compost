@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { supabase } from "@/lib/supabaseClient.ts";
+import { supabase } from "@/services/supabase";
 import { useNotifier } from "@/composables/useNotifier";
 import { useSyncStore } from "@/stores/sync";
 import { useProfileStore } from "@/stores/profile";

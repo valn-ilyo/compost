@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 import { useProfileStore } from "@/stores/profile";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";

@@ -1,4 +1,4 @@
-import type { HabitTemplate } from "../types/app.types";
+import type { HabitTemplate } from "../types/app";
 
 export const HABIT_TEMPLATES: HabitTemplate[] = [
   {

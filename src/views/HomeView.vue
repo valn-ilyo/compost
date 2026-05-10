@@ -8,11 +8,11 @@ import { useMasteryStore } from "@/stores/mastery";
 import { usePwaInstall } from "@/composables/usePwaInstall";
 import { useNotificationPrompt } from "@/composables/useNotificationPrompt";
 import { SECTIONS } from "@/data";
-import AppBarHome from "@/components/AppBarHome.vue";
-import ClimateHeadlines from "@/components/ClimateHeadlines.vue";
-import PwaInstallBanner from "@/components/PwaInstallBanner.vue";
-import NotificationPromptBanner from "@/components/NotificationPromptBanner.vue";
-import AllLoggedCard from "@/components/AllLoggedCard.vue";
+import AppBarHome from "@/components/app/AppBarHome.vue";
+import ClimateHeadlines from "@/components/climate/ClimateHeadlines.vue";
+import PwaInstallBanner from "@/components/pwa/PwaInstallBanner.vue";
+import NotificationPromptBanner from "@/components/notification/NotificationPromptBanner.vue";
+import AllLoggedCard from "@/components/habit/AllLoggedCard.vue";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();

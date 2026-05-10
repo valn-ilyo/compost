@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { QuestionInsight } from "@/types/app.types";
+import type { QuestionInsight } from "@/types/app";
 
 defineProps<{
   insights: QuestionInsight[];

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppNavigation from '@/components/AppNavigation.vue'
-import ClimateClock from '@/components/ClimateClock.vue'
+import AppNavigation from '@/components/app/AppNavigation.vue'
+import ClimateClock from '@/components/climate/ClimateClock.vue'
 import { useClockVisibleStore } from '@/stores/climateClock'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'

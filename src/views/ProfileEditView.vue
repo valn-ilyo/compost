@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import ProfileForm from "@/components/ProfileForm.vue";
+import ProfileForm from "@/components/profile/ProfileForm.vue";
 
 const router = useRouter();
 </script>

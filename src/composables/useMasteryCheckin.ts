@@ -1,8 +1,8 @@
 import { computed, ref, watch } from "vue";
 import { useMasteryStore } from "@/stores/mastery";
-import { todayISO } from "@/lib/habitDate";
-import { MASTERY_MILESTONE } from "@/types/app.types";
-import type { UserHabit } from "@/types/app.types";
+import { todayISO } from "@/utils/habitDate";
+import { MASTERY_MILESTONE } from "@/types/app";
+import type { UserHabit } from "@/types/app";
 
 /**
  * Manages the check-in sheet state and the UI snapshot taken when the user

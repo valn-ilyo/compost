@@ -1,5 +1,5 @@
 import { ref, onMounted } from "vue";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 
 export function useNotificationPrompt() {
   const showNotificationBanner = ref(false);

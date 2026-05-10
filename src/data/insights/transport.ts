@@ -1,4 +1,4 @@
-import type { QuestionInsight } from "@/types/app.types";
+import type { QuestionInsight } from "@/types/app";
 
 export const TRANSPORT_INSIGHTS: QuestionInsight[] = [
   // commute_mode

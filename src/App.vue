@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import AppSnackbar from "./components/AppSnackbar.vue";
+import AppSnackbar from "./components/app/AppSnackbar.vue";
 import { useMasteryStore } from "@/stores/mastery";
 import { useThemeStore } from "@/stores/theme";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
 import { useSyncStore } from "@/stores/sync";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useProfileStore } from "@/stores/profile";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 
 const masteryStore = useMasteryStore();
 const assessmentStore = useAssessmentStore();

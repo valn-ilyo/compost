@@ -88,7 +88,7 @@
 
 <script setup lang="ts">
 import { useAssessmentStore } from "@/stores/assessment";
-import { SECTIONS } from "../data/index";
+import { SECTIONS } from "@/data/index";
 import { computed } from "vue";
 
 const store = useAssessmentStore();

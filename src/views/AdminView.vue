@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { VPie } from "vuetify/labs/VPie";
 import { useProfileStore } from "@/stores/profile";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 import { HABIT_TEMPLATES } from "@/data/habits";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

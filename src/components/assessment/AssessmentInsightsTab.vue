@@ -5,19 +5,19 @@ import { getBadge, getTagline, getSortedSections, WEAK_THRESHOLD } from "@/data/
 import { getSortedQuestions, getInsightsForAssessment } from "@/data/insights";
 import { HABIT_TEMPLATES } from "@/data/habits";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
-import type { HabitTemplate } from "@/types/app.types";
-import { MAX_SLOTS } from "@/types/app.types";
+import type { HabitTemplate } from "@/types/app";
+import { MAX_SLOTS } from "@/types/app";
 
 import { buildSdgChips } from "@/data/sdgs";
-import { scoreColor } from "@/lib/scoring";
+import { scoreColor } from "@/utils/scoring";
 import { SECTIONS } from "@/data";
 
-import InsightsScoreHero from "@/components/InsightsScoreHero.vue";
-import InsightsBreakdownBars from "@/components/InsightsBreakdownBars.vue";
-import InsightsContinueAssessment from "@/components/InsightsContinueAssessment.vue";
-import InsightsPanel from "@/components/InsightsPanel.vue";
-import InsightsHabitPanel from "@/components/InsightsHabitPanel.vue";
-import InsightsSdgChips from "@/components/InsightsSdgChips.vue";
+import InsightsScoreHero from "@/components/insights/InsightsScoreHero.vue";
+import InsightsBreakdownBars from "@/components/insights/InsightsBreakdownBars.vue";
+import InsightsContinueAssessment from "@/components/insights/InsightsContinueAssessment.vue";
+import InsightsPanel from "@/components/insights/InsightsPanel.vue";
+import InsightsHabitPanel from "@/components/insights/InsightsHabitPanel.vue";
+import InsightsSdgChips from "@/components/insights/InsightsSdgChips.vue";
 import { useMasteryStore } from "@/stores/mastery";
 
 const store = useAssessmentStore();

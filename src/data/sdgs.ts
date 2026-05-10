@@ -1,4 +1,4 @@
-import type { SDG, SdgChip } from "../types/app.types";
+import type { SDG, SdgChip } from "../types/app";
 export type { SdgChip };
 
 export const SDGS: SDG[] = [

@@ -5,12 +5,12 @@ import { useMasteryStore } from "@/stores/mastery";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
 import { useMasteryCheckin } from "@/composables/useMasteryCheckin";
 import { useMasteryActions } from "@/composables/useMasteryActions";
-import HabitCard from "@/components/HabitCard.vue";
-import HabitLibrary from "@/components/HabitLibrary.vue";
-import AllLoggedCard from "@/components/AllLoggedCard.vue";
-import MasteryCheckinSheet from "@/components/MasteryCheckInSheet.vue";
-import MasterySwapSheet from "@/components/MasterySwapSheet.vue";
-import MasteryFreezeInfo from "@/components/MasteryFreezeInfo.vue";
+import HabitCard from "@/components/habit/HabitCard.vue";
+import HabitLibrary from "@/components/habit/HabitLibrary.vue";
+import AllLoggedCard from "@/components/habit/AllLoggedCard.vue";
+import MasteryCheckinSheet from "@/components/mastery/MasteryCheckInSheet.vue";
+import MasterySwapSheet from "@/components/mastery/MasterySwapSheet.vue";
+import MasteryFreezeInfo from "@/components/mastery/MasteryFreezeInfo.vue";
 
 const route = useRoute();
 const router = useRouter();

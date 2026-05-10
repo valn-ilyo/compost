@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
-import type { MasteredArchiveEntry, UserHabit } from "@/types/app.types";
-import { supabase } from "@/lib/supabaseClient";
+import type { MasteredArchiveEntry, UserHabit } from "@/types/app";
+import { supabase } from "@/services/supabase";
 import { HABIT_TEMPLATES } from "@/data/habits";
 
 /**

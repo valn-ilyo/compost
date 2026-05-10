@@ -1,4 +1,4 @@
-import { clock } from "@/stores/clock";
+import { clock } from "@/utils/clock";
 
 /** Current date as a UTC ISO string (YYYY-MM-DD). */
 export function todayISO(): string {

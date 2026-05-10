@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MAX_SLOTS } from "@/types/app.types";
+import { MAX_SLOTS } from "@/types/app";
 </script>
 
 <template>

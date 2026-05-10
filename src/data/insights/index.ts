@@ -1,4 +1,4 @@
-import type { QuestionInsight, SectionMeta, SortedQuestion } from "@/types/app.types";
+import type { QuestionInsight, SectionMeta, SortedQuestion } from "@/types/app";
 import { TRANSPORT_INSIGHTS } from "./transport";
 import { FOOD_INSIGHTS } from "./food";
 import { ENERGY_INSIGHTS } from "./energy";

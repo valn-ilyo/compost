@@ -3,7 +3,7 @@ import { ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProfileStore } from "@/stores/profile";
 import { useNotifier } from "@/composables/useNotifier";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 
 const props = defineProps<{
   editMode?: boolean;

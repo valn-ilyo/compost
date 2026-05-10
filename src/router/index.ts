@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { supabase } from "@/lib/supabaseClient.ts";
+import { supabase } from "@/services/supabase";
 import { useProfileStore } from "@/stores/profile";
 import { useSyncStore } from "@/stores/sync";
 

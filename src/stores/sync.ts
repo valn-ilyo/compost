@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 import { useOnline } from "@vueuse/core";
-import type { SyncQueueItem, SyncStatus } from "@/types/app.types";
+import type { SyncQueueItem, SyncStatus } from "@/types/app";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 
 // ─── onConflict targets per table ────────────────────────────────────────────
 

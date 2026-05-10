@@ -1,4 +1,4 @@
-import type { BeforeInstallPromptEvent } from "@/types/app.types";
+import type { BeforeInstallPromptEvent } from "@/types/app";
 
 declare global {
   interface Window {
@@ -42,13 +42,13 @@ import * as labsComponents from "vuetify/labs/components";
 import * as directives from "vuetify/directives";
 import "@mdi/font/css/materialdesignicons.css";
 import { md3 } from "vuetify/blueprints";
-import { theme } from "./styles/theme.ts";
+import { theme } from "./utils/theme";
 
 import App from "./App.vue";
 import router from "./router";
 
 import { h } from "vue";
-import sacIcon from "@/components/icons/sacIcon.vue";
+import IconSac from "@/components/icons/IconSac.vue";
 import type { IconProps } from "vuetify";
 
 import { MotionPlugin } from "@vueuse/motion";
@@ -64,7 +64,7 @@ const vuetify = createVuetify({
     defaultSet: "mdi",
     sets: {
       custom: {
-        component: (_props: IconProps) => h(sacIcon),
+        component: (_props: IconProps) => h(IconSac),
       },
     },
   },

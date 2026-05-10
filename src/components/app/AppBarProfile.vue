@@ -5,7 +5,7 @@ import { useThemeStore } from "@/stores/theme";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useNotifier } from "@/composables/useNotifier";
 import { useLogout } from "@/composables/useLogout";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 
 const profileStore = useProfileStore();
 const themeStore = useThemeStore();

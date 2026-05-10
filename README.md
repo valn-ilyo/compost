@@ -61,7 +61,7 @@ VITE_VAPID_PUBLIC_KEY=your-vapid-public-key
 ### Install
 
 ```sh
-npm install
+npm install --legacy-peer-deps
 ```
 
 ### Develop
@@ -107,25 +107,28 @@ The GitHub Actions workflow in `.github/workflows/deploy.yml` runs this automati
 src/
 ├── assets/          # Static assets (SVG illustrations)
 ├── components/
-│   ├── docs/        # In-app documentation components (Guide, Methodology, Credits)
-│   └── icons/       # Custom icon components
-├── composables/     # Reusable Composition API logic
-│   ├── useClimateClock.ts
-│   ├── useMasteryActions.ts
-│   ├── useMasteryCheckin.ts
-│   ├── useMasteryRecommendations.ts
-│   ├── useNotificationPrompt.ts
-│   ├── usePwaInstall.ts
-│   └── useTheme.ts
+│   ├── app/         # App shell — AppBar variants, AppNavigation, AppSnackbar
+│   ├── assessment/  # AssessmentCheckInTab, AssessmentInsightsTab
+│   ├── climate/     # ClimateClock, ClimateHeadlines
+│   ├── docs/        # In-app documentation (Guide, Methodology, Credits)
+│   ├── habit/       # HabitCard, HabitLibrary, HabitListItem, AllLoggedCard
+│   ├── icons/       # Custom icon components (IconSac)
+│   ├── insights/    # InsightsPanel, InsightsScoreHero, InsightsBreakdownBars, …
+│   ├── mastery/     # MasteryCheckInSheet, MasterySwapSheet, MasteryFreezeInfo, …
+│   ├── notification/ # NotificationPromptBanner
+│   ├── profile/     # ProfileForm
+│   └── pwa/         # PwaInstallBanner
+├── composables/     # Reusable Composition API logic (useClimateClock, useMastery*, …)
 ├── data/            # Static content — habits, badges, assessment questions, SDGs
 │   ├── sections/    # Per-section question definitions
 │   └── insights/    # Per-section insight text
-├── layouts/         # App shell layout
-├── lib/             # Utility modules (scoring, streak reconciler, Supabase client)
+├── layouts/         # App shell layout (AppLayout)
 ├── router/          # Vue Router configuration with auth guards
-├── stores/          # Pinia stores (assessment, mastery, profile, sync, theme)
+├── services/        # External service clients (supabase, feedbackForm)
+├── stores/          # Pinia stores (assessment, mastery, profile, sync, theme, climateClock)
 ├── styles/          # Global SCSS and Vuetify theme tokens
-├── types/           # TypeScript interfaces and shared constants
+├── types/           # TypeScript interfaces (app.ts, database.ts)
+├── utils/           # Pure utilities (scoring, streakReconciler, habitDate, habitLifecycle, clock, theme)
 └── views/           # Route-level view components
 ```
 
@@ -156,4 +159,4 @@ See [`METHODOLOGY.md`](./METHODOLOGY.md) for the full methodology as a standalon
 
 ## License
 
-MIT — see [`LICENSE`](./LICENSE) for the full text.
+MIT — see [`LICENSE.md`](./LICENSE.md) for the full text.

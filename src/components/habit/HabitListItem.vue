@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HabitTemplate } from "@/types/app.types";
+import type { HabitTemplate } from "@/types/app";
 
 defineProps<{
   habit: HabitTemplate & {

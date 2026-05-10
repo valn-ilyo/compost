@@ -2,8 +2,8 @@ import { ref } from "vue";
 import { HABIT_TEMPLATES } from "@/data/habits";
 import { useNotifier } from "@/composables/useNotifier";
 import { useMasteryStore } from "@/stores/mastery";
-import { MAX_SLOTS } from "@/types/app.types";
-import type { HabitTemplate } from "@/types/app.types";
+import { MAX_SLOTS } from "@/types/app";
+import type { HabitTemplate } from "@/types/app";
 
 /**
  * Encapsulates all slot management actions surfaced in MasteryView:

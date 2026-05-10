@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
 import { useSyncStore } from "@/stores/sync";
-import { clock } from "@/stores/clock";
+import { clock } from "@/utils/clock";
 
 const store = useMasteryStore();
 const syncStore = useSyncStore();

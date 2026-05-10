@@ -1,4 +1,4 @@
-import type { Badge, BadgeTaglines, SectionMeta } from "../types/app.types";
+import type { Badge, BadgeTaglines, SectionMeta } from "../types/app";
 
 export type { Badge, BadgeTaglines };
 

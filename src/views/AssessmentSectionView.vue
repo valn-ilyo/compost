@@ -3,7 +3,7 @@ import { ref, computed, watch } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessmentStore } from "@/stores/assessment";
-import type { SectionAnswers, QuestionId } from "@/types/app.types";
+import type { SectionAnswers, QuestionId } from "@/types/app";
 import { questionRegistry } from "@/data/index";
 import { SECTIONS } from "../data/index";
 

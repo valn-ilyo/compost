@@ -1,4 +1,4 @@
-import type { QuestionInsight } from "@/types/app.types";
+import type { QuestionInsight } from "@/types/app";
 
 export const FOOD_INSIGHTS: QuestionInsight[] = [
   // diet_type

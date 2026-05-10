@@ -2,7 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { useMasteryStore } from "@/stores/mastery";
-import type { UserHabit } from "@/types/app.types";
+import type { UserHabit } from "@/types/app";
 
 const props = defineProps<{
   modelValue: boolean;

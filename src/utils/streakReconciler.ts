@@ -1,4 +1,4 @@
-import type { UserHabit, ReconcileEvent, ReconcileResult } from "@/types/app.types";
+import type { UserHabit, ReconcileEvent, ReconcileResult } from "@/types/app";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 /** Maximum debt allowed when a tied group drains the freeze pool below zero. */

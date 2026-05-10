@@ -2,9 +2,9 @@
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useAssessmentStore } from "@/stores/assessment";
-import CheckInTab from "@/components/AssessmentCheckInTab.vue";
-import InsightsTab from "@/components/AssessmentInsightsTab.vue";
-import AppBarAssessment from "@/components/AppBarAssessment.vue";
+import CheckInTab from "@/components/assessment/AssessmentCheckInTab.vue";
+import InsightsTab from "@/components/assessment/AssessmentInsightsTab.vue";
+import AppBarAssessment from "@/components/app/AppBarAssessment.vue";
 
 const store = useAssessmentStore();
 const route = useRoute();

@@ -1,4 +1,4 @@
-import type { Question, SectionMeta } from '../../types/app.types'
+import type { Question, SectionMeta } from '../../types/app'
 
 export const transportMeta: SectionMeta = {
   id: 'transport',

@@ -5,7 +5,7 @@ import { getSortedSections } from "@/data/badge";
 import { getSortedQuestions } from "@/data/insights";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useMasteryStore } from "@/stores/mastery";
-import { MAX_SLOTS } from "@/types/app.types";
+import { MAX_SLOTS } from "@/types/app";
 
 /**
  * Manages the fixed set of up to 3 recommended habits derived from assessment

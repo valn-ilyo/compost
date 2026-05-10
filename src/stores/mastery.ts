@@ -6,7 +6,7 @@ import type {
   MasteredArchiveEntry,
   ReconcileEvent,
   UserHabit,
-} from "@/types/app.types";
+} from "@/types/app";
 import {
   addHabitToSlots,
   logHabitInSlots,
@@ -14,13 +14,13 @@ import {
   removeHabitFromSlots,
   resumeHabitInSlots,
   swapHabitInSlots,
-} from "@/lib/habitLifecycle";
-import { MAX_SLOTS, FREEZE_MILESTONE } from "@/types/app.types";
-import { reconcile } from "@/lib/streakReconciler";
-import { todayISO, yesterdayISO } from "@/lib/habitDate";
+} from "@/utils/habitLifecycle";
+import { MAX_SLOTS, FREEZE_MILESTONE } from "@/types/app";
+import { reconcile } from "@/utils/streakReconciler";
+import { todayISO, yesterdayISO } from "@/utils/habitDate";
 import { useSyncStore } from "@/stores/sync";
 import { useProfileStore } from "@/stores/profile";
-import { hydrateFromSupabase as _hydrateFromSupabase } from "@/lib/masteryHydration";
+import { hydrateFromSupabase as _hydrateFromSupabase } from "@/utils/masteryHydration";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

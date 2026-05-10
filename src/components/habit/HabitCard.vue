@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { UserHabit } from "@/types/app.types";
-import MasteryRetireSheet from "@/components/MasteryRetireSheet.vue";
+import type { UserHabit } from "@/types/app";
+import MasteryRetireSheet from "@/components/mastery/MasteryRetireSheet.vue";
 
 const props = defineProps<{
   habit: UserHabit;

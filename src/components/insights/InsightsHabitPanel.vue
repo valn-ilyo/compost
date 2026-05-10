@@ -2,8 +2,8 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
-import { MAX_SLOTS } from "@/types/app.types";
-import type { HabitTemplate, HabitPanelItem } from "@/types/app.types";
+import { MAX_SLOTS } from "@/types/app";
+import type { HabitTemplate, HabitPanelItem } from "@/types/app";
 
 const props = defineProps<{
   templates: HabitTemplate[];

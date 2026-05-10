@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
 import { useMasteryStore } from "@/stores/mastery";
-import type { HabitTemplate } from "@/types/app.types";
+import type { HabitTemplate } from "@/types/app";
 
 // ─── Props / emits ────────────────────────────────────────────────────────────
 defineProps<{

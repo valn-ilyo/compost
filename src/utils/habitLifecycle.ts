@@ -1,5 +1,5 @@
-import type { HabitTemplate, UserHabit, LogResult } from "@/types/app.types";
-import { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE } from "@/types/app.types";
+import type { HabitTemplate, UserHabit, LogResult } from "@/types/app";
+import { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE } from "@/types/app";
 
 export { MAX_SLOTS, FREEZE_MILESTONE, MASTERY_MILESTONE };
 

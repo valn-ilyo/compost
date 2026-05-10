@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
-import type { UserHabit } from "@/types/app.types";
+import type { UserHabit } from "@/types/app";
 
 // ─── Props / emits ────────────────────────────────────────────────────────────
 

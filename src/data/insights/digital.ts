@@ -1,4 +1,4 @@
-import type { QuestionInsight } from "@/types/app.types";
+import type { QuestionInsight } from "@/types/app";
 
 export const DIGITAL_INSIGHTS: QuestionInsight[] = [
   // streaming_habits

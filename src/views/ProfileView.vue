@@ -3,8 +3,8 @@ import { ref } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useLogout } from "@/composables/useLogout";
 import { useSyncStore } from "@/stores/sync";
-import { openFeedbackForm } from "@/lib/feedbackForm";
-import AppBarProfile from "@/components/AppBarProfile.vue";
+import { openFeedbackForm } from "@/services/feedbackForm";
+import AppBarProfile from "@/components/app/AppBarProfile.vue";
 
 const { logout, loggingOut } = useLogout();
 const store = useProfileStore();

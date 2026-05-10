@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { NewsfeedItem, Lifeline } from '@/types/app.types'
+import type { NewsfeedItem, Lifeline } from '@/types/app'
 
 export const useClockVisibleStore = defineStore('clockVisible', () => {
   const clockVisible = ref(false)

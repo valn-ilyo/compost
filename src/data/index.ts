@@ -1,4 +1,4 @@
-import type { Question, SectionMeta } from '../types/app.types'
+import type { Question, SectionMeta } from '../types/app'
 import { transportMeta, transportQuestions } from './sections/transport'
 import { foodMeta, foodQuestions } from './sections/food'
 import { energyMeta, energyQuestions } from './sections/energy'

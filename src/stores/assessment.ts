@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 
-import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app.types";
+import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app";
 export type { SectionAnswers }; // re-export so existing imports from this module keep working
 
 import { SECTIONS } from "@/data/index";
 import { useSyncStore } from "@/stores/sync";
 import { useProfileStore } from "@/stores/profile";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

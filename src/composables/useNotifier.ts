@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { NotificationOptions } from '@/types/app.types'
+import type { NotificationOptions } from '@/types/app'
 
 const isActive = ref(false)
 const message = ref('')

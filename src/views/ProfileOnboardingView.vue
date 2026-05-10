@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useLogout } from "@/composables/useLogout";
-import ProfileForm from "@/components/ProfileForm.vue";
+import ProfileForm from "@/components/profile/ProfileForm.vue";
 
 const profileStore = useProfileStore();
 const { logout } = useLogout();

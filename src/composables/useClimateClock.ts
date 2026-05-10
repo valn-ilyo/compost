@@ -7,7 +7,7 @@ import type {
   Lifeline,
   ClockDisplay,
   ParsedUnit,
-} from "@/types/app.types";
+} from "@/types/app";
 
 const LIFELINE_KEYS = [
   "renewables_1",

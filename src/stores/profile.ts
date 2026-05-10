@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/services/supabase";
 import { useSyncStore } from "@/stores/sync";
-import type { ProfileRow, ProfileUpdate } from "@/types/database.types";
+import type { ProfileRow, ProfileUpdate } from "@/types/database";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 
 export const useProfileStore = defineStore(

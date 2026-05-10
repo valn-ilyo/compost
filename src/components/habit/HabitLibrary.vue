@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import { HABIT_TEMPLATES } from "@/data/habits";
 import { useMasteryStore } from "@/stores/mastery";
-import HabitListItem from "@/components/HabitListItem.vue";
+import HabitListItem from "@/components/habit/HabitListItem.vue";
 
 const props = defineProps<{
   recommendedIds?: string[];

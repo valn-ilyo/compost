@@ -253,7 +253,7 @@ function goHome() {
 
     <!-- Normal: title -->
     <v-app-bar-title v-if="!searchMode">
-      <span class="font-condensed">Compost</span>
+      <span class="font-condensed">Documentation</span>
     </v-app-bar-title>
 
     <!-- Search mode: autocomplete fills the title area -->

@@ -9,10 +9,17 @@ import { useAssessmentStore } from "@/stores/assessment";
 import { useProfileStore } from "@/stores/profile";
 import { supabase } from "@/services/supabase";
 
+// NEW: import the midnight hook from clock.ts.
+// OLD: this import did not exist — nothing in App.vue referenced clock.ts.
+// clock.ts now exports onMidnight() which fires callbacks inside
+// scheduleMidnightRefresh()'s setTimeout, after clock.now is reassigned.
+import { onMidnight } from "@/utils/clock";
+
 const masteryStore = useMasteryStore();
 const assessmentStore = useAssessmentStore();
 const profileStore = useProfileStore();
 const syncStore = useSyncStore();
+
 // Initialising here (not just in AppBarProfile) ensures the persisted theme
 // is applied on every page load, not only when the Profile tab is visited.
 useThemeStore();
@@ -52,10 +59,29 @@ onMounted(() => {
     }
 
     // Reconcile after endHydrating() so enqueue() is live.
-        masteryStore.reconcileStreaks();
+    masteryStore.reconcileStreaks();
   });
 
   syncStore.init();
+
+  // NEW: register midnight reconcile for users who leave the app open overnight.
+  //
+  // OLD: nothing ran at midnight for open sessions. scheduleMidnightRefresh()
+  // in clock.ts only reassigned clock.now — it had no mechanism to call
+  // reconcileStreaks(). The result: a user with the app open at midnight would
+  // see the date tick over (computed values updated) but streaks were never
+  // reconciled until the next app open or reconnect.
+  //
+  // NEW: clock.ts now exports onMidnight(cb) which pushes cb into
+  // midnightCallbacks[]. scheduleMidnightRefresh() iterates that array after
+  // reassigning clock.now — see the for..of loop at the bottom of clock.ts.
+  //
+  // Guard: only run when hydration is complete so enqueue() is live and
+  // streak mutations actually reach Supabase. Matches the same guard used
+  // in the onReconnect callback above and in sync.ts's watch(isOnline).
+  onMidnight(() => {
+    if (syncStore.isHydrated) masteryStore.reconcileStreaks();
+  });
 });
 </script>
 

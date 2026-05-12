@@ -1,0 +1,6 @@
+<!doctype html>
+<script>
+  const base = '/compost'
+  const path = window.location.pathname.replace(base, '') || '/'
+  window.location.replace(window.location.origin + base + '/#' + path + window.location.search)
+</script>

@@ -16,6 +16,22 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Compost</title>
+    <script>
+      ;(function () {
+        var base = '/compost'
+        var path = window.location.pathname.replace(base, '')
+        if (path && path !== '/') {
+          window.location.replace(
+            window.location.origin +
+              base +
+              '/#' +
+              path +
+              window.location.search +
+              window.location.hash,
+          )
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

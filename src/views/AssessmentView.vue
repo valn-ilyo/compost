@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useRoute } from "vue-router";
-import { useAssessmentStore } from "@/stores/assessment";
-import CheckInTab from "@/components/assessment/AssessmentCheckInTab.vue";
-import InsightsTab from "@/components/assessment/AssessmentInsightsTab.vue";
-import AppBarAssessment from "@/components/app/AppBarAssessment.vue";
+import { onMounted } from "vue"
+import { useRoute } from "vue-router"
+import { useAssessmentStore } from "@/stores/assessment"
+import CheckInTab from "@/components/assessment/AssessmentCheckInTab.vue"
+import InsightsTab from "@/components/assessment/AssessmentInsightsTab.vue"
+import AppBarAssessment from "@/components/app/AppBarAssessment.vue"
 
-const store = useAssessmentStore();
-const route = useRoute();
+const store = useAssessmentStore()
+const route = useRoute()
 
+// TODO [AssessmentView > two tabs: Check-in and Insights]
+// Sync active tab from route.query.tab on mount
 onMounted(() => {
-  const tab = route.query.tab;
+  const tab = route.query.tab
   if (tab === "checkin" || tab === "insights") {
-    store.activeTab = tab;
+    store.activeTab = tab
   }
-});
+})
 </script>
 
 <template>

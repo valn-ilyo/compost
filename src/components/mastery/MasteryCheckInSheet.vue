@@ -22,6 +22,9 @@ const idx = ref(0);
 const answered = ref(false);
 const navDirection = ref<"forward" | "back">("forward");
 
+// Buffered answers: templateId → 'yes' | 'no'. Flushed to the store on close.
+const pendingAnswers = ref<Map<string, "yes" | "no">>(new Map());
+
 const current = computed(() => session.value[idx.value] ?? null);
 const isLast = computed(() => idx.value === session.value.length - 1);
 
@@ -30,11 +33,12 @@ watch(
   (open) => {
     if (open) {
       session.value = props.habitId
-        ? store.activeHabits.filter((h) => h.id === props.habitId)
+        ? store.activeHabits.filter((h) => h.templateId === props.habitId)
         : [...store.unloggedToday];
       idx.value = 0;
       answered.value = false;
       navDirection.value = "forward";
+      pendingAnswers.value = new Map();
     }
   },
 );
@@ -42,7 +46,7 @@ watch(
 function answer(didIt: boolean): void {
   if (!current.value || answered.value) return;
   answered.value = true;
-  store.logHabit(current.value.id, didIt);
+  pendingAnswers.value.set(current.value.templateId, didIt ? "yes" : "no");
   setTimeout(() => {
     if (isLast.value) {
       close();
@@ -56,6 +60,10 @@ function answer(didIt: boolean): void {
 }
 
 function close(): void {
+  for (const [templateId, value] of pendingAnswers.value) {
+    store.logHabit(templateId, value);
+  }
+  pendingAnswers.value = new Map();
   emit("update:modelValue", false);
 }
 </script>

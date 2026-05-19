@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import AppSnackbar from "./components/app/AppSnackbar.vue";
 import { useMasteryStore } from "@/stores/mastery";
 import { useThemeStore } from "@/stores/theme";
@@ -8,6 +8,7 @@ import { useSyncStore } from "@/stores/sync";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useProfileStore } from "@/stores/profile";
 import { supabase } from "@/services/supabase";
+import type { HabitLog, FreezeLedgerRow, SlotEvent, MasteredEntry } from "@/types/app";
 
 // NEW: import the midnight hook from clock.ts.
 // OLD: this import did not exist — nothing in App.vue referenced clock.ts.
@@ -29,7 +30,7 @@ useMasteryRecommendations();
 
 // Reconcile streaks on every app open — but only after hydration is complete
 // so that sync.enqueue() is live and reconcile mutations reach Supabase.
-// The actual reconcileStreaks() call lives in AuthView.runHydration() right
+// The actual reconcile() call lives in AuthView.runHydration() right
 // after syncStore.setHydrated(). Calling it here (before hydration) would
 // cause reconcile to mutate local state while enqueue() is still a no-op,
 // so the streak resets would never be pushed to Supabase.
@@ -51,24 +52,51 @@ onMounted(() => {
     try {
       await Promise.all([
         profileStore.fetchProfile(userId, email, true),
-        assessmentStore.hydrateFromSupabase(userId),
-        masteryStore.hydrateFromSupabase(userId),
+        assessmentStore.hydrateFromSupabase(userId, true),
+        masteryStore.hydrateFromSupabase(userId, true),
       ]);
     } finally {
       syncStore.endHydrating();
     }
 
     // Reconcile after endHydrating() so enqueue() is live.
-    masteryStore.reconcileStreaks();
+    masteryStore.reconcile();
   });
 
   syncStore.init();
+
+  // Phase 5: start Realtime once hydration completes, stop on logout.
+  //
+  // Watching isHydrated is the correct trigger because:
+  //   - It becomes true at the end of AuthView.runHydration(), after all stores
+  //     are populated and enqueue() is live.
+  //   - It becomes false on logout (resetAllStores() sets isHydrated = false),
+  //     so channels are torn down automatically when the session ends.
+  //
+  // App.vue is the correct orchestration point — it's the only file that imports
+  // both syncStore and masteryStore, which avoids a circular dependency
+  // (mastery.ts already imports sync.ts).
+  watch(
+    () => syncStore.isHydrated,
+    (hydrated) => {
+      if (hydrated) {
+        syncStore.startRealtime({
+          onHabitLog:      (row) => masteryStore.mergeHabitLog(row as HabitLog),
+          onFreezeRow:     (row) => masteryStore.mergeFreezeLedgerRow(row as FreezeLedgerRow),
+          onSlotEvent:     (row) => masteryStore.mergeSlotEvent(row as SlotEvent),
+          onMasteredEntry: (row) => masteryStore.mergeMasteredArchiveRow(row as MasteredEntry),
+        });
+      } else {
+        syncStore.stopRealtime();
+      }
+    },
+  );
 
   // NEW: register midnight reconcile for users who leave the app open overnight.
   //
   // OLD: nothing ran at midnight for open sessions. scheduleMidnightRefresh()
   // in clock.ts only reassigned clock.now — it had no mechanism to call
-  // reconcileStreaks(). The result: a user with the app open at midnight would
+  // reconcile(). The result: a user with the app open at midnight would
   // see the date tick over (computed values updated) but streaks were never
   // reconciled until the next app open or reconnect.
   //
@@ -80,7 +108,7 @@ onMounted(() => {
   // streak mutations actually reach Supabase. Matches the same guard used
   // in the onReconnect callback above and in sync.ts's watch(isOnline).
   onMidnight(() => {
-    if (syncStore.isHydrated) masteryStore.reconcileStreaks();
+    if (syncStore.isHydrated) masteryStore.reconcile();
   });
 });
 </script>

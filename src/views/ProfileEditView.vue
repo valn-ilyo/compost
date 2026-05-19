@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import ProfileForm from "@/components/profile/ProfileForm.vue";
+import { useRouter } from "vue-router"
+import ProfileForm from "@/components/profile/ProfileForm.vue"
 
-const router = useRouter();
+const router = useRouter()
+
+// TODO [ProfileEditView > Save]
+// ProfileForm handles validation. On save:
+// 1. store.updateProfile(updates) — local optimistic update + enqueue profiles upsert
+// 2. Navigate back
 </script>
 
 <template>

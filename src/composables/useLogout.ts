@@ -1,47 +1,69 @@
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { supabase } from "@/services/supabase";
-import { useProfileStore } from "@/stores/profile";
-import { useAssessmentStore } from "@/stores/assessment";
-import { useMasteryStore } from "@/stores/mastery";
-import { useSyncStore } from "@/stores/sync";
+// ─── useLogout / resetAllStores ───────────────────────────────────────────────
+// resetAllStores is called at the start of every hydration cycle (to clear
+// stale state before pulling fresh data) and on explicit logout.
+//
+// It clears in-memory state and the localStorage cache. The sync queue is also
+// cleared — any pending writes are abandoned on logout. On hydration, the queue
+// is drained first (Phase 4) before resetAllStores is called, so in-flight
+// writes are committed before the state wipe.
+// ─────────────────────────────────────────────────────────────────────────────
 
-/** Wipes all persisted store state. Called on logout and at the start of every hydration. */
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { supabase } from '@/services/supabase'
+import { useMasteryStore }    from '@/stores/mastery'
+import { useAssessmentStore } from '@/stores/assessment'
+import { useProfileStore }    from '@/stores/profile'
+import { useSyncStore }       from '@/stores/sync'
+
 export function resetAllStores() {
-  const syncStore = useSyncStore();
-  syncStore.clearQueue();
-  syncStore.isHydrated = false;
+  const masteryStore    = useMasteryStore()
+  const assessmentStore = useAssessmentStore()
+  const profileStore    = useProfileStore()
+  const syncStore       = useSyncStore()
 
-  useProfileStore().reset();
-  useAssessmentStore().clearAll();
-  useMasteryStore().$patch({
-    slots: [],
-    freezeCount: 0,
-    masteredArchive: [],
-    lastReconcileEvents: [],
-  });
+  // Sync store first — mark as not hydrated so no writes go to Supabase
+  // during the wipe, and clear any pending queue items.
+  syncStore.clearQueue()
+  syncStore.isHydrated = false
 
-  localStorage.removeItem("mastery");
-  localStorage.removeItem("assessment");
-  localStorage.removeItem("profile-store");
-  localStorage.removeItem("sync-store");
+  // Clear profile and assessment (mutable stores — full reset).
+  profileStore.reset()
+  assessmentStore.clearAll()
+
+  // Clear the four mastery ledger arrays and any session-scoped reconcile events.
+  masteryStore.habitLogs            = []
+  masteryStore.freezeLedger         = []
+  masteryStore.slotEvents           = []
+  masteryStore.masteredArchive      = []
+  masteryStore.lastReconcileEvents  = []
+
+  // Remove persisted localStorage cache so the next session starts clean.
+  localStorage.removeItem('mastery')
+  localStorage.removeItem('assessment')
+  localStorage.removeItem('profile-store')
+  localStorage.removeItem('sync-store')
 }
 
 export function useLogout() {
-  const router = useRouter();
-  const loggingOut = ref(false);
+  const router = useRouter()
+  const loggingOut = ref(false)
 
-  const logout = async (redirectTo: string = "/auth") => {
-    loggingOut.value = true;
+  /**
+   * Sign out and wipe all local state.
+   * Note: signOut is best-effort — even if it fails (e.g. offline),
+   * the local state is cleared so the user reaches the auth screen.
+   */
+  const logout = async (redirectTo = '/auth') => {
+    loggingOut.value = true
     try {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut()
     } finally {
-      // Always reset stores — even if signOut fails.
-            resetAllStores();
+      resetAllStores()
     }
-    await router.push(redirectTo);
-    loggingOut.value = false;
-  };
+    await router.push(redirectTo)
+    loggingOut.value = false
+  }
 
-  return { logout, loggingOut };
+  return { logout, loggingOut }
 }

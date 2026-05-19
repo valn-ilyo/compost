@@ -85,7 +85,7 @@ function close(): void {
           color="success"
           variant="tonal"
           rounded="lg"
-          @click="confirmRetire(habit.id)"
+          @click="confirmRetire(habit.templateId)"
           append-icon="mdi-star-shooting"
         >
           Retire

@@ -70,7 +70,7 @@ function close(): void {
     :max-width="mdAndUp ? '50%' : undefined"
     @update:model-value="close"
   >
-        <v-card
+    <v-card
       v-motion
       :initial="{ opacity: 0, y: 20 }"
       :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
@@ -107,7 +107,7 @@ function close(): void {
         :initial="{ opacity: 0 }"
         :enter="{ opacity: 1, transition: { duration: 200, delay: 140 + i * 60 } }"
         class="align-start"
-        @click="confirmSwap(habit.id)"
+        @click="confirmSwap(habit.templateId)"
       >
         <template #prepend>
           <v-icon

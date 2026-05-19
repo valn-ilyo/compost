@@ -52,7 +52,7 @@ function handleRemoveClick(): void {
   if (props.habit.streak > 0) {
     confirmRemoveOpen.value = true;
   } else {
-    emit("remove", props.habit.id);
+    emit("remove", props.habit.templateId);
   }
 }
 </script>
@@ -68,7 +68,9 @@ function handleRemoveClick(): void {
     min-height="0"
     class="py-3"
     :ripple="habit.isMastered || !isLoggedToday"
-    @click="habit.isMastered ? (retireSheetOpen = true) : !isLoggedToday && emit('log', habit.id)"
+    @click="
+      habit.isMastered ? (retireSheetOpen = true) : !isLoggedToday && emit('log', habit.templateId)
+    "
   >
     <template #prepend>
       <v-icon
@@ -138,7 +140,7 @@ function handleRemoveClick(): void {
             prepend-icon="mdi-pause"
             rounded="lg"
             base-color="warning"
-            @click="emit('pause', habit.id)"
+            @click="emit('pause', habit.templateId)"
           />
           <v-list-item
             title="Remove"
@@ -178,7 +180,7 @@ function handleRemoveClick(): void {
           rounded="lg"
           flex="1"
           @click="
-            emit('remove', habit.id);
+            emit('remove', habit.templateId);
             confirmRemoveOpen = false;
           "
         >

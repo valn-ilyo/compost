@@ -1,18 +1,25 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useProfileStore } from "@/stores/profile";
-import { useLogout } from "@/composables/useLogout";
-import ProfileForm from "@/components/profile/ProfileForm.vue";
+import { ref } from "vue"
+import { useProfileStore } from "@/stores/profile"
+import { useLogout } from "@/composables/useLogout"
+import ProfileForm from "@/components/profile/ProfileForm.vue"
 
-const profileStore = useProfileStore();
-const { logout } = useLogout();
-const loggingOut = ref(false);
+const profileStore = useProfileStore()
+const { logout } = useLogout()
+const loggingOut = ref(false)
 
+// TODO [ProfileOnboardingView > Save]
+// Validates name and roll_no are non-empty.
+// store.updateProfile(updates) — local + enqueue profiles upsert
+// Navigate to /
+
+// TODO [ProfileOnboardingView > Switch account]
+// Logs out and returns to AuthView
 const handleLogout = async () => {
-  loggingOut.value = true;
-  await logout();
-  loggingOut.value = false;
-};
+  loggingOut.value = true
+  await logout()
+  loggingOut.value = false
+}
 </script>
 
 <template>

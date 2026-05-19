@@ -1,92 +1,102 @@
-import { computed, watch } from "vue";
-import { SECTIONS } from "@/data";
-import { HABIT_TEMPLATES } from "@/data/habits";
-import { getSortedSections } from "@/data/badge";
-import { getSortedQuestions } from "@/data/insights";
-import { useAssessmentStore } from "@/stores/assessment";
-import { useMasteryStore } from "@/stores/mastery";
-import { MAX_SLOTS } from "@/types/app";
+// ─── useMasteryRecommendations ────────────────────────────────────────────────
+// Derives up to MAX_SLOTS habit recommendations from the user's assessment results.
+//
+// ALGORITHM
+// ─────────
+// After all 7 sections are completed, getSortedQuestions returns every answered
+// question ordered worst → best (weakest sections first, lowest score first within
+// a section). We walk this list and pick the first unclaimed HABIT_TEMPLATE that:
+//   - covers the question's (sectionId, questionId) pair
+//   - has not already been picked in this pass
+//   - is not mastered (no point recommending something already completed)
+//   - has a score < 4 (score 4–5 means the behaviour is already strong — skip)
+//
+// The result is stored in assessmentStore.recommendedHabitIds and persisted.
+// It is a fixed snapshot — acting on a recommendation (add/pause) only hides it
+// from the display list; it never triggers a refill or reorder.
+//
+// Recomputation triggers: assessment answers change (retake) or a habit is
+// mastered/retired (the exclusion set changes).
+// ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Manages the fixed set of up to 3 recommended habits derived from assessment
- * results. The set is computed once on assessment completion and persisted.
- * Acting on a recommendation (add/pause) only hides it from the display list —
- * it never triggers a refill. Recomputes when answers change (reassessment) or
- * when a mastered habit is retired and a better candidate may be available.
- */
+import { computed, watch } from 'vue'
+import { useAssessmentStore } from '@/stores/assessment'
+import { useMasteryStore }    from '@/stores/mastery'
+import { SECTIONS }           from '@/data'
+import { HABIT_TEMPLATES }    from '@/data/habits'
+import { getSortedSections }  from '@/data/badge'
+import { getSortedQuestions } from '@/data/insights'
+import { MAX_SLOTS }          from '@/types/app'
+
 export function useMasteryRecommendations() {
-  const assessmentStore = useAssessmentStore();
-  const store = useMasteryStore();
+  const assessmentStore = useAssessmentStore()
+  const store           = useMasteryStore()
 
-  const isAssessmentComplete = computed(() =>
-    SECTIONS.every((s) => assessmentStore.sectionResults.some((r) => r.meta.id === s.id)),
-  );
+  /** True when all 7 sections have been submitted. */
+  const isAssessmentComplete = computed(
+    () => SECTIONS.every(s => assessmentStore.isCompleted(s.id)),
+  )
 
   function recomputeRecommendations(): void {
-    // Build the same sorted question pipeline used by insights.
-    const sortedSections = getSortedSections(assessmentStore.sectionResults);
-    const sortedQuestions = getSortedQuestions(assessmentStore.answers, sortedSections);
+    const sortedSections  = getSortedSections(assessmentStore.sectionResults)
+    const sortedQuestions = getSortedQuestions(assessmentStore.answers, sortedSections)
+    const picked: string[] = []
 
-    // Walk worst → best. For each question, find the first HABIT_TEMPLATE that
-    // covers it, hasn't been picked yet, and isn't mastered. Take up to MAX_SLOTS.
-    // Score 4 or 5 means the behaviour is already strong — skip for recommendations.
-    const seen = new Set<string>();
-    const matched: string[] = [];
+    for (const question of sortedQuestions) {
+      if (picked.length >= MAX_SLOTS) break
+      if (question.score >= 4) continue  // behaviour already strong — no recommendation needed
 
-    for (const { sectionId, questionId, score } of sortedQuestions) {
-      if (score >= 4) continue;
-      if (matched.length >= MAX_SLOTS) break;
-      const template = HABIT_TEMPLATES.find(
-        (h) =>
-          h.covers.some((c) => c.sectionId === sectionId && c.questionId === questionId) &&
-          !seen.has(h.id) &&
-          !store.masteredTemplateIds.has(h.id) &&
-          !store.masteredSlotTemplateIds.has(h.id),
-      );
-      if (template) {
-        seen.add(template.id);
-        matched.push(template.id);
-      }
+      const candidate = HABIT_TEMPLATES.find(
+        t =>
+          t.covers.some(
+            c => c.sectionId === question.sectionId && c.questionId === question.questionId,
+          ) &&
+          !picked.includes(t.id) &&
+          !store.masteredTemplateIds.has(t.id),
+      )
+
+      if (candidate) picked.push(candidate.id)
     }
 
-    assessmentStore.setRecommendedHabits(matched);
+    assessmentStore.setRecommendedHabits(picked)
   }
 
-  // Recompute on assessment completion, answer changes (reassessment),
-  // mastery (a habit completes — next candidate should surface immediately),
-  // or retirement (masteredArchive grows, slot fully freed).
+  // Recompute when the assessment is complete, when answers change (retake),
+  // or when the mastered set changes (retiring a habit opens up a recommendation slot).
   watch(
-    [
-      isAssessmentComplete,
-      () => assessmentStore.answers,
-      () => store.masteredHabits.length,
-      () => store.masteredArchive.length,
+    () => [
+      isAssessmentComplete.value,
+      assessmentStore.answers,
+      store.masteredHabits.length,
+      store.masteredArchive.length,
     ],
-    ([complete]) => {
-      if (complete) recomputeRecommendations();
-    },
+    ([complete]) => { if (complete) recomputeRecommendations() },
     { immediate: true, deep: true },
-  );
+  )
 
-  // Display list — the fixed set minus anything already acted on.
-  const recommendedIds = computed(() => {
-    if (!isAssessmentComplete.value) return [];
+  /**
+   * The fixed recommended set, filtered to exclude habits the user has already
+   * acted on (added, paused, or mastered). Does not refill when a recommendation
+   * is acted on — the snapshot is stable until a full reassessment.
+   */
+  const recommendedIds = computed((): string[] => {
+    if (!isAssessmentComplete.value) return []
     return assessmentStore.recommendedHabitIds.filter(
-      (id) =>
+      id =>
         !store.activeTemplateIds.has(id) &&
         !store.pausedTemplateIds.has(id) &&
-        !store.masteredTemplateIds.has(id) &&
-        !store.masteredSlotTemplateIds.has(id),
-    );
-  });
+        !store.masteredTemplateIds.has(id),
+    )
+  })
 
-  // Recommended habits the user has paused — still the right habits for them,
-  // just not currently being worked on. Used to distinguish "paused" from
-  // "genuinely no recommendations" in the UI.
-  const pausedRecommendedIds = computed(() => {
-    if (!isAssessmentComplete.value) return [];
-    return assessmentStore.recommendedHabitIds.filter((id) => store.pausedTemplateIds.has(id));
-  });
+  /**
+   * Recommended habits the user has paused — still the right recommendation,
+   * just not currently active. Used by HabitLibrary to distinguish "paused good
+   * habit" from "genuinely no recommendations" in the UI.
+   */
+  const pausedRecommendedIds = computed((): string[] =>
+    assessmentStore.recommendedHabitIds.filter(id => store.pausedTemplateIds.has(id)),
+  )
 
-  return { isAssessmentComplete, recommendedIds, pausedRecommendedIds };
+  return { isAssessmentComplete, recommendedIds, pausedRecommendedIds }
 }

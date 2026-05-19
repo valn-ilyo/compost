@@ -1,96 +1,95 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useTimeoutFn } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router";
-import { useAssessmentStore } from "@/stores/assessment";
-import type { SectionAnswers, QuestionId } from "@/types/app";
-import { questionRegistry } from "@/data/index";
-import { SECTIONS } from "../data/index";
+import { ref, computed, watch } from "vue"
+import { useTimeoutFn } from "@vueuse/core"
+import { useRoute, useRouter } from "vue-router"
+import { useAssessmentStore } from "@/stores/assessment"
+import type { SectionAnswers, QuestionId } from "@/types/app"
+import { questionRegistry } from "@/data/index"
+import { SECTIONS } from "../data/index"
 
-const route = useRoute();
-const router = useRouter();
-const store = useAssessmentStore();
+const route = useRoute()
+const router = useRouter()
+const store = useAssessmentStore()
 
-const sectionId = route.params.sectionId as string;
-const questions = questionRegistry[sectionId] ?? [];
-const meta = SECTIONS.find((s) => s.id === sectionId);
+const sectionId = route.params.sectionId as string
+const questions = questionRegistry[sectionId] ?? []
+const meta = SECTIONS.find((s) => s.id === sectionId)
 
+// TODO [AssessmentSectionView]
+// Redirect to /assessment if sectionId is invalid or already completed
 if (!meta || questions.length === 0) {
-  router.replace("/assessment");
+  router.replace("/assessment")
 }
 
-const step = ref(1);
-const totalSteps = questions.length;
-const isLastStep = computed(() => step.value === totalSteps);
-const progress = computed(() => (step.value / totalSteps) * 100);
-
-// Track navigation direction so the window slide feels intentional
-const navDirection = ref<"forward" | "back">("forward");
-
-const lastQuestionId = questions.at(-1)?.id;
-
+const step = ref(1)
+const totalSteps = questions.length
+const isLastStep = computed(() => step.value === totalSteps)
+const progress = computed(() => (step.value / totalSteps) * 100)
+const navDirection = ref<"forward" | "back">("forward")
+const lastQuestionId = questions.at(-1)?.id
 const localAnswers = ref<Record<QuestionId, number | null>>(
   Object.fromEntries(questions.map((q) => [q.id, null])) as Record<QuestionId, number | null>,
-);
-
-const expandedPanel = ref<number | undefined>(undefined);
+)
+const expandedPanel = ref<number | undefined>(undefined)
 const lastAnswered = computed(
   () => lastQuestionId != null && localAnswers.value[lastQuestionId] !== null,
-);
-const submitting = ref(false);
-
-const hintActive = ref(true);
-const flashingOptionKey = ref<string | null>(null);
-
-// useTimeoutFn auto-cancels on unmount — no manual clearTimeout or onUnmounted needed.
-// stop() is idempotent; calling it after the timeout has already fired is safe.
-const { stop } = useTimeoutFn(() => {
-  hintActive.value = false;
-}, 2000);
+)
+const submitting = ref(false)
+const hintActive = ref(true)
+const flashingOptionKey = ref<string | null>(null)
+const { stop } = useTimeoutFn(() => { hintActive.value = false }, 2000)
 
 function stopHint(): void {
-  hintActive.value = false;
-  stop();
+  hintActive.value = false
+  stop()
 }
+watch(expandedPanel, (val) => { if (val !== undefined) stopHint() })
 
-watch(expandedPanel, (val) => {
-  if (val !== undefined) stopHint();
-});
-
+// TODO [AssessmentSectionView > Back]
+// step > 1 → go to previous question. step === 1 → navigate back to /assessment
 function goBack(): void {
   if (step.value === 1) {
-    router.push("/assessment");
+    router.push("/assessment")
   } else {
-    navDirection.value = "back";
-    step.value--;
+    navDirection.value = "back"
+    step.value--
   }
 }
 
+// TODO [AssessmentSectionView > Select an option]
+// Record answer locally. If not last question → auto-advance after 220ms.
+// If last question → reveal Submit button.
 function selectAndAdvance(questionId: QuestionId, points: number): void {
-  localAnswers.value[questionId] = points;
-  flashingOptionKey.value = `${questionId}-${points}`;
+  localAnswers.value[questionId] = points
+  flashingOptionKey.value = `${questionId}-${points}`
   if (!isLastStep.value) {
-    navDirection.value = "forward";
+    navDirection.value = "forward"
     setTimeout(() => {
-      flashingOptionKey.value = null;
-      step.value++;
-    }, 220);
+      flashingOptionKey.value = null
+      step.value++
+    }, 220)
   } else {
-    setTimeout(() => {
-      flashingOptionKey.value = null;
-    }, 300);
+    setTimeout(() => { flashingOptionKey.value = null }, 220)
   }
 }
 
-async function handleSubmit(): Promise<void> {
-  if (!lastAnswered.value) return;
-  submitting.value = true;
-  const answers: SectionAnswers = Object.fromEntries(
-    questions.map((q) => [q.id, localAnswers.value[q.id] as number]),
-  );
-  store.submitSection(sectionId, answers);
-  await new Promise<void>((r) => setTimeout(r, 400));
-  router.push({ path: "/assessment", query: { tab: "insights" } });
+// TODO [AssessmentSectionView > Submit]
+// 1. Validate all questions answered
+// 2. store.submitSection(sectionId, answers as SectionAnswers)
+//    → writes answers + completedAt locally
+//    → computes scaled score
+//    → enqueues assessment_answers upsert
+//    → triggers recommendation recompute if all 7 sections complete
+// 3. Navigate to /assessment
+async function submit(): Promise<void> {
+  submitting.value = true
+  try {
+    const answers = localAnswers.value as SectionAnswers
+    store.submitSection(sectionId, answers)
+    await router.push("/assessment")
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 

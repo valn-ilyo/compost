@@ -14,7 +14,6 @@ import MasteryFreezeInfo from "@/components/mastery/MasteryFreezeInfo.vue";
 
 const route = useRoute();
 const router = useRouter();
-
 const store = useMasteryStore();
 const { recommendedIds } = useMasteryRecommendations();
 const {
@@ -22,13 +21,7 @@ const {
   checkinHabitId,
   showAllLogged,
   logLabel,
-  displayFreezeCount,
-  displayFreezeCap,
-  displayDaysToNextFreeze,
-  displayDaysToNextMastery,
-  displayAnyFreezeUsed,
   displayMasteredToday,
-  displayHabit,
   displayLostStreak,
   handleLog,
   handleLogAll,
@@ -52,7 +45,6 @@ onMounted(async () => {
   }
 });
 
-// Handle notification deep link when already on this route (onMounted won't re-fire).
 watch(
   () => route.query.action,
   async (action) => {
@@ -88,11 +80,11 @@ watch(
               <div class="d-flex align-center">
                 <MasteryFreezeInfo
                   class="mr-3"
-                  :freeze-count="displayFreezeCount"
-                  :freeze-cap="displayFreezeCap"
-                  :days-to-next-freeze="displayDaysToNextFreeze"
-                  :days-to-next-mastery="displayDaysToNextMastery"
-                  :any-freeze-used="displayAnyFreezeUsed"
+                  :freeze-count="store.freezeCount"
+                  :freeze-cap="3"
+                  :days-to-next-freeze="store.daysToNextFreeze"
+                  :days-to-next-mastery="store.daysToNextMastery"
+                  :any-freeze-used="store.activeHabits.some((h) => h.freezeUsed)"
                   :mastered-today="displayMasteredToday"
                 />
               </div>
@@ -134,9 +126,9 @@ watch(
                 </div>
                 <div v-for="habit in store.activeHabits" :key="habit.id" class="habit-row">
                   <HabitCard
-                    :habit="displayHabit(habit)"
-                    :is-logged-today="store.isLoggedToday(displayHabit(habit))"
-                    :lost-streak="displayLostStreak(habit.id)"
+                    :habit="habit"
+                    :is-logged-today="store.isLoggedToday(habit.templateId)"
+                    :lost-streak="displayLostStreak(habit.templateId)"
                     @log="handleLog"
                     @pause="handlePause"
                     @remove="handleRemove"

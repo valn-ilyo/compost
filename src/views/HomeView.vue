@@ -1,49 +1,54 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import type { ComponentPublicInstance } from "vue";
-import { useElementSize } from "@vueuse/core";
-import { useRouter } from "vue-router";
-import { useAssessmentStore } from "@/stores/assessment";
-import { useMasteryStore } from "@/stores/mastery";
-import { usePwaInstall } from "@/composables/usePwaInstall";
-import { useNotificationPrompt } from "@/composables/useNotificationPrompt";
-import { SECTIONS } from "@/data";
-import AppBarHome from "@/components/app/AppBarHome.vue";
-import ClimateHeadlines from "@/components/climate/ClimateHeadlines.vue";
-import PwaInstallBanner from "@/components/pwa/PwaInstallBanner.vue";
-import NotificationPromptBanner from "@/components/notification/NotificationPromptBanner.vue";
-import AllLoggedCard from "@/components/habit/AllLoggedCard.vue";
+import { computed, ref } from "vue"
+import type { ComponentPublicInstance } from "vue"
+import { useElementSize } from "@vueuse/core"
+import { useRouter } from "vue-router"
+import { useAssessmentStore } from "@/stores/assessment"
+import { useMasteryStore } from "@/stores/mastery"
+import { usePwaInstall } from "@/composables/usePwaInstall"
+import { useNotificationPrompt } from "@/composables/useNotificationPrompt"
+import { SECTIONS } from "@/data"
+import AppBarHome from "@/components/app/AppBarHome.vue"
+import ClimateHeadlines from "@/components/climate/ClimateHeadlines.vue"
+import PwaInstallBanner from "@/components/pwa/PwaInstallBanner.vue"
+import NotificationPromptBanner from "@/components/notification/NotificationPromptBanner.vue"
+import AllLoggedCard from "@/components/habit/AllLoggedCard.vue"
 
-const store = useAssessmentStore();
-const masteryStore = useMasteryStore();
-const router = useRouter();
+const store = useAssessmentStore()
+const masteryStore = useMasteryStore()
+const router = useRouter()
 
-const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)));
-const hasStarted = computed(() => store.sectionResults.length > 0);
-const nextSection = computed(() => SECTIONS.find((s) => !completedIds.value.has(s.id)));
+// TODO [HomeView > assessment CTA card]
+// nextSection: first section not yet in sectionResults
+const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)))
+const hasStarted = computed(() => store.sectionResults.length > 0)
+const nextSection = computed(() => SECTIONS.find((s) => !completedIds.value.has(s.id)))
 
+// TODO [HomeView > Log your habits CTA card]
+// Shown when active habits exist AND not all logged today
 const showLogButton = computed(
   () => masteryStore.activeHabits.length > 0 && !masteryStore.allLoggedToday,
-);
+)
 
+// TODO [HomeView > AllLoggedCard]
+// Shown when active habits exist AND all logged today
 const showAllDoneCard = computed(
   () => masteryStore.activeHabits.length > 0 && masteryStore.allLoggedToday,
-);
+)
 
+// TODO [HomeView > Log your habits CTA card tap]
+// Navigate to /mastery?action=log
 function goToLog(): void {
-  router.push({ name: "mastery", query: { action: "log" } });
+  router.push({ name: "mastery", query: { action: "log" } })
 }
 
-const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall();
+const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall()
+const { showNotificationBanner, requestPermission } = useNotificationPrompt()
 
-const { showNotificationBanner, requestPermission } = useNotificationPrompt();
-
-// useElementSize uses a ResizeObserver so cardWidth stays accurate on resize,
-// unlike the previous one-shot getBoundingClientRect snapshot.
-const cardRef = ref<ComponentPublicInstance | null>(null);
+const cardRef = ref<ComponentPublicInstance | null>(null)
 const { width: cardWidth } = useElementSize(
   computed(() => (cardRef.value as ComponentPublicInstance)?.$el as HTMLElement ?? null),
-);
+)
 </script>
 
 <template>

@@ -345,6 +345,11 @@ export interface SyncQueueItem {
   /** Dedup key: 'table:pk1:pk2' */
   id: string;
   table: string;
+  /**
+   * 'upsert' — ledger tables use ignoreDuplicates=true so conflicts are no-ops.
+   *            mutable tables (profiles, assessment_answers, habit_slots) merge on conflict.
+   * 'delete' — not yet used (Phase 5+).
+   */
   operation: "upsert" | "delete";
   payload: Record<string, unknown>;
   /** Unix ms timestamp of when the item was enqueued. */
@@ -352,3 +357,93 @@ export interface SyncQueueItem {
 }
 
 export type SyncStatus = "offline" | "hydrating" | "syncing" | "synced";
+
+// ─── Phase 3: Ledger types ────────────────────────────────────────────────────
+
+/** Maximum freeze tokens a user can hold from milestone grants. */
+export const FREEZE_CAP = 3
+
+/** Minimum freeze balance (debt floor — reconciliation may go negative). */
+export const DEBT_FLOOR = -2
+
+/**
+ * One logged day for one habit. Unique on (user_id, template_id, date).
+ * Client-only. Value is always 'yes' or 'no'. The cron never writes here.
+ * Protection is a token economy event — it belongs in freeze_ledger.
+ */
+export interface HabitLog {
+  user_id: string
+  template_id: string
+  /** YYYY-MM-DD (IST) */
+  date: string
+  value: 'yes' | 'no'
+  created_at: string
+}
+
+/**
+ * One freeze token event. Append-only; never updated or deleted.
+ * reason='spent' is CRON ONLY — the client never writes spent rows.
+ * A spent row is only effective (deducts from balance) when no habit_log
+ * exists for the same (template_id, date). If a late yes/no arrives after
+ * the cron, the spend becomes a no-op — no refund row needed.
+ */
+export interface FreezeLedgerRow {
+  user_id: string
+  template_id: string
+  /** +1 for earned, -1 for spent */
+  delta: number
+  reason: 'milestone' | 'mastery' | 'spent'
+  /** YYYY-MM-DD */
+  date: string
+  created_at: string
+}
+
+/** A lifecycle event for a habit slot. Append-only. */
+export interface SlotEvent {
+  user_id: string
+  template_id: string
+  event: 'added' | 'paused' | 'resumed' | 'removed' | 'retired'
+  created_at: string
+}
+
+/** A habit that has been mastered and retired from slots. Written once. */
+export interface MasteredEntry {
+  user_id: string
+  template_id: string
+  created_at: string
+}
+
+/** Session-scoped event produced by reconcile(). Never persisted. */
+export type LedgerReconcileEvent = { type: 'lost'; templateId: string; streak: number }
+
+// ─── Ledger type notes (Phase 3) ─────────────────────────────────────────────
+// HabitLog.value:
+//   'yes' — user logged a productive day
+//   'no'  — user explicitly logged a non-productive day
+//           The streak chain continues through 'no' — it does not break it.
+//           'frozen' has been deliberately removed. habit_logs is client-only.
+//           Protection is a token event and belongs in freeze_ledger.
+//
+// FreezeLedgerRow.reason:
+//   'milestone' — earned at every FREEZE_MILESTONE (22) yes days, capped at FREEZE_CAP
+//   'mastery'   — earned at MASTERY_MILESTONE (66), unconditional
+//   'spent'     — CRON ONLY. Written by the Supabase cron job at midnight IST
+//                 when a freeze token is used to protect an unlogged habit.
+//                 The client never writes spent rows.
+//
+//   A spent row is only effective (deducts from balance) if no habit_log exists
+//   for the same (template_id, date). If a late yes/no arrives after the cron,
+//   the spent row becomes a no-op and the token is implicitly refunded — no
+//   extra write needed.
+//
+// SlotEvent.event:
+//   'added'   — habit placed in a slot
+//   'paused'  — slot held, streak preserved, habit excluded from daily flow
+//   'resumed' — habit returned to the active daily flow
+//   'removed' — slot freed; logs preserved for streak history
+//   'retired' — mastered habit permanently moved to masteredArchive
+//
+// LedgerReconcileEvent:
+//   Client reconcile() only ever produces 'lost' events (read-only detection).
+//   Protection state is derived directly from freeze_ledger, not from reconcile.
+// ─────────────────────────────────────────────────────────────────────────────

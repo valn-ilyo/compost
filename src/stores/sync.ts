@@ -1,273 +1,345 @@
-import { defineStore } from "pinia";
-import { ref, computed, watch } from "vue";
-import { useOnline } from "@vueuse/core";
-import type { SyncQueueItem, SyncStatus } from "@/types/app";
-import type { PersistenceOptions } from "pinia-plugin-persistedstate";
-import { supabase } from "@/services/supabase";
+// ─── syncStore ────────────────────────────────────────────────────────────────
+// Manages the offline queue and the reconnect sequence.
+//
+// QUEUE
+// ─────
+// Every store action that writes data calls enqueue(item). The item carries a
+// dedup key (table:pk1:pk2...), the table name, operation, and payload. The
+// queue is persisted to localStorage so it survives page refreshes while offline.
+//
+// Dedup: if the same id is enqueued twice, profiles use shallow merge; all others
+// are last-write-wins (the newer item replaces the older one). This prevents the
+// queue from growing unboundedly when the user edits the same thing repeatedly.
+//
+// DRAIN
+// ─────
+// drain() flushes the queue to Supabase using upsert for all tables.
+// Ledger tables (habit_logs, freeze_ledger, slot_events, mastered_archive) use
+// ignoreDuplicates=true — a conflict means the row already exists on the server,
+// which is the desired idempotent outcome.
+// Mutable tables (habit_slots, assessment_answers, profiles) use regular upsert
+// so retakes and profile edits overwrite cleanly.
+//
+// Error handling:
+//   - 401 / auth error: abort entire drain, leave queue intact.
+//   - Network or 5xx: stop at that item, schedule 5s retry, preserve order.
+//   - Conflict on ledger insert (handled by ignoreDuplicates): silent success.
+//
+// RECONNECT SEQUENCE
+// ──────────────────
+// Order is strict — do not deviate:
+//   1. isSyncing = true   ← gates Phase 5 Realtime handlers
+//   2. drain()            ← flush local writes FIRST (local intent wins)
+//   3. reconnectCallback  ← hydrate all tables with forceRemote=true + reconcile
+//   4. isSyncing = false  ← Realtime resumes
+//
+// Drain before hydrate is the critical invariant. Your local queue represents
+// intent — things you did offline. Hydrating first would let server state
+// overwrite your local writes before they're committed.
+// ─────────────────────────────────────────────────────────────────────────────
 
-// ─── onConflict targets per table ────────────────────────────────────────────
+import { defineStore } from 'pinia'
+import { ref, computed, watch } from 'vue'
+import { useOnline } from '@vueuse/core'
+import type { SyncQueueItem, SyncStatus } from '@/types/app'
+import type { PersistenceOptions } from 'pinia-plugin-persistedstate'
+import type { RealtimeChannel } from '@supabase/supabase-js'
+import { supabase } from '@/services/supabase'
+
+// ─── ON_CONFLICT targets per table ───────────────────────────────────────────
+//
+// Ledger tables: append-only, ignoreDuplicates=true — conflict = row already
+// on server = silent success, no data lost.
+// Mutable tables: conflict = update (upsert semantics).
+
+const LEDGER_TABLES = new Set([
+  'habit_logs',
+  'freeze_ledger',
+  'slot_events',
+  'mastered_archive',
+])
 
 const ON_CONFLICT: Record<string, string> = {
-  profiles: "user_id",
-  assessment_answers: "user_id,section_id",
-  habit_slots: "user_id,template_id",
-  mastery_state: "user_id",
-  mastered_archive: "user_id,template_id",
-};
+  habit_logs:         'user_id,template_id,date',
+  freeze_ledger:      'user_id,template_id,date,reason',
+  slot_events:        'user_id,template_id,created_at',
+  mastered_archive:   'user_id,template_id',
+  habit_slots:        'user_id,template_id',
+  assessment_answers: 'user_id,section_id',
+  profiles:           'user_id',
+}
+
+// ─── Realtime handler contract ────────────────────────────────────────────────
+//
+// startRealtime() accepts this shape from App.vue. App.vue is the only place
+// that imports both sync.ts and mastery.ts, so passing handlers as callbacks
+// avoids a circular dependency (mastery.ts already imports sync.ts).
+
+interface RealtimeHandlers {
+  onHabitLog:      (row: Record<string, unknown>) => void
+  onFreezeRow:     (row: Record<string, unknown>) => void
+  onSlotEvent:     (row: Record<string, unknown>) => void
+  onMasteredEntry: (row: Record<string, unknown>) => void
+}
 
 export const useSyncStore = defineStore(
-  "sync",
+  'sync',
   () => {
-    // ─── State ──────────────────────────────────────────────────────────────
+    // ── State ────────────────────────────────────────────────────────────────
 
-    /** Pending writes to Supabase. Persisted so the queue survives page refreshes. */
-    const queue = ref<SyncQueueItem[]>([]);
+    // Pending writes to Supabase. Persisted so the queue survives page refreshes.
+    const queue = ref<SyncQueueItem[]>([])
 
-    /** Reactive online status via VueUse — no manual init or window listeners needed. */
-    const isOnline = useOnline();
+    // Reactive online status via VueUse
+    const isOnline = useOnline()
 
-    /**
-     * True once hydration has completed (or been confirmed unnecessary).
-     * No writes go to Supabase until this is set. Not persisted.
-     */
-    const isHydrated = ref(false);
+    // True once hydration has completed. No writes go to Supabase until set.
+    // Not persisted — always false on fresh page load until runHydration completes.
+    const isHydrated = ref(false)
 
-    /**
-     * True while a Supabase hydration pull is in flight.
-     * Set by beginHydrating(); cleared by setHydrated() or endHydrating().
-     * Not persisted.
-     */
-    const isHydrating = ref(false);
+    // True while a Supabase hydration pull is in flight. Not persisted.
+    const isHydrating = ref(false)
 
-    /**
-     * Optional async callback registered by App.vue.
-     * Called when the device comes back online, before the queue is drained.
-     * This is where the caller re-hydrates all stores from Supabase so that
-     * the drain pushes state that already reflects what other devices wrote.
-     */
-    let reconnectCallback: (() => Promise<void>) | null = null;
+    // True during the reconnect flush+backfill window.
+    // All four Phase 5 Realtime handlers check isSyncing at entry and early-return
+    // if true — prevents incoming server rows from interfering with drain/hydrate.
+    const isSyncing = ref(false)
+
+    // Callback registered by App.vue. Called during the reconnect sequence,
+    // after drain() completes. Handles re-hydration with forceRemote=true
+    // and runs reconcile() after hydration.
+    let reconnectCallback: (() => Promise<void>) | null = null
 
     function onReconnect(cb: () => Promise<void>) {
-      reconnectCallback = cb;
+      reconnectCallback = cb
     }
 
-    // ─── Computed ────────────────────────────────────────────────────────────
+    // ── Computed ─────────────────────────────────────────────────────────────
 
     const status = computed<SyncStatus>(() => {
-      if (!isOnline.value) return "offline";
-      if (isHydrating.value) return "hydrating";
-      if (queue.value.length > 0) return "syncing";
-      return "synced";
-    });
+      if (!isOnline.value) return 'offline'
+      if (isHydrating.value) return 'hydrating'
+      if (queue.value.length > 0) return 'syncing'
+      return 'synced'
+    })
 
-    // ─── Actions ─────────────────────────────────────────────────────────────
+    // ── Drain ─────────────────────────────────────────────────────────────────
+
+    // Mutex: prevents concurrent drain() calls from racing each other.
+    let draining = false
 
     /**
-     * Call once from App.vue onMounted.
-     * Wires the reconnect/drain logic to the reactive isOnline ref and
-     * performs an initial drain if already online and hydrated.
+     * Flush the sync queue to Supabase sequentially.
+     *
+     * Items are processed one at a time. Order matters — a slot_events 'added'
+     * row must reach the server before the habit_logs rows for that template.
+     *
+     * Returns when the queue is empty or an unrecoverable error stops processing.
      */
-    function init() {
-      // isOnline is already reactive via useOnline — no window listeners needed.
-      // Move the reconnect + drain logic into a watcher so it fires whenever
-      // the device comes back online.
-      watch(isOnline, async (online) => {
-        if (!online) return;
-        if (!isHydrated.value) return;
+    async function drain(): Promise<void> {
+      if (!isOnline.value || !isHydrated.value || queue.value.length === 0) return
+      if (draining) return
+      draining = true
 
-        // Re-pull from Supabase before draining so the queue reflects what
-        // other devices wrote while this one was offline. Without this step,
-        // the drain would push a stale snapshot and potentially overwrite
-        // progress made on another device (even with the DB-side merge guards).
-        if (reconnectCallback) {
-          try {
-            await reconnectCallback();
-          } catch {
-            // Hydration failed (network still flaky, session expired, etc.).
-            // Leave the queue intact — the next online event will retry.
-            return;
+      try {
+        // Verify session before starting — no point draining without auth.
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          // No session — leave queue intact for after next login.
+          return
+        }
+
+        while (queue.value.length > 0) {
+          const item = queue.value[0]!
+          const isLedger = LEDGER_TABLES.has(item.table)
+          const conflictTarget = ON_CONFLICT[item.table]
+
+          const { error } = await supabase
+            .from(item.table)
+            .upsert(item.payload as Record<string, unknown>, {
+              onConflict: conflictTarget,
+              // Ledger tables: conflict = row already on server → do nothing (idempotent).
+              // Mutable tables: conflict = update with incoming values.
+              ignoreDuplicates: isLedger,
+            })
+
+          if (error) {
+            if (error.status === 401) {
+              // Auth error — abort entire drain. Queue stays intact.
+              // The user will need to re-authenticate before the next drain.
+              break
+            }
+            // Network error or 5xx — stop at this item. Everything after
+            // it stays in the queue in order. Retry in 5 seconds.
+            setTimeout(() => drain(), 5000)
+            break
           }
-        }
 
-        if (queue.value.length > 0) {
-          drain();
+          // Success — remove from front of queue.
+          queue.value.shift()
         }
-      });
-
-      if (isOnline.value && isHydrated.value && queue.value.length > 0) {
-        drain();
+      } finally {
+        draining = false
       }
     }
 
+    // ── Queue management ──────────────────────────────────────────────────────
+
     /**
-     * Add or merge an item into the queue by dedup id.
-     * - profiles: shallow-merges payload into the existing entry
-     * - all other tables: last write wins (new payload replaces old)
-     * No-ops silently if isHydrated is false.
+     * Add an item to the sync queue.
+     *
+     * Dedup by item.id:
+     *   - Not found → append.
+     *   - Found, table is 'profiles' → shallow merge payload (incoming fields win).
+     *   - Found, any other table → last-write-wins (replace entire item).
+     *
+     * No-op if isHydrated is false — writes before hydration are discarded
+     * because we don't yet know what's already on the server.
      */
     function enqueue(item: SyncQueueItem) {
-      if (!isHydrated.value) return;
+      if (!isHydrated.value) return
 
-      const existingIndex = queue.value.findIndex((q) => q.id === item.id);
+      const existingIndex = queue.value.findIndex((q) => q.id === item.id)
 
       if (existingIndex === -1) {
-        queue.value.push(item);
-      } else if (item.table === "profiles") {
-        // Shallow merge: incoming fields win over existing, other fields are preserved.
-        const existing = queue.value[existingIndex]!;
+        queue.value.push(item)
+      } else if (item.table === 'profiles') {
+        const existing = queue.value[existingIndex]!
         queue.value[existingIndex] = {
           id: existing.id,
           table: existing.table,
           operation: existing.operation,
           payload: { ...existing.payload, ...item.payload },
           enqueuedAt: item.enqueuedAt,
-        };
+        }
       } else {
-        // Last write wins.
-        queue.value[existingIndex] = item;
+        queue.value[existingIndex] = item
       }
 
-      // Kick off a drain immediately — don't wait for the next online event or page refresh.
       if (isOnline.value) {
-        drain();
+        drain()
       }
     }
 
-    /**
-     * Remove all queue entries for a given table.
-     * Called when local data for a table is wiped (e.g. assessment clearAll).
-     */
+    /** Remove all queue entries for a given table. */
     function dequeueByTable(table: string) {
-      queue.value = queue.value.filter((item) => item.table !== table);
+      queue.value = queue.value.filter((item) => item.table !== table)
     }
 
-    /** Wipe the entire queue. Called on logout. */
     function clearQueue() {
-      queue.value = [];
+      queue.value = []
     }
 
-    /** Signal that a Supabase pull is starting. */
+    // ── Hydration state ───────────────────────────────────────────────────────
+
     function beginHydrating() {
-      isHydrating.value = true;
+      isHydrating.value = true
     }
 
-    /** Signal that a reconnect hydration pull finished (without calling setHydrated). */
     function endHydrating() {
-      isHydrating.value = false;
+      isHydrating.value = false
     }
 
     /**
-     * Mark hydration as complete. Triggers a drain if online and queue is non-empty.
+     * Mark hydration complete. Called by AuthView after all stores have pulled
+     * their data from Supabase. Triggers an immediate drain if online and the
+     * queue has items (e.g. writes made during the hydration window).
      */
     function setHydrated() {
-      isHydrating.value = false;
-      isHydrated.value = true;
+      isHydrating.value = false
+      isHydrated.value = true
       if (isOnline.value && queue.value.length > 0) {
-        drain();
+        drain()
       }
     }
 
-    // Concurrency guard: prevents two simultaneous drain() calls (e.g. from
-    // setHydrated() and the online event handler firing together on reconnect)
-    // from racing over the same queue items.
-    let draining = false;
+    // ── Init — reconnect watcher ──────────────────────────────────────────────
 
     /**
-     * Flush the queue to Supabase sequentially.
+     * Attach the online/offline watcher. Call once from App.vue after
+     * onReconnect() has been registered.
      *
-     * - Checks for a valid session before starting; bails (without clearing)
-     *   if there is none.
-     * - Processes items one at a time — order matters for delete+upsert pairs
-     *   on the same PK (e.g. swapHabit).
-     * - Successful items are spliced from the queue immediately.
-     * - On 401 / auth error: aborts the entire drain, leaves remaining items.
-     * - On network or 5xx error: stops at that item, leaves it and all
-     *   subsequent items for the next drain call.
+     * Reconnect sequence (strict order):
+     *   1. isSyncing = true   — gate Phase 5 Realtime handlers
+     *   2. await drain()      — flush local writes before looking at server state
+     *   3. reconnectCallback  — hydrate forceRemote + reconcile
+     *   4. isSyncing = false  — Realtime resumes
+     *
+     * The cold-start drain (bottom of function) handles items already in the
+     * persisted queue when the app loads while online and hydrated.
      */
-    async function drain() {
-      if (!isOnline.value || !isHydrated.value || queue.value.length === 0) return;
-      if (draining) return;
-      draining = true;
+    function init() {
+      watch(isOnline, async (online) => {
+        if (!online) return
+        if (!isHydrated.value) return
 
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session) return;
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const db = supabase as any;
-
-        // Always process queue[0]: on success it is spliced out so the next
-        // item shifts into position; on any failure we return immediately,
-        // leaving the item (and everything behind it) for the next drain call.
-        while (queue.value.length > 0) {
-          const item = queue.value[0]!;
-
-          try {
-            if (item.operation === "upsert") {
-              const onConflict = ON_CONFLICT[item.table];
-              const { error } = await db
-                .from(item.table)
-                .upsert(item.payload, onConflict ? { onConflict } : undefined);
-
-              if (error) {
-                console.warn(
-                  `[sync] upsert failed on table="${item.table}" id="${item.id}"`,
-                  error,
-                );
-                // 401 / JWT expired — abort the whole drain
-                if (error.status === 401 || error.code === "PGRST301") return;
-                // 23505 unique_violation — retrying will never succeed; drop the
-                // item so the queue doesn't stall. This is a last-resort guard;
-                // the frontend uniqueness check (is_roll_no_available RPC) should
-                // have caught this before the item was enqueued.
-                if (error.code === "23505") {
-                  console.error(
-                    `[sync] dropping unresolvable conflict on table="${item.table}" id="${item.id}"`,
-                    error,
-                  );
-                  queue.value.splice(0, 1);
-                  continue;
-                }
-                // Network / 5xx — stop here and schedule a retry so the queue
-                // doesn't stall indefinitely if the device never goes offline.
-                setTimeout(() => {
-                  if (isOnline.value) drain();
-                }, 5_000);
-                return;
-              }
-            } else {
-              // delete — payload contains only PK fields
-              const { error } = await db.from(item.table).delete().match(item.payload);
-
-              if (error) {
-                console.warn(
-                  `[sync] delete failed on table="${item.table}" id="${item.id}"`,
-                  error,
-                );
-                if (error.status === 401 || error.code === "PGRST301") return;
-                setTimeout(() => {
-                  if (isOnline.value) drain();
-                }, 5_000);
-                return;
-              }
-            }
-            queue.value.splice(0, 1);
-          } catch (err) {
-            console.warn(`[sync] network error on table="${item.table}" id="${item.id}"`, err);
-            // Network error (fetch threw) — stop draining and schedule a retry
-            // so the queue doesn't stall if the device never goes offline.
-            setTimeout(() => {
-              if (isOnline.value) drain();
-            }, 5_000);
-            return;
+        isSyncing.value = true
+        try {
+          await drain()
+          if (reconnectCallback) {
+            await reconnectCallback()
           }
+        } finally {
+          isSyncing.value = false
         }
-      } finally {
-        draining = false;
+      })
+
+      // Cold start: if we're already online+hydrated (cached session fast path)
+      // and the queue has persisted items, drain immediately.
+      if (isOnline.value && isHydrated.value && queue.value.length > 0) {
+        drain()
       }
+    }
+
+    // ── Realtime channel management ───────────────────────────────────────────
+    //
+    // One RealtimeChannel per ledger table — INSERT only.
+    // All four handlers check isSyncing at entry and return immediately if true,
+    // so no Realtime rows land while a drain()+hydrate cycle is in progress.
+    //
+    // startRealtime() is called by App.vue once, when isHydrated becomes true.
+    // stopRealtime() is called when isHydrated drops back to false (logout).
+    // Calling startRealtime() a second time safely tears down the previous
+    // channels first, so no double-subscription can occur.
+
+    let channels: RealtimeChannel[] = []
+
+    function startRealtime(handlers: RealtimeHandlers): void {
+      stopRealtime()
+
+      const tableHandlers: Array<{
+        table: string
+        handler: (row: Record<string, unknown>) => void
+      }> = [
+        { table: 'habit_logs',       handler: handlers.onHabitLog },
+        { table: 'freeze_ledger',    handler: handlers.onFreezeRow },
+        { table: 'slot_events',      handler: handlers.onSlotEvent },
+        { table: 'mastered_archive', handler: handlers.onMasteredEntry },
+      ]
+
+      for (const { table, handler } of tableHandlers) {
+        const channel = supabase
+          .channel(`realtime:${table}`)
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table },
+            (payload) => {
+              // Gate: drop the event if a drain/hydrate cycle is in progress.
+              // The reconnect sequence will pull the row via hydrateFromSupabase().
+              if (isSyncing.value) return
+              handler(payload.new as Record<string, unknown>)
+            },
+          )
+          .subscribe()
+        channels.push(channel)
+      }
+    }
+
+    function stopRealtime(): void {
+      for (const channel of channels) {
+        supabase.removeChannel(channel)
+      }
+      channels = []
     }
 
     return {
@@ -275,6 +347,7 @@ export const useSyncStore = defineStore(
       isOnline,
       isHydrated,
       isHydrating,
+      isSyncing,
       status,
       init,
       onReconnect,
@@ -285,14 +358,15 @@ export const useSyncStore = defineStore(
       clearQueue,
       setHydrated,
       drain,
-    };
+      startRealtime,
+      stopRealtime,
+    }
   },
   {
     persist: {
-      key: "sync-store",
+      key: 'sync-store',
       storage: localStorage,
-      // Only queue survives page refresh; isOnline, isHydrated, and isHydrating are runtime state.
-      pick: ["queue"],
+      pick: ['queue'],
     } as PersistenceOptions,
   },
-);
+)

@@ -1,24 +1,39 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useProfileStore } from "@/stores/profile";
-import { useLogout } from "@/composables/useLogout";
-import { useSyncStore } from "@/stores/sync";
-import { openFeedbackForm } from "@/services/feedbackForm";
-import AppBarProfile from "@/components/app/AppBarProfile.vue";
+import { ref } from "vue"
+import { useProfileStore } from "@/stores/profile"
+import { useLogout } from "@/composables/useLogout"
+import { useSyncStore } from "@/stores/sync"
+import { openFeedbackForm } from "@/services/feedbackForm"
+import AppBarProfile from "@/components/app/AppBarProfile.vue"
 
-const { logout, loggingOut } = useLogout();
-const store = useProfileStore();
-const syncStore = useSyncStore();
+const { logout, loggingOut } = useLogout()
+const store = useProfileStore()
+const syncStore = useSyncStore()
+const showLogoutWarning = ref(false)
 
-const showLogoutWarning = ref(false);
-
+// TODO [ProfileView > Logout]
+// If queue.length > 0 → show warning dialog
+// Otherwise → logout() directly (drain best-effort, resetAllStores, signOut, navigate /auth)
 function handleLogoutClick() {
   if (syncStore.queue.length > 0) {
-    showLogoutWarning.value = true;
+    showLogoutWarning.value = true
   } else {
-    logout();
+    logout()
   }
 }
+
+// TODO [ProfileView > Reset assessment]
+// Confirmation dialog. On confirm:
+// 1. assessmentStore.clearAll() — clears local state + dequeues pending items
+// 2. Call Supabase directly to DELETE all assessment_answers for this user
+//    (must succeed before confirming — destructive)
+
+// TODO [ProfileView > Delete account]
+// Confirmation dialog. On confirm:
+// 1. Call Supabase Edge Function that deletes all user data server-side
+// 2. resetAllStores()
+// 3. supabase.auth.signOut()
+// 4. Navigate to AuthView
 </script>
 
 <template>

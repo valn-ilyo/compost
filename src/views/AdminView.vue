@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 // TODO [Phase 4] Restore admin analytics — depends on Supabase RPC (SECURITY DEFINER)
 // This view is non-functional during Phase 2 and Phase 3 (no Supabase calls yet)
 // The admin RPC query and all analytics rendering logic go here in Phase 4.
@@ -9,7 +9,6 @@ const router = useRouter()
 </script>
 
 <template>
-  <!-- ── App bar ────────────────────────────────────────────────────────────── -->
   <v-app-bar color="primary" flat class="border border-b">
     <template #prepend>
       <v-btn
@@ -35,7 +34,7 @@ const router = useRouter()
               transition: { type: 'spring', stiffness: 260, damping: 22 },
             }"
           >
-            <!-- ── Identity card ─────────────────────────────────────────── -->
+            ── Identity card ───────────────────────────────────────────
             <v-card flat class="mb-4 text-center">
               <v-list-item
                 :title="profileStore.profile?.name || 'Admin'"
@@ -43,7 +42,7 @@ const router = useRouter()
               />
             </v-card>
 
-            <!-- ── Filters ──────────────────────────────────────────────── -->
+            ── Filters ────────────────────────────────────────────────
             <div class="text-overline text-medium-emphasis px-1 mb-4">Filters</div>
             <v-row dense class="mb-4">
               <v-col cols="6">
@@ -71,19 +70,19 @@ const router = useRouter()
               </v-col>
             </v-row>
 
-            <!-- ── Loading ───────────────────────────────────────────────── -->
+            ── Loading ─────────────────────────────────────────────────
             <template v-if="loading">
               <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
               <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
               <v-skeleton-loader type="card" class="rounded-xl" />
             </template>
 
-            <!-- ── Error ─────────────────────────────────────────────────── -->
+            ── Error ───────────────────────────────────────────────────
             <v-alert v-else-if="error" type="error" rounded="xl" class="mb-4">
               {{ error }}
             </v-alert>
 
-            <!-- ── Empty state ───────────────────────────────────────────── -->
+            ── Empty state ─────────────────────────────────────────────
             <v-card v-else-if="isEmpty" rounded="xl" border flat class="mb-4">
               <v-card-text class="text-center pa-8">
                 <v-icon
@@ -113,7 +112,7 @@ const router = useRouter()
             </v-card>
 
             <template v-else-if="analytics">
-              <!-- ── 1. Totals ─────────────────────────────────────────── -->
+              ── 1. Totals ───────────────────────────────────────────
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Overview</div>
               <v-row dense class="mb-4">
                 <v-col cols="6">
@@ -158,7 +157,7 @@ const router = useRouter()
                 </v-col>
               </v-row>
 
-              <!-- ── 2. Band distribution — VPie ───────────────────────── -->
+              ── 2. Band distribution — VPie ─────────────────────────
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">
                 Eco band distribution
               </div>
@@ -198,7 +197,7 @@ const router = useRouter()
                 </v-card-text>
               </v-card>
 
-              <!-- ── 3. Section averages ───────────────────────────────── -->
+              ── 3. Section averages ─────────────────────────────────
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Section averages</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-table density="comfortable">
@@ -259,7 +258,7 @@ const router = useRouter()
                 </v-table>
               </v-card>
 
-              <!-- ── 4. Habit states ───────────────────────────────────── -->
+              ── 4. Habit states ─────────────────────────────────────
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habit states</div>
               <v-row dense class="mb-4">
                 <v-col cols="4">
@@ -294,7 +293,7 @@ const router = useRouter()
                 </v-col>
               </v-row>
 
-              <!-- ── 5. Habit adoption ─────────────────────────────────────────── -->
+              ── 5. Habit adoption ───────────────────────────────────────────
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habits</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-data-table
@@ -326,7 +325,7 @@ const router = useRouter()
                 </v-data-table>
               </v-card>
 
-              <!-- ── 6. Gender breakdown ───────────────────────────────── -->
+              ── 6. Gender breakdown ─────────────────────────────────
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Gender breakdown</div>
               <v-card rounded="xl" border flat class="mb-6">
                 <v-card-text class="pa-4">
@@ -371,4 +370,4 @@ const router = useRouter()
       </v-row>
     </v-container>
   </v-main>
-</template>
+</template> -->

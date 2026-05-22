@@ -265,7 +265,7 @@ export interface SyncQueueItem {
    *             Used for all habit_slots and habit_pause_events writes (slot_add,
    *             slot_pause, slot_resume, slot_remove, slot_retire).
    */
-  operation: 'upsert' | 'delete' | 'rpc';
+  operation: "upsert" | "delete" | "rpc";
   /** Supabase table name — required for upsert/delete, unused for rpc. */
   table?: string;
   /** RPC function name — required when operation = 'rpc'. */
@@ -293,8 +293,9 @@ export interface HabitLog {
   template_id: string;
   /** YYYY-MM-DD (IST) */
   date: string;
-  value: 'yes' | 'no';
+  value: "yes" | "no";
   created_at: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -306,10 +307,11 @@ export interface FreezeLedgerRow {
   template_id: string;
   /** +1 for earned, -1 for spent */
   delta: number;
-  reason: 'milestone' | 'mastery' | 'spent';
+  reason: "milestone" | "mastery" | "spent";
   /** YYYY-MM-DD */
   date: string;
   created_at: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -330,7 +332,7 @@ export interface FreezeLedgerRow {
 export interface HabitSlot {
   user_id: string;
   template_id: string;
-  status: 'active' | 'paused';
+  status: "active" | "paused";
   created_at: string;
 }
 
@@ -358,7 +360,8 @@ export interface MasteredEntry {
   user_id: string;
   template_id: string;
   created_at: string;
+  [key: string]: unknown;
 }
 
 /** Session-scoped event produced by reconcile(). Never persisted. */
-export type LedgerReconcileEvent = { type: 'lost'; templateId: string; streak: number };
+export type LedgerReconcileEvent = { type: "lost"; templateId: string; streak: number };

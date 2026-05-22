@@ -8,19 +8,24 @@ import { useSyncStore } from "@/stores/sync";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useProfileStore } from "@/stores/profile";
 import { supabase } from "@/services/supabase";
-import type { HabitLog, FreezeLedgerRow, HabitSlot, HabitPauseEvent, MasteredEntry } from "@/types/app";
+import type {
+  HabitLog,
+  FreezeLedgerRow,
+  HabitSlot,
+  HabitPauseEvent,
+  MasteredEntry,
+} from "@/types/app";
 import { onMidnight } from "@/utils/clock";
 
-const masteryStore   = useMasteryStore();
+const masteryStore = useMasteryStore();
 const assessmentStore = useAssessmentStore();
-const profileStore   = useProfileStore();
-const syncStore      = useSyncStore();
+const profileStore = useProfileStore();
+const syncStore = useSyncStore();
 
 useThemeStore();
 useMasteryRecommendations();
 
 onMounted(() => {
-
   // ── Cap rejection callback ─────────────────────────────────────────────────
   //
   // Registered before init() so it is in place the moment drain() might
@@ -33,7 +38,9 @@ onMounted(() => {
   // (circular dependency: mastery.ts already imports sync.ts).
 
   syncStore.setCapRejectionCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) return;
     await masteryStore.hydrateFromSupabase(session.user.id, true);
     masteryStore.reconcile();
@@ -46,11 +53,13 @@ onMounted(() => {
   // devices wrote while offline.
 
   syncStore.onReconnect(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) return;
 
     const userId = session.user.id;
-    const email  = session.user.email ?? undefined;
+    const email = session.user.email ?? undefined;
 
     syncStore.beginHydrating();
     try {
@@ -85,20 +94,19 @@ onMounted(() => {
     (hydrated) => {
       if (hydrated) {
         syncStore.startRealtime({
-          onHabitLog: (row) =>
-            masteryStore.mergeHabitLog(row as HabitLog),
+          onHabitLog: (row) => masteryStore.mergeHabitLog(row as unknown as HabitLog),
 
           onFreezeRow: (row) =>
-            masteryStore.mergeFreezeLedgerRow(row as FreezeLedgerRow),
+            masteryStore.mergeFreezeLedgerRow(row as unknown as FreezeLedgerRow),
 
           onHabitSlot: (row, eventType) =>
-            masteryStore.mergeHabitSlot(row as HabitSlot, eventType),
+            masteryStore.mergeHabitSlot(row as unknown as HabitSlot, eventType),
 
           onPauseEvent: (row, eventType) =>
-            masteryStore.mergePauseEvent(row as HabitPauseEvent, eventType),
+            masteryStore.mergePauseEvent(row as unknown as HabitPauseEvent, eventType),
 
           onMasteredEntry: (row) =>
-            masteryStore.mergeMasteredArchiveRow(row as MasteredEntry),
+            masteryStore.mergeMasteredArchiveRow(row as unknown as MasteredEntry),
         });
       } else {
         syncStore.stopRealtime();

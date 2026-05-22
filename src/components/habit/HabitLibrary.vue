@@ -31,7 +31,7 @@ const templates = computed(() =>
 
 const grouped = computed(() => ({
   mastered: store.masteredArchive
-    .map((entry) => templates.value.find((t) => t.id === entry.templateId))
+    .map((entry) => templates.value.find((t) => t.id === entry.template_id))
     .filter((t): t is (typeof templates.value)[number] => t !== undefined),
   paused: templates.value.filter((t) => t.isPaused),
   recommended: templates.value.filter(

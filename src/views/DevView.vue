@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
@@ -68,7 +68,7 @@ function previewAuthState(state: "loading" | "error"): void {
     <v-container>
       <v-row justify="center">
         <v-col cols="12" md="6">
-          <!-- ── AuthView preview ───────────────────────────────────────────────── -->
+           ── AuthView preview ─────────────────────────────────────────────────
           <v-card rounded="lg" class="mb-4">
             <v-card-title class="text-body-1 pt-4">AuthView states</v-card-title>
             <v-card-actions>
@@ -91,7 +91,7 @@ function previewAuthState(state: "loading" | "error"): void {
             </v-card-actions>
           </v-card>
 
-          <!-- ── Simulate new day ──────────────────────────────────────────────── -->
+           ── Simulate new day ────────────────────────────────────────────────
           <v-card rounded="lg" class="mb-4">
             <v-card-title class="text-body-1 pt-4">Time</v-card-title>
             <v-card-text>
@@ -111,7 +111,7 @@ function previewAuthState(state: "loading" | "error"): void {
             </v-card-text>
           </v-card>
 
-          <!-- ── Global freeze tokens ──────────────────────────────────────────── -->
+           ── Global freeze tokens ────────────────────────────────────────────
           <v-card rounded="lg" class="mb-4">
             <v-card-title class="text-body-1 pt-4">Freeze tokens</v-card-title>
             <v-card-text>
@@ -135,7 +135,7 @@ function previewAuthState(state: "loading" | "error"): void {
             </v-card-text>
           </v-card>
 
-          <!-- ── Per-habit editors ─────────────────────────────────────────────── -->
+           ── Per-habit editors ───────────────────────────────────────────────
           <template v-if="store.slots.length > 0">
             <v-card v-for="habit in store.slots" :key="habit.id" rounded="lg" class="mb-4">
               <v-list-item :title="habit.name" density="compact" class="pt-3">
@@ -192,7 +192,7 @@ function previewAuthState(state: "loading" | "error"): void {
             text="No habits in the store. Add some from the Mastery view first."
           />
 
-          <!-- ── Clear store ───────────────────────────────────────────────────── -->
+           ── Clear store ─────────────────────────────────────────────────────
           <v-card rounded="lg">
             <v-card-title class="text-body-1 pt-4">Danger zone</v-card-title>
             <v-card-text>
@@ -211,4 +211,4 @@ function previewAuthState(state: "loading" | "error"): void {
       </v-row>
     </v-container>
   </v-main>
-</template>
+</template> -->

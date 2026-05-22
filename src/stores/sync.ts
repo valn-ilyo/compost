@@ -1,41 +1,63 @@
 // ─── syncStore ────────────────────────────────────────────────────────────────
-// Manages the offline queue and the reconnect sequence.
 //
 // QUEUE
 // ─────
 // Every store action that writes data calls enqueue(item). The item carries a
-// dedup key (table:pk1:pk2...), the table name, operation, and payload. The
-// queue is persisted to localStorage so it survives page refreshes while offline.
+// dedup key, the operation type, and a payload. The queue is persisted to
+// localStorage so it survives page refreshes while offline.
 //
-// Dedup: if the same id is enqueued twice, profiles use shallow merge; all others
-// are last-write-wins (the newer item replaces the older one). This prevents the
-// queue from growing unboundedly when the user edits the same thing repeatedly.
+// Dedup: if the same id is enqueued twice, profiles use shallow merge (incoming
+// fields win); all others are last-write-wins (newer item replaces the older).
 //
 // DRAIN
 // ─────
-// drain() flushes the queue to Supabase using upsert for all tables.
-// Ledger tables (habit_logs, freeze_ledger, slot_events, mastered_archive) use
-// ignoreDuplicates=true — a conflict means the row already exists on the server,
-// which is the desired idempotent outcome.
-// Mutable tables (habit_slots, assessment_answers, profiles) use regular upsert
-// so retakes and profile edits overwrite cleanly.
+// drain() flushes the queue to Supabase sequentially. Two operation paths:
 //
-// Error handling:
-//   - 401 / auth error: abort entire drain, leave queue intact.
-//   - Network or 5xx: stop at that item, schedule 5s retry, preserve order.
-//   - Conflict on ledger insert (handled by ignoreDuplicates): silent success.
+//   'upsert' — ledger tables (habit_logs, freeze_ledger, mastered_archive).
+//     ignoreDuplicates=true — conflict means row already on server, silent success.
+//     Mutable tables (assessment_answers, profiles) use regular upsert.
+//
+//   'rpc' — SECURITY DEFINER slot lifecycle RPCs.
+//     supabase.rpc(fn, payload). Three error categories:
+//
+//     slot_cap_exceeded (SQLSTATE P0001):
+//       State mismatch — the optimistic local update diverged from server state.
+//       Discard the item, call capRejectionCallback (which re-hydrates habit_slots
+//       + habit_pause_events and runs reconcile). Continue draining.
+//
+//     401 / auth error:
+//       Abort entire drain. Queue stays intact.
+//
+//     Network / 5xx:
+//       Stop at this item. Everything after stays in order. Retry in 5 seconds.
+//
+// CAP REJECTION CALLBACK
+// ──────────────────────
+// capRejectionCallback is registered by App.vue via setCapRejectionCallback().
+// It avoids a circular dependency — sync.ts cannot import mastery.ts (mastery.ts
+// already imports sync.ts). App.vue wires the two stores together:
+//
+//   syncStore.setCapRejectionCallback(async () => {
+//     await masteryStore.hydrateFromSupabase(masteryStore.userId)
+//     masteryStore.reconcile()
+//   })
 //
 // RECONNECT SEQUENCE
 // ──────────────────
 // Order is strict — do not deviate:
-//   1. isSyncing = true   ← gates Phase 5 Realtime handlers
-//   2. drain()            ← flush local writes FIRST (local intent wins)
-//   3. reconnectCallback  ← hydrate all tables with forceRemote=true + reconcile
+//   1. isSyncing = true   ← gates Realtime handlers
+//   2. drain()            ← flush local writes first (local intent wins)
+//   3. reconnectCallback  ← hydrate forceRemote + reconcile
 //   4. isSyncing = false  ← Realtime resumes
 //
-// Drain before hydrate is the critical invariant. Your local queue represents
-// intent — things you did offline. Hydrating first would let server state
-// overwrite your local writes before they're committed.
+// REALTIME SUBSCRIPTIONS (Phase 6D)
+// ──────────────────────────────────
+// habit_logs, freeze_ledger, mastered_archive — INSERT only (append-only).
+// habit_slots         — INSERT + UPDATE + DELETE (mutable server state).
+// habit_pause_events  — INSERT + UPDATE (windows open and close; never deleted).
+//
+// All handlers gate on isSyncing — events dropped during a drain/hydrate
+// cycle are recovered by the hydrateFromSupabase() full-replace that follows.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { defineStore } from 'pinia'
@@ -46,39 +68,37 @@ import type { PersistenceOptions } from 'pinia-plugin-persistedstate'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from '@/services/supabase'
 
-// ─── ON_CONFLICT targets per table ───────────────────────────────────────────
-//
-// Ledger tables: append-only, ignoreDuplicates=true — conflict = row already
-// on server = silent success, no data lost.
-// Mutable tables: conflict = update (upsert semantics).
+// ─── Ledger tables — append-only, ignoreDuplicates on upsert ─────────────────
 
 const LEDGER_TABLES = new Set([
   'habit_logs',
   'freeze_ledger',
-  'slot_events',
   'mastered_archive',
 ])
+
+// ─── ON_CONFLICT targets per mutable table ────────────────────────────────────
 
 const ON_CONFLICT: Record<string, string> = {
   habit_logs:         'user_id,template_id,date',
   freeze_ledger:      'user_id,template_id,date,reason',
-  slot_events:        'user_id,template_id,created_at',
   mastered_archive:   'user_id,template_id',
-  habit_slots:        'user_id,template_id',
   assessment_answers: 'user_id,section_id',
   profiles:           'user_id',
 }
 
 // ─── Realtime handler contract ────────────────────────────────────────────────
 //
-// startRealtime() accepts this shape from App.vue. App.vue is the only place
-// that imports both sync.ts and mastery.ts, so passing handlers as callbacks
+// startRealtime() accepts this shape from App.vue. Passing handlers as callbacks
 // avoids a circular dependency (mastery.ts already imports sync.ts).
+//
+// onHabitSlot and onPauseEvent receive the event type so the merge handler can
+// distinguish INSERT, UPDATE, and DELETE without inspecting row fields.
 
-interface RealtimeHandlers {
+export interface RealtimeHandlers {
   onHabitLog:      (row: Record<string, unknown>) => void
   onFreezeRow:     (row: Record<string, unknown>) => void
-  onSlotEvent:     (row: Record<string, unknown>) => void
+  onHabitSlot:     (row: Record<string, unknown>, eventType: 'INSERT' | 'UPDATE' | 'DELETE') => void
+  onPauseEvent:    (row: Record<string, unknown>, eventType: 'INSERT' | 'UPDATE') => void
   onMasteredEntry: (row: Record<string, unknown>) => void
 }
 
@@ -87,37 +107,37 @@ export const useSyncStore = defineStore(
   () => {
     // ── State ────────────────────────────────────────────────────────────────
 
-    // Pending writes to Supabase. Persisted so the queue survives page refreshes.
-    const queue = ref<SyncQueueItem[]>([])
-
-    // Reactive online status via VueUse
-    const isOnline = useOnline()
-
-    // True once hydration has completed. No writes go to Supabase until set.
-    // Not persisted — always false on fresh page load until runHydration completes.
-    const isHydrated = ref(false)
-
-    // True while a Supabase hydration pull is in flight. Not persisted.
+    const queue      = ref<SyncQueueItem[]>([])
+    const isOnline   = useOnline()
+    const isHydrated  = ref(false)
     const isHydrating = ref(false)
 
     // True during the reconnect flush+backfill window.
-    // All four Phase 5 Realtime handlers check isSyncing at entry and early-return
-    // if true — prevents incoming server rows from interfering with drain/hydrate.
+    // All Realtime handlers check this at entry and return early if true —
+    // prevents incoming server rows from racing with drain/hydrate.
     const isSyncing = ref(false)
 
-    // Callback registered by App.vue. Called during the reconnect sequence,
-    // after drain() completes. Handles re-hydration with forceRemote=true
-    // and runs reconcile() after hydration.
+    // Registered by App.vue. Called after drain() in the reconnect sequence.
     let reconnectCallback: (() => Promise<void>) | null = null
 
-    function onReconnect(cb: () => Promise<void>) {
+    function onReconnect(cb: () => Promise<void>): void {
       reconnectCallback = cb
+    }
+
+    // Registered by App.vue after both stores are available.
+    // Called when drain() encounters a slot_cap_exceeded error on an RPC item.
+    // Signature: re-hydrate habit_slots + pause_events from server, then reconcile.
+    // Not stored as a ref — it's a module-level closure that never needs to be reactive.
+    let capRejectionCallback: (() => Promise<void>) | null = null
+
+    function setCapRejectionCallback(cb: () => Promise<void>): void {
+      capRejectionCallback = cb
     }
 
     // ── Computed ─────────────────────────────────────────────────────────────
 
     const status = computed<SyncStatus>(() => {
-      if (!isOnline.value) return 'offline'
+      if (!isOnline.value)   return 'offline'
       if (isHydrating.value) return 'hydrating'
       if (queue.value.length > 0) return 'syncing'
       return 'synced'
@@ -125,14 +145,14 @@ export const useSyncStore = defineStore(
 
     // ── Drain ─────────────────────────────────────────────────────────────────
 
-    // Mutex: prevents concurrent drain() calls from racing each other.
     let draining = false
 
     /**
      * Flush the sync queue to Supabase sequentially.
      *
-     * Items are processed one at a time. Order matters — a slot_events 'added'
-     * row must reach the server before the habit_logs rows for that template.
+     * Items are processed one at a time in enqueue order. Two operation paths:
+     *   'upsert' — supabase.from(table).upsert(payload, ...)
+     *   'rpc'    — supabase.rpc(fn, payload)
      *
      * Returns when the queue is empty or an unrecoverable error stops processing.
      */
@@ -142,40 +162,82 @@ export const useSyncStore = defineStore(
       draining = true
 
       try {
-        // Verify session before starting — no point draining without auth.
         const { data: { session } } = await supabase.auth.getSession()
-        if (!session) {
-          // No session — leave queue intact for after next login.
-          return
-        }
+        if (!session) return  // no session — leave queue intact for after next login
 
         while (queue.value.length > 0) {
           const item = queue.value[0]!
-          const isLedger = LEDGER_TABLES.has(item.table)
-          const conflictTarget = ON_CONFLICT[item.table]
 
-          const { error } = await supabase
-            .from(item.table)
-            .upsert(item.payload as Record<string, unknown>, {
-              onConflict: conflictTarget,
-              // Ledger tables: conflict = row already on server → do nothing (idempotent).
-              // Mutable tables: conflict = update with incoming values.
-              ignoreDuplicates: isLedger,
-            })
+          // ── RPC path ───────────────────────────────────────────────────────
+          if (item.operation === 'rpc') {
+            const { error } = await supabase.rpc(
+              item.fn!,
+              item.payload as Record<string, unknown>,
+            )
 
-          if (error) {
-            if (error.status === 401) {
-              // Auth error — abort entire drain. Queue stays intact.
-              // The user will need to re-authenticate before the next drain.
+            if (error) {
+              // State mismatch: server rejected the action because the cap was
+              // already full when the RPC ran. The optimistic local write is now
+              // diverged. Discard this item and let the callback re-sync state.
+              // Continue draining — subsequent items may still be valid.
+              if (error.code === 'P0001' && error.message?.includes('slot_cap_exceeded')) {
+                queue.value.shift()
+                capRejectionCallback?.()
+                continue
+              }
+
+              // Auth error: abort entire drain.
+              if (error.status === 401) break
+
+              // Network or 5xx: stop here, preserve order, retry in 5s.
+              setTimeout(() => drain(), 5000)
               break
             }
-            // Network error or 5xx — stop at this item. Everything after
-            // it stays in the queue in order. Retry in 5 seconds.
-            setTimeout(() => drain(), 5000)
-            break
+
+            queue.value.shift()
+            continue
           }
 
-          // Success — remove from front of queue.
+          // ── Upsert path ────────────────────────────────────────────────────
+          if (item.operation === 'upsert') {
+            const isLedger      = LEDGER_TABLES.has(item.table!)
+            const conflictTarget = ON_CONFLICT[item.table!]
+
+            const { error } = await supabase
+              .from(item.table!)
+              .upsert(item.payload as Record<string, unknown>, {
+                onConflict:       conflictTarget,
+                ignoreDuplicates: isLedger,
+              })
+
+            if (error) {
+              if (error.status === 401) break
+              setTimeout(() => drain(), 5000)
+              break
+            }
+
+            queue.value.shift()
+            continue
+          }
+
+          // ── Delete path (not currently used) ──────────────────────────────
+          if (item.operation === 'delete') {
+            const { error } = await supabase
+              .from(item.table!)
+              .delete()
+              .match(item.payload as Record<string, unknown>)
+
+            if (error) {
+              if (error.status === 401) break
+              setTimeout(() => drain(), 5000)
+              break
+            }
+
+            queue.value.shift()
+            continue
+          }
+
+          // Unknown operation — discard to avoid infinite loop.
           queue.value.shift()
         }
       } finally {
@@ -189,143 +251,118 @@ export const useSyncStore = defineStore(
      * Add an item to the sync queue.
      *
      * Dedup by item.id:
-     *   - Not found → append.
-     *   - Found, table is 'profiles' → shallow merge payload (incoming fields win).
-     *   - Found, any other table → last-write-wins (replace entire item).
+     *   Not found          → append.
+     *   Found, 'profiles'  → shallow merge payload (incoming fields win).
+     *   Found, everything else → last-write-wins (replace entire item).
+     *
+     * RPC items: always last-write-wins (item.table is undefined so the
+     * profiles merge branch never fires).
      *
      * No-op if isHydrated is false — writes before hydration are discarded
      * because we don't yet know what's already on the server.
      */
-    function enqueue(item: SyncQueueItem) {
+    function enqueue(item: SyncQueueItem): void {
       if (!isHydrated.value) return
 
-      const existingIndex = queue.value.findIndex((q) => q.id === item.id)
+      const existingIndex = queue.value.findIndex(q => q.id === item.id)
 
       if (existingIndex === -1) {
         queue.value.push(item)
       } else if (item.table === 'profiles') {
         const existing = queue.value[existingIndex]!
         queue.value[existingIndex] = {
-          id: existing.id,
-          table: existing.table,
-          operation: existing.operation,
-          payload: { ...existing.payload, ...item.payload },
+          ...existing,
+          payload:    { ...existing.payload, ...item.payload },
           enqueuedAt: item.enqueuedAt,
         }
       } else {
         queue.value[existingIndex] = item
       }
 
-      if (isOnline.value) {
-        drain()
-      }
+      if (isOnline.value) drain()
     }
 
-    /** Remove all queue entries for a given table. */
-    function dequeueByTable(table: string) {
-      queue.value = queue.value.filter((item) => item.table !== table)
+    function dequeueByTable(table: string): void {
+      queue.value = queue.value.filter(item => item.table !== table)
     }
 
-    function clearQueue() {
+    function clearQueue(): void {
       queue.value = []
     }
 
     // ── Hydration state ───────────────────────────────────────────────────────
 
-    function beginHydrating() {
+    function beginHydrating(): void {
       isHydrating.value = true
     }
 
-    function endHydrating() {
+    function endHydrating(): void {
       isHydrating.value = false
     }
 
-    /**
-     * Mark hydration complete. Called by AuthView after all stores have pulled
-     * their data from Supabase. Triggers an immediate drain if online and the
-     * queue has items (e.g. writes made during the hydration window).
-     */
-    function setHydrated() {
+    function setHydrated(): void {
       isHydrating.value = false
-      isHydrated.value = true
-      if (isOnline.value && queue.value.length > 0) {
-        drain()
-      }
+      isHydrated.value  = true
+      if (isOnline.value && queue.value.length > 0) drain()
     }
 
     // ── Init — reconnect watcher ──────────────────────────────────────────────
 
-    /**
-     * Attach the online/offline watcher. Call once from App.vue after
-     * onReconnect() has been registered.
-     *
-     * Reconnect sequence (strict order):
-     *   1. isSyncing = true   — gate Phase 5 Realtime handlers
-     *   2. await drain()      — flush local writes before looking at server state
-     *   3. reconnectCallback  — hydrate forceRemote + reconcile
-     *   4. isSyncing = false  — Realtime resumes
-     *
-     * The cold-start drain (bottom of function) handles items already in the
-     * persisted queue when the app loads while online and hydrated.
-     */
-    function init() {
+    function init(): void {
       watch(isOnline, async (online) => {
-        if (!online) return
-        if (!isHydrated.value) return
+        if (!online)              return
+        if (!isHydrated.value)    return
 
         isSyncing.value = true
         try {
           await drain()
-          if (reconnectCallback) {
-            await reconnectCallback()
-          }
+          if (reconnectCallback) await reconnectCallback()
         } finally {
           isSyncing.value = false
         }
       })
 
-      // Cold start: if we're already online+hydrated (cached session fast path)
-      // and the queue has persisted items, drain immediately.
-      if (isOnline.value && isHydrated.value && queue.value.length > 0) {
-        drain()
-      }
+      // Cold start: persisted queue + already online+hydrated (fast cached session).
+      if (isOnline.value && isHydrated.value && queue.value.length > 0) drain()
     }
 
     // ── Realtime channel management ───────────────────────────────────────────
     //
-    // One RealtimeChannel per ledger table — INSERT only.
-    // All four handlers check isSyncing at entry and return immediately if true,
-    // so no Realtime rows land while a drain()+hydrate cycle is in progress.
-    //
     // startRealtime() is called by App.vue once, when isHydrated becomes true.
     // stopRealtime() is called when isHydrated drops back to false (logout).
-    // Calling startRealtime() a second time safely tears down the previous
-    // channels first, so no double-subscription can occur.
+    // Calling startRealtime() a second time safely tears down previous channels.
+    //
+    // Subscriptions:
+    //   habit_logs, freeze_ledger, mastered_archive — INSERT only (append-only)
+    //   habit_slots         — INSERT + UPDATE + DELETE (mutable server state)
+    //   habit_pause_events  — INSERT + UPDATE (windows open and close)
+    //
+    // DELETE events carry the row in payload.old (payload.new is empty).
+    // INSERT and UPDATE events carry the new row in payload.new.
 
     let channels: RealtimeChannel[] = []
 
     function startRealtime(handlers: RealtimeHandlers): void {
       stopRealtime()
 
-      const tableHandlers: Array<{
-        table: string
+      // ── Append-only tables — INSERT only ───────────────────────────────────
+
+      const appendOnlyHandlers: Array<{
+        table:   string
         handler: (row: Record<string, unknown>) => void
       }> = [
         { table: 'habit_logs',       handler: handlers.onHabitLog },
         { table: 'freeze_ledger',    handler: handlers.onFreezeRow },
-        { table: 'slot_events',      handler: handlers.onSlotEvent },
         { table: 'mastered_archive', handler: handlers.onMasteredEntry },
       ]
 
-      for (const { table, handler } of tableHandlers) {
+      for (const { table, handler } of appendOnlyHandlers) {
         const channel = supabase
           .channel(`realtime:${table}`)
           .on(
             'postgres_changes',
             { event: 'INSERT', schema: 'public', table },
             (payload) => {
-              // Gate: drop the event if a drain/hydrate cycle is in progress.
-              // The reconnect sequence will pull the row via hydrateFromSupabase().
               if (isSyncing.value) return
               handler(payload.new as Record<string, unknown>)
             },
@@ -333,12 +370,65 @@ export const useSyncStore = defineStore(
           .subscribe()
         channels.push(channel)
       }
+
+      // ── habit_slots — INSERT + UPDATE + DELETE ─────────────────────────────
+
+      const slotsChannel = supabase
+        .channel('realtime:habit_slots')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'habit_slots' },
+          (payload) => {
+            if (isSyncing.value) return
+            handlers.onHabitSlot(payload.new as Record<string, unknown>, 'INSERT')
+          },
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'habit_slots' },
+          (payload) => {
+            if (isSyncing.value) return
+            handlers.onHabitSlot(payload.new as Record<string, unknown>, 'UPDATE')
+          },
+        )
+        .on(
+          'postgres_changes',
+          { event: 'DELETE', schema: 'public', table: 'habit_slots' },
+          (payload) => {
+            if (isSyncing.value) return
+            // DELETE carries the deleted row in payload.old.
+            handlers.onHabitSlot(payload.old as Record<string, unknown>, 'DELETE')
+          },
+        )
+        .subscribe()
+      channels.push(slotsChannel)
+
+      // ── habit_pause_events — INSERT + UPDATE ───────────────────────────────
+
+      const pauseChannel = supabase
+        .channel('realtime:habit_pause_events')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'habit_pause_events' },
+          (payload) => {
+            if (isSyncing.value) return
+            handlers.onPauseEvent(payload.new as Record<string, unknown>, 'INSERT')
+          },
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'habit_pause_events' },
+          (payload) => {
+            if (isSyncing.value) return
+            handlers.onPauseEvent(payload.new as Record<string, unknown>, 'UPDATE')
+          },
+        )
+        .subscribe()
+      channels.push(pauseChannel)
     }
 
     function stopRealtime(): void {
-      for (const channel of channels) {
-        supabase.removeChannel(channel)
-      }
+      for (const channel of channels) supabase.removeChannel(channel)
       channels = []
     }
 
@@ -351,6 +441,7 @@ export const useSyncStore = defineStore(
       status,
       init,
       onReconnect,
+      setCapRejectionCallback,
       beginHydrating,
       endHydrating,
       enqueue,
@@ -364,9 +455,9 @@ export const useSyncStore = defineStore(
   },
   {
     persist: {
-      key: 'sync-store',
+      key:     'sync-store',
       storage: localStorage,
-      pick: ['queue'],
+      pick:    ['queue'],
     } as PersistenceOptions,
   },
 )

@@ -41,7 +41,7 @@ export interface Lifeline {
   label: string;
   prefix: string;
   unit: string;
-  scale: number; // ← new
+  scale: number;
   initial: number;
   rate: number;
   origin: Date;
@@ -129,128 +129,59 @@ export interface QuestionInsight {
   sectionId: string;
   questionId: string; // 'q1', 'q2', etc. — must match store keys
   score: 1 | 2 | 3 | 4 | 5;
-  icon: string; // you assign
-  text: string; // from research v2
+  icon: string;
+  text: string;
   /**
-   * When true, this question has no coverable habit (e.g. commute_distance is a
-   * fixed fact, not a repeatable behaviour). The insight still renders in the
-   * Reflections panel but is excluded from habit recommendation slots so it
-   * never silently burns an actionable pick.
+   * When true, this question has no coverable habit. The insight still renders
+   * in the Reflections panel but is excluded from habit recommendation slots.
    */
   noHabit?: boolean;
 }
 
-/**
- * A punchy 1–2 line framing that opens the insights block.
- * Matched when ALL sectionIds in the pattern appear in the user's
- * low-performing sections.
- */
 export interface PunchyFrame {
-  /** The pattern that must match — all these sections must be low */
   weakSections: string[];
-  /** The pattern that must match — all these sections must be high */
   strongSections: string[];
   line: string;
 }
 
 // ─── Mastery ──────────────────────────────────────────────────────────────────
 
-/**
- * A static habit entry from the library.
- * Content is placeholder for now — real researched data replaces these later.
- */
 export interface HabitTemplate {
-  /** Unique habit identifier — no longer mirrors a question id */
+  /** Unique habit identifier */
   id: string;
-  /**
-   * The assessment questions this habit covers.
-   * A habit may cover one question, multiple questions in the same section,
-   * or questions across different sections (cross-section shared habits).
-   * Used to drive recommendations: the habit surfaces when any of its linked
-   * questions appear in the user's low-scoring slots.
-   */
   covers: Array<{ sectionId: string; questionId: string }>;
-  /**
-   * Primary section for display grouping in the habit library.
-   * For cross-section habits, use the section whose question has the
-   * greater footprint relevance (or the first listed cover).
-   */
   sectionId: string;
-  /** Display name shown in the library and on the habit card — fixed regardless of score */
   name: string;
-  /** MDI icon identifier for this specific habit — filled, used when active */
   icon: string;
-  /**
-   * Outline variant of the icon — used in the library (available/paused/recommended).
-   * Equals `icon` for the handful of MDI icons that have no outline counterpart.
-   */
   iconOutline: string;
-  /** Daily yes/no prompt shown in the check-in sheet */
   prompt: string;
-  /** The cue or trigger for the habit — when to do it. Shown in Growth Space and Stats. */
   when: string;
-  /** Onboarding instruction shown in Growth Space and Stats. */
   instruction: string;
 }
 
-/**
- * A habit slot owned by the user — either active or paused.
- * Derived from a HabitTemplate when the user adds it; persisted in the mastery store.
- */
 export interface UserHabit {
-  /** Runtime id (Date.now() string) — not a template id */
   id: string;
-  /** Points back to the source HabitTemplate — used to prevent duplicate adds */
   templateId: string;
-  /** Copied from template at add-time so template edits don't affect existing user habits */
   name: string;
-  /** MDI icon — filled variant, copied from template at add-time */
   icon: string;
-  /** MDI icon — outline variant, copied from template at add-time */
   iconOutline: string;
   sectionId: string;
   prompt: string;
-  /** Copied from template — shown in Growth Space and Stats screen */
   when: string;
-  /** Copied from template — shown in Growth Space and Stats screen */
   instruction: string;
-  /** Current consecutive-day streak */
   streak: number;
-  /**
-   * ISO date string (YYYY-MM-DD) of the last day this habit was logged, or null if never.
-   * Used to derive isLoggedToday without storing a separate boolean.
-   */
   lastLoggedDate: string | null;
-  /** True when the user has paused this habit — slot is held, streak is preserved */
   isPaused: boolean;
-  /**
-   * True when a streak freeze was auto-applied yesterday.
-   * Shown as a one-day notice on the card, then cleared on the next render cycle.
-   */
   freezeUsed: boolean;
-  /**
-   * True when the habit has reached the MASTERY_MILESTONE-day mastery milestone.
-   * Mastered habits cannot be logged and are excluded from activeHabits computed,
-   * but still occupy a slot until the user explicitly retires them.
-   */
   isMastered: boolean;
 }
 
 // ─── Mastery store events & archive ──────────────────────────────────────────
 
-/**
- * A single event produced by reconcileStreaks describing what happened to one
- * habit when the user missed a day. Persisted so they survive a page refresh.
- */
 export type ReconcileEvent =
   | { type: "frozen"; habitId: string; habitName: string; streak: number }
   | { type: "lost"; habitId: string; habitName: string; streak: number };
 
-/**
- * Minimal record of a retired mastered habit stored outside of slots.
- * Shown in the Habit Library under the "Mastered" subheader.
- * Excluded from all active/paused/recommended logic — purely archival.
- */
 export type MasteredArchiveEntry = {
   templateId: string;
   name: string;
@@ -259,20 +190,12 @@ export type MasteredArchiveEntry = {
 
 // ─── Assessment store ─────────────────────────────────────────────────────────
 
-/** questionId → raw points (1–5) for a single section. */
 export type SectionAnswers = Record<string, number>;
 
-/** Internal state shape of the assessment store. */
 export interface AssessmentState {
   answers: Partial<Record<string, SectionAnswers>>;
-  completedAt: Partial<Record<string, number>>; // unix ms timestamp
+  completedAt: Partial<Record<string, number>>;
   activeTab: string;
-  /**
-   * The fixed set of up to 3 habit template IDs recommended after the first
-   * completed assessment. Computed once and persisted so that acting on a
-   * recommendation (add / pause) never causes a replacement to appear.
-   * Reset to [] by clearAll() if the user retakes the assessment from scratch.
-   */
   recommendedHabitIds: string[];
 }
 
@@ -297,7 +220,6 @@ export interface NavigatorWithStandalone extends Navigator {
 
 // ─── Sorted question ──────────────────────────────────────────────────────────
 
-/** A question paired with its score — the unit used by the insights pipeline. */
 export interface SortedQuestion {
   sectionId: string;
   questionId: string;
@@ -307,27 +229,19 @@ export interface SortedQuestion {
 // ─── Streak reconciler ────────────────────────────────────────────────────────
 
 export interface ReconcileResult {
-  /**
-   * Final event list to assign to lastReconcileEvents.
-   * Either the new events from this run, or the pruned carry-over from a clean run.
-   */
   events: ReconcileEvent[];
-  /** Updated freeze token balance after this reconcile pass. */
   newFreezeCount: number;
 }
 
 // ─── Habit lifecycle ──────────────────────────────────────────────────────────
 
 export interface LogResult {
-  /** True when a regular milestone freeze was earned (not the mastery reward). */
   freezeEarned: boolean;
-  /** True when the habit just hit MASTERY_MILESTONE days and should receive the mastery reward. */
   mastered: boolean;
 }
 
 // ─── Component view models ────────────────────────────────────────────────────
 
-/** A single list row in InsightsHabitPanel — either a recommended template or an active habit. */
 export interface HabitPanelItem {
   key: string;
   icon: string;
@@ -336,114 +250,115 @@ export interface HabitPanelItem {
   chip?: { color: string; icon: string; label: string };
 }
 
-/** String alias for a question id (e.g. 'q1', 'commute_mode'). */
 export type QuestionId = string;
 
 // ─── Sync ─────────────────────────────────────────────────────────────────────
 
 export interface SyncQueueItem {
-  /** Dedup key: 'table:pk1:pk2' */
+  /** Dedup key: 'table:pk1:pk2' for upsert/delete, 'slot_rpc:fn:userId:templateId' for rpc */
   id: string;
-  table: string;
   /**
-   * 'upsert' — ledger tables use ignoreDuplicates=true so conflicts are no-ops.
-   *            mutable tables (profiles, assessment_answers, habit_slots) merge on conflict.
-   * 'delete' — not yet used (Phase 5+).
+   * 'upsert'  — ledger tables (habit_logs, freeze_ledger, mastered_archive).
+   *             Uses ignoreDuplicates=true so conflicts on append-only tables are no-ops.
+   * 'delete'  — not currently used.
+   * 'rpc'     — SECURITY DEFINER RPC call. fn must be set. table is unused.
+   *             Used for all habit_slots and habit_pause_events writes (slot_add,
+   *             slot_pause, slot_resume, slot_remove, slot_retire).
    */
-  operation: "upsert" | "delete";
+  operation: 'upsert' | 'delete' | 'rpc';
+  /** Supabase table name — required for upsert/delete, unused for rpc. */
+  table?: string;
+  /** RPC function name — required when operation = 'rpc'. */
+  fn?: string;
   payload: Record<string, unknown>;
-  /** Unix ms timestamp of when the item was enqueued. */
   enqueuedAt: number;
 }
 
 export type SyncStatus = "offline" | "hydrating" | "syncing" | "synced";
 
-// ─── Phase 3: Ledger types ────────────────────────────────────────────────────
+// ─── Ledger types ─────────────────────────────────────────────────────────────
 
 /** Maximum freeze tokens a user can hold from milestone grants. */
-export const FREEZE_CAP = 3
+export const FREEZE_CAP = 3;
 
 /** Minimum freeze balance (debt floor — reconciliation may go negative). */
-export const DEBT_FLOOR = -2
+export const DEBT_FLOOR = -2;
 
 /**
  * One logged day for one habit. Unique on (user_id, template_id, date).
- * Client-only. Value is always 'yes' or 'no'. The cron never writes here.
- * Protection is a token economy event — it belongs in freeze_ledger.
+ * Client-only. The cron never writes here.
  */
 export interface HabitLog {
-  user_id: string
-  template_id: string
+  user_id: string;
+  template_id: string;
   /** YYYY-MM-DD (IST) */
-  date: string
-  value: 'yes' | 'no'
-  created_at: string
+  date: string;
+  value: 'yes' | 'no';
+  created_at: string;
 }
 
 /**
  * One freeze token event. Append-only; never updated or deleted.
  * reason='spent' is CRON ONLY — the client never writes spent rows.
- * A spent row is only effective (deducts from balance) when no habit_log
- * exists for the same (template_id, date). If a late yes/no arrives after
- * the cron, the spend becomes a no-op — no refund row needed.
  */
 export interface FreezeLedgerRow {
-  user_id: string
-  template_id: string
+  user_id: string;
+  template_id: string;
   /** +1 for earned, -1 for spent */
-  delta: number
-  reason: 'milestone' | 'mastery' | 'spent'
+  delta: number;
+  reason: 'milestone' | 'mastery' | 'spent';
   /** YYYY-MM-DD */
-  date: string
-  created_at: string
+  date: string;
+  created_at: string;
 }
 
-/** A lifecycle event for a habit slot. Append-only. */
-export interface SlotEvent {
-  user_id: string
-  template_id: string
-  event: 'added' | 'paused' | 'resumed' | 'removed' | 'retired'
-  created_at: string
+/**
+ * Server-authoritative habit slot state. One row per habit the user holds
+ * in any non-library state (active or paused).
+ *
+ * status:
+ *   'active' — occupies one of the three active slots; counts toward the cap.
+ *   'paused' — slot held, streak preserved, excluded from daily log flow.
+ *              Does NOT count toward the cap.
+ *
+ * created_at — set once at INSERT by DEFAULT now(). Never modified.
+ *              Streak boundary: the streak walker ignores all logs before this date.
+ *              No client code may supply or modify it (R7).
+ *
+ * All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
+ */
+export interface HabitSlot {
+  user_id: string;
+  template_id: string;
+  status: 'active' | 'paused';
+  created_at: string;
 }
 
-/** A habit that has been mastered and retired from slots. Written once. */
+/**
+ * One pause window per habit. Used by the streak walker to skip pause gaps.
+ *
+ * paused_at  — when slot_pause ran (window opens).
+ * resumed_at — when slot_resume / slot_remove / slot_retire ran.
+ *              null = window still open (habit is currently paused).
+ *
+ * At most one open window (resumed_at IS NULL) per (user_id, template_id) at
+ * any time. Enforced by slot_pause only operating on status = 'active' rows.
+ *
+ * All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
+ */
+export interface HabitPauseEvent {
+  user_id: string;
+  template_id: string;
+  paused_at: string;
+  resumed_at: string | null;
+}
+
+/** A habit that has been mastered and retired from slots. Written once via slot_retire. */
 export interface MasteredEntry {
-  user_id: string
-  template_id: string
-  created_at: string
+  user_id: string;
+  template_id: string;
+  created_at: string;
 }
 
 /** Session-scoped event produced by reconcile(). Never persisted. */
-export type LedgerReconcileEvent = { type: 'lost'; templateId: string; streak: number }
-
-// ─── Ledger type notes (Phase 3) ─────────────────────────────────────────────
-// HabitLog.value:
-//   'yes' — user logged a productive day
-//   'no'  — user explicitly logged a non-productive day
-//           The streak chain continues through 'no' — it does not break it.
-//           'frozen' has been deliberately removed. habit_logs is client-only.
-//           Protection is a token event and belongs in freeze_ledger.
-//
-// FreezeLedgerRow.reason:
-//   'milestone' — earned at every FREEZE_MILESTONE (22) yes days, capped at FREEZE_CAP
-//   'mastery'   — earned at MASTERY_MILESTONE (66), unconditional
-//   'spent'     — CRON ONLY. Written by the Supabase cron job at midnight IST
-//                 when a freeze token is used to protect an unlogged habit.
-//                 The client never writes spent rows.
-//
-//   A spent row is only effective (deducts from balance) if no habit_log exists
-//   for the same (template_id, date). If a late yes/no arrives after the cron,
-//   the spent row becomes a no-op and the token is implicitly refunded — no
-//   extra write needed.
-//
-// SlotEvent.event:
-//   'added'   — habit placed in a slot
-//   'paused'  — slot held, streak preserved, habit excluded from daily flow
-//   'resumed' — habit returned to the active daily flow
-//   'removed' — slot freed; logs preserved for streak history
-//   'retired' — mastered habit permanently moved to masteredArchive
-//
-// LedgerReconcileEvent:
-//   Client reconcile() only ever produces 'lost' events (read-only detection).
-//   Protection state is derived directly from freeze_ledger, not from reconcile.
-// ─────────────────────────────────────────────────────────────────────────────
+export type LedgerReconcileEvent = { type: 'lost'; templateId: string; streak: number };

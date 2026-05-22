@@ -4,8 +4,8 @@
 //
 // It clears in-memory state and the localStorage cache. The sync queue is also
 // cleared — any pending writes are abandoned on logout. On hydration, the queue
-// is drained first (Phase 4) before resetAllStores is called, so in-flight
-// writes are committed before the state wipe.
+// is drained first before resetAllStores is called, so in-flight writes are
+// committed before the state wipe.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { ref } from 'vue'
@@ -31,12 +31,13 @@ export function resetAllStores() {
   profileStore.reset()
   assessmentStore.clearAll()
 
-  // Clear the four mastery ledger arrays and any session-scoped reconcile events.
-  masteryStore.habitLogs            = []
-  masteryStore.freezeLedger         = []
-  masteryStore.slotEvents           = []
-  masteryStore.masteredArchive      = []
-  masteryStore.lastReconcileEvents  = []
+  // Clear all mastery ledger arrays and session-scoped reconcile events.
+  masteryStore.habitLogs           = []
+  masteryStore.freezeLedger        = []
+  masteryStore.habitSlots          = []
+  masteryStore.pauseEvents         = []
+  masteryStore.masteredArchive     = []
+  masteryStore.lastReconcileEvents = []
 
   // Remove persisted localStorage cache so the next session starts clean.
   localStorage.removeItem('mastery')

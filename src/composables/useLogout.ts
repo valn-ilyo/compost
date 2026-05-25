@@ -50,25 +50,32 @@ export function resetAllStores() {
  * Removes this device's push subscription from push_subscriptions and
  * unregisters it from the browser's PushManager.
  *
- * Best-effort — failures are swallowed so they never block logout.
+ * Best-effort — failures AND hangs are swallowed so they never block logout.
+ * Races against a 3-second timeout because navigator.serviceWorker.ready can
+ * stall indefinitely when the SW is in a broken or installing state.
  * Must be called before supabase.auth.signOut() while the session is
  * still valid (the DELETE is subject to RLS: users manage own rows).
  */
 async function unsubscribePush(): Promise<void> {
-  try {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    if (!subscription) return;
+  const timeout = new Promise<void>((resolve) => setTimeout(resolve, 3000));
+  const work = async (): Promise<void> => {
+    try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (!subscription) return;
 
-    // Delete the DB row first (session still valid here).
-    await supabase.from("push_subscriptions").delete().eq("endpoint", subscription.endpoint);
+      // Delete the DB row first (session still valid here).
+      await supabase.from("push_subscriptions").delete().eq("endpoint", subscription.endpoint);
 
-    // Then unsubscribe the browser so the endpoint is truly gone.
-    await subscription.unsubscribe();
-  } catch (e) {
-    if (import.meta.env.DEV) console.warn("[push] unsubscribePush failed", e);
-  }
+      // Then unsubscribe the browser so the endpoint is truly gone.
+      await subscription.unsubscribe();
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("[push] unsubscribePush failed", e);
+    }
+  };
+  // Race: if push cleanup takes longer than 3 s, give up and proceed with logout.
+  await Promise.race([work(), timeout]);
 }
 
 export function useLogout() {

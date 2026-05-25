@@ -5,13 +5,12 @@ import { useThemeStore } from "@/stores/theme";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useNotifier } from "@/composables/useNotifier";
 import { useLogout } from "@/composables/useLogout";
-import { supabase } from "@/services/supabase";
 
 const profileStore = useProfileStore();
 const themeStore = useThemeStore();
 const assessmentStore = useAssessmentStore();
 const { notify } = useNotifier();
-const { logout } = useLogout();
+const { deleteAccount: deleteAccountAndLogout } = useLogout();
 
 const showConfirmDialog = ref(false);
 const showDeleteDialog = ref(false);
@@ -28,10 +27,11 @@ function clearAll() {
 async function deleteAccount() {
   deleting.value = true;
   try {
-    const { error } = await supabase.rpc("delete_account");
-    if (error) throw error;
-    // Session is now invalid — clean up stores and redirect.
-    await logout();
+    await deleteAccountAndLogout();
+    // deleteAccountAndLogout() navigates to /auth on success.
+    // It deliberately skips supabase.auth.signOut() — the user row no longer
+    // exists in auth.users after delete_account() runs, so signOut returns
+    // 403 user_not_found.
   } catch {
     deleting.value = false;
     showDeleteDialog.value = false;

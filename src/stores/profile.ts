@@ -9,33 +9,33 @@
 // waits for a round-trip to see their changes reflected in the UI.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { ProfileRow, ProfileUpdate } from '@/types/database'
-import type { PersistenceOptions } from 'pinia-plugin-persistedstate'
-import { supabase } from '@/services/supabase'
-import { useSyncStore } from '@/stores/sync'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import type { ProfileRow, ProfileUpdate } from "@/types/database";
+import type { PersistenceOptions } from "pinia-plugin-persistedstate";
+import { supabase } from "@/services/supabase";
+import { useSyncStore } from "@/stores/sync";
 
 export const useProfileStore = defineStore(
-  'profile',
+  "profile",
   () => {
-    const profile   = ref<ProfileRow | null>(null)
-    const userEmail = ref<string | null>(null)
-    const loading   = ref(false)
+    const profile = ref<ProfileRow | null>(null);
+    const userEmail = ref<string | null>(null);
+    const loading = ref(false);
 
     // Populated during fetchProfile(). Carried on every enqueued row.
-    const userId = ref<string>('')
+    const userId = ref<string>("");
 
     /**
      * True when name and roll_no are both non-empty strings.
      * Controls whether the router redirects to the onboarding flow.
      */
     const isComplete = computed(() => {
-      if (!profile.value) return false
-      const nameFilled = profile.value.name?.trim() !== ''
-      const rollFilled = profile.value.roll_no?.trim() !== ''
-      return nameFilled && rollFilled
-    })
+      if (!profile.value) return false;
+      const nameFilled = profile.value.name?.trim() !== "";
+      const rollFilled = profile.value.roll_no?.trim() !== "";
+      return nameFilled && rollFilled;
+    });
 
     /**
      * Pull the user's profile row from Supabase.
@@ -50,25 +50,25 @@ export const useProfileStore = defineStore(
      *     This prevents a round-trip from discarding profile edits made offline.
      */
     async function fetchProfile(newUserId: string, email?: string, forceRemote = false) {
-      userId.value = newUserId
-      if (email) userEmail.value = email
+      userId.value = newUserId;
+      if (email) userEmail.value = email;
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', newUserId)
-        .single()
+        .from("profiles")
+        .select("*")
+        .eq("user_id", newUserId)
+        .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
+        if (error.code === "PGRST116") {
           // No profile row yet — leave profile null, router handles onboarding redirect.
-          return
+          return;
         }
-        throw error
+        throw error;
       }
 
       if (forceRemote || !profile.value) {
-        profile.value = data as ProfileRow
+        profile.value = data as ProfileRow;
       }
     }
 
@@ -78,34 +78,50 @@ export const useProfileStore = defineStore(
      * Idempotency key: user_id — dedup in drain merges payload fields.
      */
     async function updateProfile(updates: ProfileUpdate) {
-      if (profile.value) {
-        profile.value = { ...profile.value, ...updates } as ProfileRow
-      }
+      // Always apply optimistically, even on first save when profile.value is
+      // null (the trigger created the DB row but fetchProfile hasn't run yet).
+      // Without this, isComplete stays false and the router guard immediately
+      // re-intercepts the navigation back to onboarding after the user submits.
+      profile.value = {
+        ...(profile.value ??
+          ({
+            user_id: userId.value,
+            is_admin: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            name: null,
+            roll_no: null,
+            gender: null,
+            dob: null,
+            theme: null,
+          } satisfies ProfileRow)),
+        ...updates,
+      };
 
       useSyncStore().enqueue({
         id: `profiles:${userId.value}`,
-        table: 'profiles',
-        operation: 'upsert',
+        table: "profiles",
+        operation: "upsert",
         payload: { user_id: userId.value, ...updates },
         enqueuedAt: Date.now(),
-      })
+      });
     }
 
     /** Clear all profile state. Called by resetAllStores() on logout and hydration start. */
     function reset() {
-      profile.value = null
-      userEmail.value = null
-      userId.value = ''
-      loading.value = false
+      profile.value = null;
+      userEmail.value = null;
+      userId.value = "";
+      loading.value = false;
     }
 
-    return { profile, userEmail, userId, isComplete, loading, fetchProfile, updateProfile, reset }
+    return { profile, userEmail, userId, isComplete, loading, fetchProfile, updateProfile, reset };
   },
   {
     persist: {
-      key: 'profile-store',
+      key: "profile-store",
       storage: localStorage,
-      pick: ['profile', 'userEmail'],
+      pick: ["profile", "userEmail"],
     } as PersistenceOptions,
   },
-)
+);

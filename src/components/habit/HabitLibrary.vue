@@ -33,7 +33,9 @@ const grouped = computed(() => ({
   mastered: store.masteredArchive
     .map((entry) => templates.value.find((t) => t.id === entry.template_id))
     .filter((t): t is (typeof templates.value)[number] => t !== undefined),
-  paused: templates.value.filter((t) => t.isPaused),
+  paused: store.pausedHabits
+    .map((h) => templates.value.find((t) => t.id === h.templateId))
+    .filter((t): t is (typeof templates.value)[number] => t !== undefined),
   recommended: templates.value.filter(
     (t) => t.isRecommended && !t.isPaused && !t.isActive && !t.isMastered,
   ),

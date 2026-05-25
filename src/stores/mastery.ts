@@ -45,12 +45,6 @@
 // habit_pause_events to skip dates where the habit was paused (R14: only windows
 // whose paused_at >= slot.created_at are considered — prior-cycle windows are ignored).
 //
-// SWAP SEMANTICS (R15)
-// ────────────────────
-// swapHabit pauses the outgoing habit when it has a streak > 0, and removes it
-// when streak === 0. This preserves meaningful progress across swaps without
-// wasting a delete on a habit the user made genuine progress on.
-//
 // STREAK BOUNDARY
 // ───────────────
 // streak() uses slot.created_at as the boundary date — the moment the slot was
@@ -342,8 +336,16 @@ export const useMasteryStore = defineStore(
       return result;
     });
 
-    /** Paused habits: status = 'paused'. */
+    /** Paused habits: status = 'paused', sorted latest-paused first. */
     const pausedHabits = computed((): UserHabit[] => {
+      // Build lookup: templateId → most recent open pause window timestamp.
+      const pausedAt = new Map<string, string>();
+      for (const e of pauseEvents.value) {
+        if (e.resumed_at !== null) continue;
+        const prev = pausedAt.get(e.template_id);
+        if (!prev || e.paused_at > prev) pausedAt.set(e.template_id, e.paused_at);
+      }
+
       const result: UserHabit[] = [];
       for (const slot of habitSlots.value) {
         if (slot.status !== "paused") continue;
@@ -353,6 +355,14 @@ export const useMasteryStore = defineStore(
           buildUserHabit(template, streak(slot.template_id), false, isFreezeUsed(slot.template_id)),
         );
       }
+
+      // Latest paused first. ISO strings sort lexicographically so localeCompare is correct.
+      result.sort((a, b) => {
+        const aTime = pausedAt.get(a.templateId) ?? "";
+        const bTime = pausedAt.get(b.templateId) ?? "";
+        return bTime.localeCompare(aTime);
+      });
+
       return result;
     });
 
@@ -529,24 +539,6 @@ export const useMasteryStore = defineStore(
         payload: { p_user_id: userId.value, p_template_id: templateId },
         enqueuedAt: Date.now(),
       });
-    }
-
-    /**
-     * Swap the outgoing habit for a new one (slots-full flow).
-     *
-     * R15 — conditional remove vs pause:
-     *   streak > 0 → pause the outgoing habit (streak preserved, slot stays held)
-     *   streak = 0 → remove the outgoing habit (clean slate, slot freed)
-     *
-     * addHabit runs after, occupying the freed or new slot.
-     */
-    function swapHabit(removeTemplateId: string, template: HabitTemplate): void {
-      if (streak(removeTemplateId) > 0) {
-        pauseHabit(removeTemplateId);
-      } else {
-        removeHabit(removeTemplateId);
-      }
-      addHabit(template);
     }
 
     /**
@@ -860,7 +852,6 @@ export const useMasteryStore = defineStore(
       removeHabit,
       pauseHabit,
       resumeHabit,
-      swapHabit,
       logHabit,
       retireHabit,
       reconcile,

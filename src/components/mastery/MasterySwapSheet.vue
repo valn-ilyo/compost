@@ -5,9 +5,10 @@ import { useMasteryStore } from "@/stores/mastery";
 import type { HabitTemplate } from "@/types/app";
 
 // ─── Props / emits ────────────────────────────────────────────────────────────
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   pendingTemplate: HabitTemplate | null;
+  pendingAction?: "add" | "resume";
 }>();
 
 const emit = defineEmits<{
@@ -22,7 +23,8 @@ const { mdAndUp } = useDisplay();
 // ─── Derived ──────────────────────────────────────────────────────────────────
 
 /**
- * Subtitle copy accounts for every combination of active / mastered slots.
+ * Subtitle copy accounts for every combination of active / mastered slots,
+ * and whether the pending action is an add or a resume.
  *
  * Possible states when this sheet is shown (usedSlots === MAX_SLOTS = 3):
  *   3 active, 0 mastered  → all 3 are swappable
@@ -33,22 +35,27 @@ const { mdAndUp } = useDisplay();
 const subtitleCopy = computed<string>(() => {
   const active = store.activeHabits.length;
   const mastered = store.masteredHabits.length;
+  const isResume = props.pendingAction === "resume";
 
   if (active === 0) {
-    // All occupied slots are mastered — nothing to swap.
     const n = mastered === 1 ? "1 slot is" : `${mastered} slots are`;
     return `${n} mastered. Retire one to make room for something new.`;
   }
 
+  const swapVerb = isResume ? "pause to resume" : "replace";
+  const streakNote = isResume
+    ? "Resuming will restore its streak. The paused habit's streak is also preserved."
+    : "Its streak will be paused, not deleted.";
+
   if (mastered === 0) {
-    // Normal full-active case.
-    return "You have 3 active habits. Choose one to replace. Its streak will be paused, not deleted.";
+    return `You have 3 active habits. Choose one to ${swapVerb}. ${streakNote}`;
   }
 
-  // Mixed: some active, some mastered.
   const masteredLabel = mastered === 1 ? "1 mastered habit" : `${mastered} mastered habits`;
   const swappableLabel = active === 1 ? "1 habit" : `${active} habits`;
-  return `${swappableLabel} can be swapped. ${masteredLabel} occupy the other ${mastered === 1 ? "slot" : "slots"}. Retire ${mastered === 1 ? "it" : "one"} to free up more room. Any swapped streak is paused, not deleted.`;
+  return `${swappableLabel} can be swapped. ${masteredLabel} occupy the other ${
+    mastered === 1 ? "slot" : "slots"
+  }. Retire ${mastered === 1 ? "it" : "one"} to free up more room. ${streakNote}`;
 });
 
 const closeBtnLabel = "Close";

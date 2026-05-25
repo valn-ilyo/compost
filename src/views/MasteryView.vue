@@ -30,6 +30,7 @@ const {
 const {
   swapOpen,
   pendingTemplate,
+  pendingAction,
   handleAdd,
   handleResume,
   handlePause,
@@ -190,7 +191,12 @@ watch(
   </v-container>
 
   <MasteryCheckinSheet v-model="checkinOpen" :habit-id="checkinHabitId" @done="handleCheckinDone" />
-  <MasterySwapSheet v-model="swapOpen" :pending-template="pendingTemplate" @swap="handleSwap" />
+  <MasterySwapSheet
+    v-model="swapOpen"
+    :pending-template="pendingTemplate"
+    :pending-action="pendingAction"
+    @swap="handleSwap"
+  />
 </template>
 
 <style scoped>

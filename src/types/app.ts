@@ -265,7 +265,7 @@ export interface SyncQueueItem {
    *             Used for all habit_slots and habit_pause_events writes (slot_add,
    *             slot_pause, slot_resume, slot_remove, slot_retire).
    */
-  operation: "upsert" | "delete" | "rpc";
+  operation: 'upsert' | 'delete' | 'rpc';
   /** Supabase table name — required for upsert/delete, unused for rpc. */
   table?: string;
   /** RPC function name — required when operation = 'rpc'. */
@@ -289,13 +289,13 @@ export const DEBT_FLOOR = -2;
  * Client-only. The cron never writes here.
  */
 export interface HabitLog {
+  [key: string]: unknown
   user_id: string;
   template_id: string;
   /** YYYY-MM-DD (IST) */
   date: string;
-  value: "yes" | "no";
+  value: 'yes' | 'no';
   created_at: string;
-  [key: string]: unknown;
 }
 
 /**
@@ -303,15 +303,15 @@ export interface HabitLog {
  * reason='spent' is CRON ONLY — the client never writes spent rows.
  */
 export interface FreezeLedgerRow {
+  [key: string]: unknown
   user_id: string;
   template_id: string;
   /** +1 for earned, -1 for spent */
   delta: number;
-  reason: "milestone" | "mastery" | "spent";
+  reason: 'milestone' | 'mastery' | 'spent';
   /** YYYY-MM-DD */
   date: string;
   created_at: string;
-  [key: string]: unknown;
 }
 
 /**
@@ -330,9 +330,10 @@ export interface FreezeLedgerRow {
  * All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
  */
 export interface HabitSlot {
+  [key: string]: unknown
   user_id: string;
   template_id: string;
-  status: "active" | "paused";
+  status: 'active' | 'paused';
   created_at: string;
 }
 
@@ -349,6 +350,7 @@ export interface HabitSlot {
  * All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
  */
 export interface HabitPauseEvent {
+  [key: string]: unknown
   user_id: string;
   template_id: string;
   paused_at: string;
@@ -357,11 +359,11 @@ export interface HabitPauseEvent {
 
 /** A habit that has been mastered and retired from slots. Written once via slot_retire. */
 export interface MasteredEntry {
+  [key: string]: unknown
   user_id: string;
   template_id: string;
   created_at: string;
-  [key: string]: unknown;
 }
 
 /** Session-scoped event produced by reconcile(). Never persisted. */
-export type LedgerReconcileEvent = { type: "lost"; templateId: string; streak: number };
+export type LedgerReconcileEvent = { type: 'lost'; templateId: string; streak: number };

@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import { useProfileStore } from "@/stores/profile"
-import { useLogout } from "@/composables/useLogout"
-import { useSyncStore } from "@/stores/sync"
-import { openFeedbackForm } from "@/services/feedbackForm"
-import AppBarProfile from "@/components/app/AppBarProfile.vue"
+import { ref } from "vue";
+import { useProfileStore } from "@/stores/profile";
+import { useLogout } from "@/composables/useLogout";
+import { useSyncStore } from "@/stores/sync";
+import { openFeedbackForm } from "@/services/feedbackForm";
+import AppBarProfile from "@/components/app/AppBarProfile.vue";
 
-const { logout, loggingOut } = useLogout()
-const store = useProfileStore()
-const syncStore = useSyncStore()
-const showLogoutWarning = ref(false)
+const { logout, loggingOut } = useLogout();
+const store = useProfileStore();
+const syncStore = useSyncStore();
+const showLogoutWarning = ref(false);
 
 // TODO [ProfileView > Logout]
 // If queue.length > 0 → show warning dialog
 // Otherwise → logout() directly (drain best-effort, resetAllStores, signOut, navigate /auth)
 function handleLogoutClick() {
   if (syncStore.queue.length > 0) {
-    showLogoutWarning.value = true
+    showLogoutWarning.value = true;
   } else {
-    logout()
+    logout();
   }
 }
 

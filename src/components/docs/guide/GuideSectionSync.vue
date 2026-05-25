@@ -47,11 +47,7 @@
 
       <v-divider />
 
-      <v-list-item
-        prepend-icon="mdi-cloud-off-outline"
-        title="You're offline. Data syncs when you reconnect."
-        class="pt-2 text-wrap"
-      />
+      <v-list-item prepend-icon="mdi-cloud-off-outline" title="You're offline." class="pt-2" />
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">
           No connection detected. The app continues to work. Changes queue up and sync automatically

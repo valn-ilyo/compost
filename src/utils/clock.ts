@@ -4,14 +4,6 @@ export const clock = reactive({
   now: (): Date => new Date(),
 });
 
-// DEV only: restore any simulated day offset (dead-code-eliminated in production).
-if (import.meta.env.DEV) {
-  const stored = Number(localStorage.getItem("__dev_day_offset") ?? 0);
-  if (stored) {
-    clock.now = () => new Date(Date.now() + stored);
-  }
-}
-
 // ─── Midnight callbacks ───────────────────────────────────────────────────────
 //
 // OLD: scheduleMidnightRefresh() only reassigned clock.now — nothing else ran
@@ -27,7 +19,7 @@ const midnightCallbacks: Array<() => void> = [];
 /**
  * Register a callback to run once each time the UTC day rolls over.
  * Call this from App.vue onMounted — not from store setup — so the
- * dependency direction stays: stores ← App ← clock (never clock → stores).
+ * dependency direction stays: stores ← App ← clock (never clock → stores).\
  *
  * See: App.vue — onMidnight(() => { if (syncStore.isHydrated) masteryStore.reconcileStreaks(); })
  */
@@ -40,13 +32,10 @@ export function onMidnight(cb: () => void): void {
 function scheduleMidnightRefresh() {
   const msUntilMidnight = 86_400_000 - (Date.now() % 86_400_000);
   setTimeout(() => {
-    // OLD: only this block existed — callbacks were never fired.
-    if (!import.meta.env.DEV || !localStorage.getItem("__dev_day_offset")) {
-      clock.now = () => new Date();
-    }
+    clock.now = () => new Date();
     scheduleMidnightRefresh();
 
-    // NEW: fire all registered midnight callbacks after the clock is updated.
+    // Fire all registered midnight callbacks after the clock is updated.
     // Callbacks are registered via onMidnight() — see App.vue onMounted.
     for (const cb of midnightCallbacks) cb();
   }, msUntilMidnight);

@@ -1,48 +1,51 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
-import { useRouter, useRoute } from "vue-router"
-import { supabase } from "@/services/supabase"
-import { useNotifier } from "@/composables/useNotifier"
-import { useSyncStore } from "@/stores/sync"
-import { useProfileStore } from "@/stores/profile"
-import { useAssessmentStore } from "@/stores/assessment"
-import { useMasteryStore } from "@/stores/mastery"
-import { resetAllStores } from "@/composables/useLogout"
+import { onMounted, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { supabase } from "@/services/supabase";
+import { useNotifier } from "@/composables/useNotifier";
+import { useSyncStore } from "@/stores/sync";
+import { useProfileStore } from "@/stores/profile";
+import { useAssessmentStore } from "@/stores/assessment";
+import { useMasteryStore } from "@/stores/mastery";
+import { resetAllStores } from "@/composables/useLogout";
 
-const { notify } = useNotifier()
-const router = useRouter()
-const route = useRoute()
-const syncStore = useSyncStore()
-const profileStore = useProfileStore()
-const assessmentStore = useAssessmentStore()
-const masteryStore = useMasteryStore()
+const { notify } = useNotifier();
+const router = useRouter();
+const route = useRoute();
+const syncStore = useSyncStore();
+const profileStore = useProfileStore();
+const assessmentStore = useAssessmentStore();
+const masteryStore = useMasteryStore();
 
-type AuthState = "login" | "loading" | "error"
-const authState = ref<AuthState>("login")
-const errorEmail = ref<string | null>(null)
-const sessionExpiredMsg = ref("")
-const googleLoading = ref(false)
-const privacyDialog = ref(false)
+type AuthState = "login" | "loading" | "error";
+const authState = ref<AuthState>("login");
+const errorEmail = ref<string | null>(null);
+const sessionExpiredMsg = ref("");
+const googleLoading = ref(false);
+const privacyDialog = ref(false);
 
 // TODO [AuthView > Continue with Google]
 // supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: origin + "/compost/" } })
 const loginWithGoogle = async () => {
-  sessionExpiredMsg.value = ""
-  googleLoading.value = true
+  sessionExpiredMsg.value = "";
+  googleLoading.value = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin + "/compost/" },
-    })
+    });
     if (error) {
-      googleLoading.value = false
-      notify({ message: `Login failed: ${error.message}`, color: "error" })
+      googleLoading.value = false;
+      notify({ message: `Login failed: ${error.message}`, color: "error" });
     }
   } catch (err) {
-    googleLoading.value = false
-    notify({ message: err instanceof Error ? err.message : "An unexpected error occurred", color: "error" })
+    googleLoading.value = false;
+    notify({
+      message: err instanceof Error ? err.message : "An unexpected error occurred",
+      color: "error",
+    });
   }
-}
+};
 
 // Cold start — cached session present:
 // 1. resetAllStores()       — clear stale state before pulling fresh data
@@ -53,73 +56,67 @@ const loginWithGoogle = async () => {
 // 6. Navigate to / (or next query param)
 // On failure: show error state with Retry and Switch Account options.
 async function runHydration() {
-  authState.value = "loading"
+  authState.value = "loading";
+  let knownEmail: string | null = null;
+
   try {
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
     if (sessionError || !session) {
-      await supabase.auth.signOut()
-      sessionExpiredMsg.value = "Session expired. Sign in again."
-      authState.value = "login"
-      return
+      await supabase.auth.signOut();
+      sessionExpiredMsg.value = "Session expired. Sign in again.";
+      authState.value = "login";
+      return;
     }
 
-    const userId = session.user.id
-    const email = session.user.email ?? undefined
+    knownEmail = session.user.email ?? null;
 
-    resetAllStores()
-    syncStore.beginHydrating()
+    const userId = session.user.id;
+    const email = session.user.email ?? undefined;
+
+    resetAllStores();
+    syncStore.beginHydrating();
 
     await Promise.all([
       profileStore.fetchProfile(userId, email),
       assessmentStore.hydrateFromSupabase(userId),
       masteryStore.hydrateFromSupabase(userId),
-    ])
+    ]);
 
     // setHydrated() marks hydration complete and triggers drain() if online.
     // After this point enqueue() is live — any writes reach Supabase.
-    syncStore.setHydrated()
+    syncStore.setHydrated();
 
     // Reconcile after setHydrated() so missed streaks are enqueued immediately.
-    masteryStore.reconcile()
+    masteryStore.reconcile();
 
-    const next = (route.query.next as string) || "/"
-    await router.push(next)
+    const next = (route.query.next as string) || "/";
+    await router.push(next);
   } catch {
-    syncStore.endHydrating()
-    const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }))
-    errorEmail.value = user?.email ?? null
-    authState.value = "error"
+    syncStore.endHydrating();
+    errorEmail.value = knownEmail;
+    authState.value = "error";
   }
-}
-
-// TODO [AuthView > Retry]
-// Re-runs full hydration sequence from step 1
-async function retryHydration() {
-  await runHydration()
 }
 
 // TODO [AuthView > Switch account]
 // supabase.auth.signOut() → clear session → return to login state
 async function switchAccount() {
-  await supabase.auth.signOut()
-  errorEmail.value = null
-  authState.value = "login"
+  await supabase.auth.signOut();
+  errorEmail.value = null;
+  authState.value = "login";
 }
 
 onMounted(async () => {
-  if (import.meta.env.DEV && route.query.preview) {
-    authState.value = route.query.preview as AuthState
-    if (route.query.preview === "error") {
-      const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }))
-      errorEmail.value = user?.email ?? "preview@example.com"
-    }
-    return
-  }
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (session && !syncStore.isHydrated) {
-    await runHydration()
+    await runHydration();
   }
-})
+});
 </script>
 
 <template>
@@ -154,7 +151,7 @@ onMounted(async () => {
             size="large"
             flat
             class="text-none"
-            @click="retryHydration"
+            @click="runHydration"
             prepend-icon="mdi-reload"
           >
             Retry

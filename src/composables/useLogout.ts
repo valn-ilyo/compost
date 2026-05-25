@@ -46,6 +46,31 @@ export function resetAllStores() {
   localStorage.removeItem("sync-store");
 }
 
+/**
+ * Removes this device's push subscription from push_subscriptions and
+ * unregisters it from the browser's PushManager.
+ *
+ * Best-effort — failures are swallowed so they never block logout.
+ * Must be called before supabase.auth.signOut() while the session is
+ * still valid (the DELETE is subject to RLS: users manage own rows).
+ */
+async function unsubscribePush(): Promise<void> {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) return;
+
+    // Delete the DB row first (session still valid here).
+    await supabase.from("push_subscriptions").delete().eq("endpoint", subscription.endpoint);
+
+    // Then unsubscribe the browser so the endpoint is truly gone.
+    await subscription.unsubscribe();
+  } catch (e) {
+    if (import.meta.env.DEV) console.warn("[push] unsubscribePush failed", e);
+  }
+}
+
 export function useLogout() {
   const router = useRouter();
   const loggingOut = ref(false);
@@ -58,6 +83,7 @@ export function useLogout() {
   const logout = async (redirectTo = "/auth") => {
     loggingOut.value = true;
     try {
+      await unsubscribePush(); // remove this device's subscription before session ends
       await supabase.auth.signOut();
     } finally {
       resetAllStores();

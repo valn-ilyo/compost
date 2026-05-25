@@ -473,6 +473,9 @@ export const useMasteryStore = defineStore(
     function pauseHabit(templateId: string): void {
       const idx = habitSlots.value.findIndex((s) => s.template_id === templateId);
       if (idx === -1) return;
+      // Guard: slot must be active — prevents P0002 from slot_pause RPC if already
+      // paused (e.g. multi-tab race where Realtime update hasn't arrived yet).
+      if (habitSlots.value[idx]!.status !== "active") return;
       // Optimistic: flip status to paused.
       habitSlots.value[idx] = { ...habitSlots.value[idx]!, status: "paused" };
       const now = isoNow();

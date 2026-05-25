@@ -29,6 +29,16 @@ function resetProgress() {
 }
 
 watch(activeIndex, () => resetProgress());
+watch(
+  tickerItems,
+  (items) => {
+    if (items.length > 1) {
+      activeIndex.value = Math.floor(Math.random() * items.length);
+    }
+    resetProgress();
+  },
+  { once: true },
+);
 onMounted(() => resetProgress());
 
 function formatDate(iso: string): string {

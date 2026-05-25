@@ -50,7 +50,7 @@
       <v-list-item
         prepend-icon="mdi-cloud-off-outline"
         title="You're offline. Data syncs when you reconnect."
-        class="pt-2"
+        class="pt-2 text-wrap"
       />
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2">

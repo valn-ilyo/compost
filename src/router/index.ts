@@ -70,9 +70,6 @@ const router = createRouter({
       name: "profile-edit",
       component: () => import("@/views/ProfileEditView.vue"),
     },
-    ...(import.meta.env.DEV
-      ? [{ path: "/dev", name: "dev", component: () => import("@/views/DevView.vue") }]
-      : []),
     {
       path: "/docs",
       redirect: "/docs/guide",

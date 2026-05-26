@@ -310,6 +310,7 @@ export const useMasteryStore = defineStore(
         (r) => r.template_id === templateId && r.date === yesterday && r.reason === "spent",
       );
       if (!wasProtected) return false;
+      if (hasLogForDate(templateId, todayISO())) return false;
       return !habitLogs.value.some((l) => l.template_id === templateId && l.date === yesterday);
     }
 

@@ -222,7 +222,6 @@ function formatStreak(days: number): string {
                 action-icon="mdi-star-shooting"
                 action-color="success"
                 expand-color="success"
-                item-color="success"
                 :action-disabled="true"
                 @toggle="toggleExpand(t.id)"
                 @action="() => {}"

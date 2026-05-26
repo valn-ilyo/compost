@@ -2,6 +2,7 @@
 import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useMasteryStore } from "@/stores/mastery";
+import { FREEZE_CAP } from "@/types/app";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
 import { useMasteryCheckin } from "@/composables/useMasteryCheckin";
 import { useMasteryActions } from "@/composables/useMasteryActions";
@@ -82,7 +83,7 @@ watch(
                 <MasteryFreezeInfo
                   class="mr-3"
                   :freeze-count="store.freezeCount"
-                  :freeze-cap="3"
+                  :freeze-cap="FREEZE_CAP"
                   :days-to-next-freeze="store.daysToNextFreeze"
                   :days-to-next-mastery="store.daysToNextMastery"
                   :any-freeze-used="store.activeHabits.some((h) => h.freezeUsed)"

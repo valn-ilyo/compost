@@ -5,23 +5,39 @@ import { useThemeStore } from "@/stores/theme";
 import { useAssessmentStore } from "@/stores/assessment";
 import { useNotifier } from "@/composables/useNotifier";
 import { useLogout } from "@/composables/useLogout";
+import { useSyncStore } from "@/stores/sync";
+import { supabase } from "@/services/supabase";
 
 const profileStore = useProfileStore();
 const themeStore = useThemeStore();
 const assessmentStore = useAssessmentStore();
+const syncStore = useSyncStore();
 const { notify } = useNotifier();
 const { deleteAccount: deleteAccountAndLogout } = useLogout();
 
 const showConfirmDialog = ref(false);
 const showDeleteDialog = ref(false);
 const deleting = ref(false);
+const resetting = ref(false);
 
-function clearAll() {
-  assessmentStore.clearAll();
-  notify({
-    message: "All assessments cleared.",
-    color: "info",
-  });
+async function clearAll() {
+  const userId = profileStore.profile?.user_id;
+  if (!userId) return;
+
+  resetting.value = true;
+  try {
+    const { error } = await supabase.from("assessment_answers").delete().eq("user_id", userId);
+
+    if (error) throw error;
+
+    assessmentStore.clearAll();
+    notify({ message: "All assessments cleared.", color: "info" });
+  } catch {
+    notify({ message: "Something went wrong. Please try again.", color: "error" });
+  } finally {
+    resetting.value = false;
+    showConfirmDialog.value = false;
+  }
 }
 
 async function deleteAccount() {
@@ -71,8 +87,9 @@ async function deleteAccount() {
           />
           <v-list-item
             prepend-icon="mdi-delete-sweep-outline"
-            title="Reset assessments"
-            base-color="error"
+            :title="syncStore.isOnline ? 'Reset assessments' : 'Reset requires connection'"
+            :base-color="syncStore.isOnline ? 'error' : undefined"
+            :disabled="!syncStore.isOnline"
             @click="showConfirmDialog = true"
           />
           <v-divider class="my-1" />
@@ -90,7 +107,7 @@ async function deleteAccount() {
   </v-app-bar>
 
   <!-- Reset assessments dialog -->
-  <v-dialog v-model="showConfirmDialog" width="auto">
+  <v-dialog v-model="showConfirmDialog" width="auto" :persistent="resetting">
     <v-card rounded="lg">
       <v-card-title class="pt-6 px-6">Clear all assessments?</v-card-title>
       <v-card-text class="px-6 text-medium-emphasis">
@@ -98,19 +115,14 @@ async function deleteAccount() {
       </v-card-text>
       <v-card-actions>
         <v-spacer />
+        <v-btn color="error" variant="text" :loading="resetting" @click="clearAll"> Reset </v-btn>
         <v-btn
-          color="error"
-          variant="text"
-          @click="
-            () => {
-              clearAll();
-              showConfirmDialog = false;
-            }
-          "
+          color="primary"
+          variant="flat"
+          rounded="lg"
+          :disabled="resetting"
+          @click="showConfirmDialog = false"
         >
-          Reset
-        </v-btn>
-        <v-btn color="primary" variant="flat" rounded="lg" @click="showConfirmDialog = false">
           Keep it
         </v-btn>
       </v-card-actions>

@@ -57,7 +57,7 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2 mb-2">
           When two or more of your habits share the same streak and you miss a day, the app covers
-          all of them even if you'd run short — as long as you had at least one token when the group
+          all of them even if you'd run short, as long as you had at least one token when the group
           was reached. Your freeze count drops below zero. That's debt.
         </p>
         <p class="text-body-2 mb-2">

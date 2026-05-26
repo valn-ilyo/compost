@@ -87,9 +87,11 @@ async function deleteAccount() {
           />
           <v-list-item
             prepend-icon="mdi-delete-sweep-outline"
-            :title="syncStore.isOnline ? 'Reset assessments' : 'Reset requires connection'"
-            :base-color="syncStore.isOnline ? 'error' : undefined"
-            :disabled="!syncStore.isOnline"
+            :title="
+              syncStore.status !== 'offline' ? 'Reset assessments' : 'Reset requires connection'
+            "
+            :base-color="syncStore.status !== 'offline' ? 'error' : undefined"
+            :disabled="syncStore.status === 'offline'"
             @click="showConfirmDialog = true"
           />
           <v-divider class="my-1" />

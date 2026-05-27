@@ -1,6 +1,4 @@
-import type { Badge, BadgeTaglines, SectionMeta } from "../types/app";
-
-export type { Badge, BadgeTaglines };
+import type { Badge, SectionMeta } from "../types/app";
 
 // ─── Threshold ────────────────────────────────────────────────────────────────
 // A section is "weak" when its scaled score is below this fraction of its max.

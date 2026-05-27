@@ -71,6 +71,7 @@ import type {
   HabitSlot,
   HabitPauseEvent,
   MasteredEntry,
+  RealtimeHandlers,
 } from "@/types/app";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -89,22 +90,6 @@ const ON_CONFLICT: Record<string, string> = {
   assessment_answers: "user_id,section_id",
   profiles: "user_id",
 };
-
-// ─── Realtime handler contract ────────────────────────────────────────────────
-//
-// startRealtime() accepts this shape from App.vue. Passing handlers as callbacks
-// avoids a circular dependency (mastery.ts already imports sync.ts).
-//
-// onHabitSlot and onPauseEvent receive the event type so the merge handler can
-// distinguish INSERT, UPDATE, and DELETE without inspecting row fields.
-
-export interface RealtimeHandlers {
-  onHabitLog: (row: HabitLog) => void;
-  onFreezeRow: (row: FreezeLedgerRow) => void;
-  onHabitSlot: (row: HabitSlot, eventType: "INSERT" | "UPDATE" | "DELETE") => void;
-  onPauseEvent: (row: HabitPauseEvent, eventType: "INSERT" | "UPDATE") => void;
-  onMasteredEntry: (row: MasteredEntry) => void;
-}
 
 export const useSyncStore = defineStore(
   "sync",

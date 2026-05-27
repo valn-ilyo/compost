@@ -13,7 +13,6 @@
 
 import { defineStore } from "pinia";
 import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app";
-export type { SectionAnswers };
 import { SECTIONS } from "@/data";
 import { useSyncStore } from "@/stores/sync";
 import { supabase } from "@/services/supabase";

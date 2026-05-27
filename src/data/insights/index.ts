@@ -7,7 +7,7 @@ import { WATER_INSIGHTS } from "./water";
 import { WASTE_INSIGHTS } from "./waste";
 import { DIGITAL_INSIGHTS } from "./digital";
 
-export const QUESTION_INSIGHTS: QuestionInsight[] = [
+const QUESTION_INSIGHTS: QuestionInsight[] = [
   ...TRANSPORT_INSIGHTS,
   ...FOOD_INSIGHTS,
   ...ENERGY_INSIGHTS,

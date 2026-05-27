@@ -118,8 +118,6 @@ export const MASTERY_MILESTONE = 66;
 
 // ─── Insights ─────────────────────────────────────────────────────────────────
 
-export type PerformanceTier = "low" | "mid";
-
 export interface Tip {
   icon: string; // mdi icon string
   text: string;
@@ -136,12 +134,6 @@ export interface QuestionInsight {
    * in the Reflections panel but is excluded from habit recommendation slots.
    */
   noHabit?: boolean;
-}
-
-export interface PunchyFrame {
-  weakSections: string[];
-  strongSections: string[];
-  line: string;
 }
 
 // ─── Mastery ──────────────────────────────────────────────────────────────────
@@ -175,18 +167,6 @@ export interface UserHabit {
   freezeUsed: boolean;
   isMastered: boolean;
 }
-
-// ─── Mastery store events & archive ──────────────────────────────────────────
-
-export type ReconcileEvent =
-  | { type: "frozen"; habitId: string; habitName: string; streak: number }
-  | { type: "lost"; habitId: string; habitName: string; streak: number };
-
-export type MasteredArchiveEntry = {
-  templateId: string;
-  name: string;
-  icon: string;
-};
 
 // ─── Assessment store ─────────────────────────────────────────────────────────
 
@@ -226,20 +206,6 @@ export interface SortedQuestion {
   score: 1 | 2 | 3 | 4 | 5;
 }
 
-// ─── Streak reconciler ────────────────────────────────────────────────────────
-
-export interface ReconcileResult {
-  events: ReconcileEvent[];
-  newFreezeCount: number;
-}
-
-// ─── Habit lifecycle ──────────────────────────────────────────────────────────
-
-export interface LogResult {
-  freezeEarned: boolean;
-  mastered: boolean;
-}
-
 // ─── Component view models ────────────────────────────────────────────────────
 
 export interface HabitPanelItem {
@@ -251,6 +217,21 @@ export interface HabitPanelItem {
 }
 
 export type QuestionId = string;
+
+// ─── Realtime ─────────────────────────────────────────────────────────────────
+//
+// startRealtime() in sync.ts accepts this shape from App.vue. Passing handlers
+// as callbacks avoids a circular dependency (mastery.ts already imports sync.ts).
+// onHabitSlot and onPauseEvent receive the event type so the merge handler can
+// distinguish INSERT, UPDATE, and DELETE without inspecting row fields.
+
+export interface RealtimeHandlers {
+  onHabitLog: (row: HabitLog) => void;
+  onFreezeRow: (row: FreezeLedgerRow) => void;
+  onHabitSlot: (row: HabitSlot, eventType: "INSERT" | "UPDATE" | "DELETE") => void;
+  onPauseEvent: (row: HabitPauseEvent, eventType: "INSERT" | "UPDATE") => void;
+  onMasteredEntry: (row: MasteredEntry) => void;
+}
 
 // ─── Sync ─────────────────────────────────────────────────────────────────────
 

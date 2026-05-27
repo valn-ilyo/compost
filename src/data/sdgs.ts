@@ -1,7 +1,6 @@
 import type { SDG, SdgChip } from "../types/app";
-export type { SdgChip };
 
-export const SDGS: SDG[] = [
+const SDGS: SDG[] = [
   {
     id: "sdg-2",
     number: 2,
@@ -67,7 +66,7 @@ export const SDGS: SDG[] = [
 /**
  * Returns SDGs relevant to a given section, deduplicated.
  */
-export function getSdgsForSection(sectionId: string): SDG[] {
+function getSdgsForSection(sectionId: string): SDG[] {
   return SDGS.filter((sdg) => sdg.sectionIds.includes(sectionId));
 }
 

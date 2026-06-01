@@ -1,5 +1,6 @@
+<!-- Component -- five-question insight list with affirmation colouring -->
 <script setup lang="ts">
-import type { QuestionInsight } from "@/types/app";
+import type { QuestionInsight } from "@/types/app.types";
 
 defineProps<{
   insights: QuestionInsight[];

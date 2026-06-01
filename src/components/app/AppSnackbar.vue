@@ -1,3 +1,4 @@
+<!-- Component -- global snackbar driven by useNotifier -->
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useNotifier } from '@/composables/useNotifier'

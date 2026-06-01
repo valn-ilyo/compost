@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { useProfileStore } from "@/stores/profile"
+import { useProfileStore } from "@/stores/profile.store"
 import { useLogout } from "@/composables/useLogout"
 import ProfileForm from "@/components/profile/ProfileForm.vue"
 
 const profileStore = useProfileStore()
 const { logout } = useLogout()
-const loggingOut = ref(false)
+const isLoggingOut = ref(false)
 
 // TODO [ProfileOnboardingView > Save]
 // Validates name and roll_no are non-empty.
@@ -16,9 +16,9 @@ const loggingOut = ref(false)
 // TODO [ProfileOnboardingView > Switch account]
 // Logs out and returns to AuthView
 const handleLogout = async () => {
-  loggingOut.value = true
+  isLoggingOut.value = true
   await logout()
-  loggingOut.value = false
+  isLoggingOut.value = false
 }
 </script>
 
@@ -72,9 +72,9 @@ const handleLogout = async () => {
         }"
         class="pa-6 pt-2"
       >
-        <ProfileForm :disabled="loggingOut" />
+        <ProfileForm :disabled="isLoggingOut" />
         <v-btn
-          :loading="loggingOut"
+          :loading="isLoggingOut"
           variant="text"
           color="secondary"
           size="small"

@@ -1,5 +1,6 @@
+<!-- Component -- methodology overview section, footprint model summary and structure table -->
 <script setup lang="ts">
-import { SECTIONS, questionRegistry } from "@/data/index";
+import { SECTIONS, questionRegistry } from "@/data/registry";
 
 const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 

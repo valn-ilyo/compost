@@ -1,9 +1,10 @@
+<!-- Component -- habit recommendations panel, adapts to slot state and mastery store -->
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useMasteryStore } from "@/stores/mastery";
-import { MAX_SLOTS } from "@/types/app";
-import type { HabitTemplate, HabitPanelItem } from "@/types/app";
+import { useMasteryStore } from "@/stores/mastery.store";
+import { MAX_SLOTS } from "@/types/app.types";
+import type { HabitTemplate, HabitPanelItem } from "@/types/app.types";
 
 const props = defineProps<{
   templates: HabitTemplate[];

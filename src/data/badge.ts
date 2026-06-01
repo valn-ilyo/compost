@@ -1,10 +1,8 @@
-import type { Badge, SectionMeta } from "../types/app";
+// Badge definitions, score thresholds, taglines, and sort/tagline helpers
+import type { Badge, SectionMeta } from "../types/app.types";
 
-// ─── Threshold ────────────────────────────────────────────────────────────────
 // A section is "weak" when its scaled score is below this fraction of its max.
 export const WEAK_THRESHOLD = 0.5;
-
-// ─── Step 1 — getSortedSections ───────────────────────────────────────────────
 
 /**
  * Sort section results weakest → strongest.
@@ -22,8 +20,6 @@ export function getSortedSections(
     return 0;
   });
 }
-
-// ─── Badges ───────────────────────────────────────────────────────────────────
 
 export const BADGES: Badge[] = [
   {

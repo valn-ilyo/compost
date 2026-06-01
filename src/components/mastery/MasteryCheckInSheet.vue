@@ -1,8 +1,9 @@
+<!-- Component -- check-in bottom sheet for logging yes/no on unlogged active habits -->
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useDisplay } from "vuetify";
-import { useMasteryStore } from "@/stores/mastery";
-import type { UserHabit } from "@/types/app";
+import { useMasteryStore } from "@/stores/mastery.store";
+import type { UserHabit } from "@/types/app.types";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -19,7 +20,7 @@ const { mdAndUp } = useDisplay();
 
 const session = ref<UserHabit[]>([]);
 const idx = ref(0);
-const answered = ref(false);
+const isAnswered = ref(false);
 const navDirection = ref<"forward" | "back">("forward");
 
 // Buffered answers: templateId → 'yes' | 'no'. Flushed to the store on close.
@@ -36,7 +37,7 @@ watch(
         ? store.activeHabits.filter((h) => h.templateId === props.habitId)
         : [...store.unloggedToday];
       idx.value = 0;
-      answered.value = false;
+      isAnswered.value = false;
       navDirection.value = "forward";
       pendingAnswers.value = new Map();
     }
@@ -44,8 +45,8 @@ watch(
 );
 
 function answer(didIt: boolean): void {
-  if (!current.value || answered.value) return;
-  answered.value = true;
+  if (!current.value || isAnswered.value) return;
+  isAnswered.value = true;
   pendingAnswers.value.set(current.value.templateId, didIt ? "yes" : "no");
   setTimeout(() => {
     if (isLast.value) {
@@ -54,7 +55,7 @@ function answer(didIt: boolean): void {
     } else {
       navDirection.value = "forward";
       idx.value++;
-      answered.value = false;
+      isAnswered.value = false;
     }
   }, 300);
 }
@@ -125,7 +126,7 @@ function close(): void {
           color="primary"
           variant="tonal"
           rounded="lg"
-          :disabled="answered"
+          :disabled="isAnswered"
           @click="answer(true)"
         >
           Yes
@@ -145,7 +146,7 @@ function close(): void {
           color="error"
           variant="tonal"
           rounded="lg"
-          :disabled="answered"
+          :disabled="isAnswered"
           @click="answer(false)"
         >
           No

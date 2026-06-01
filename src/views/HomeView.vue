@@ -3,12 +3,12 @@ import { computed, ref } from "vue"
 import type { ComponentPublicInstance } from "vue"
 import { useElementSize } from "@vueuse/core"
 import { useRouter } from "vue-router"
-import { useAssessmentStore } from "@/stores/assessment"
-import { useMasteryStore } from "@/stores/mastery"
+import { useAssessmentStore } from "@/stores/assessment.store"
+import { useMasteryStore } from "@/stores/mastery.store"
 import { usePwaInstall } from "@/composables/usePwaInstall"
 import { useNotificationPrompt } from "@/composables/useNotificationPrompt"
-import { SECTIONS } from "@/data"
-import AppBarHome from "@/components/app/AppBarHome.vue"
+import { SECTIONS } from "@/data/registry"
+import HomeAppBar from "@/components/app/HomeAppBar.vue"
 import ClimateHeadlines from "@/components/climate/ClimateHeadlines.vue"
 import PwaInstallBanner from "@/components/pwa/PwaInstallBanner.vue"
 import NotificationPromptBanner from "@/components/notification/NotificationPromptBanner.vue"
@@ -52,7 +52,7 @@ const { width: cardWidth } = useElementSize(
 </script>
 
 <template>
-  <AppBarHome />
+  <HomeAppBar />
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="8" class="d-flex flex-column ga-3">

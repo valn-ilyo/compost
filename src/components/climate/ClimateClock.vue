@@ -1,3 +1,4 @@
+<!-- Component -- climate clock display with deadline countdown and rotating lifeline counter -->
 <script setup lang="ts">
 import { useClimateClock } from "@/composables/useClimateClock";
 
@@ -7,7 +8,7 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
 
 <template>
   <v-row no-gutters>
-    <!-- DEADLINE -->
+    <!-- ─── Deadline ──────────────────────────────────────────────────────────── -->
     <v-col cols="12" md="6">
       <v-sheet color="error">
         <v-sheet color="error-container" class="d-flex align-center">
@@ -126,7 +127,7 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
       </v-sheet>
     </v-col>
 
-    <!-- LIFELINE -->
+    <!-- ─── Lifeline ──────────────────────────────────────────────────────────── -->
     <v-col cols="12" md="6">
       <v-sheet color="tertiary">
         <v-sheet color="tertiary-container" class="d-flex align-center">

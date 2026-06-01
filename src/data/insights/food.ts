@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the food section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const FOOD_INSIGHTS: QuestionInsight[] = [
-  // diet_type
   {
     sectionId: "food",
     questionId: "diet_type",
@@ -38,7 +38,6 @@ export const FOOD_INSIGHTS: QuestionInsight[] = [
     text: "Red meat at nearly every meal carries the highest dietary footprint of any pattern. At your next meal containing beef or pork, replace it with chicken, fish, eggs, or lentils.",
   },
 
-  // plate_waste
   {
     sectionId: "food",
     questionId: "plate_waste",
@@ -75,7 +74,6 @@ export const FOOD_INSIGHTS: QuestionInsight[] = [
     text: "Regularly discarding half-eaten food means the full production cost of that food is paid for nothing. Start by finishing everything on your plate today, even if it means serving less to begin.",
   },
 
-  // leftovers
   {
     sectionId: "food",
     questionId: "leftovers",
@@ -112,7 +110,6 @@ export const FOOD_INSIGHTS: QuestionInsight[] = [
     text: "Always discarding leftovers means the full cost of every meal beyond your plate is wasted. Before sleeping tonight, put any cooked food still out into the fridge.",
   },
 
-  // packaged_food
   {
     sectionId: "food",
     questionId: "packaged_food",
@@ -149,7 +146,6 @@ export const FOOD_INSIGHTS: QuestionInsight[] = [
     text: "Multiple packaged purchases daily is the highest-waste food habit at this level. Tomorrow morning, fill a bottle and put a piece of fruit in your bag before leaving. That replaces one purchase immediately.",
   },
 
-  // local_food
   {
     sectionId: "food",
     questionId: "local_food",

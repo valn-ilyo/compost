@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the waste section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const WASTE_INSIGHTS: QuestionInsight[] = [
-  // plastic_bottles
   {
     sectionId: "waste",
     questionId: "plastic_bottles",
@@ -38,7 +38,6 @@ export const WASTE_INSIGHTS: QuestionInsight[] = [
     text: "Seven or more bottles per week is over 365 pieces of plastic per year from one person. Get a reusable bottle, any bottle you own, and fill it from the tap today.",
   },
 
-  // waste_segregation
   {
     sectionId: "waste",
     questionId: "waste_segregation",
@@ -75,7 +74,6 @@ export const WASTE_INSIGHTS: QuestionInsight[] = [
     text: "Everything in one bin means recyclable and compostable material is sent to landfill. Put the next food scrap or vegetable peel in a separate container. That one separation is the beginning.",
   },
 
-  // disposable_cutlery
   {
     sectionId: "waste",
     questionId: "disposable_cutlery",
@@ -112,7 +110,6 @@ export const WASTE_INSIGHTS: QuestionInsight[] = [
     text: "Disposables at almost every meal means more than 1,000 single-use items per year from one person. Use one thing you already own, whether a mug, a plate, or a spoon, at your next meal. Wash it. Repeat tomorrow.",
   },
 
-  // reusable_bag
   {
     sectionId: "waste",
     questionId: "reusable_bag",
@@ -149,7 +146,6 @@ export const WASTE_INSIGHTS: QuestionInsight[] = [
     text: "Never carrying a reusable bag means dozens of plastic bags per month. Take any bag you own, a backpack or a tote, on your next market trip and refuse the plastic bag.",
   },
 
-  // ewaste
   {
     sectionId: "waste",
     questionId: "ewaste",
@@ -186,7 +182,6 @@ export const WASTE_INSIGHTS: QuestionInsight[] = [
     text: "Burning or discarding electronics outdoors releases toxic chemicals directly into the air and soil. Find a safe collection point in your area, collection is usually free, and use it immediately.",
   },
 
-  // organic_waste
   {
     sectionId: "waste",
     questionId: "organic_waste",
@@ -223,7 +218,6 @@ export const WASTE_INSIGHTS: QuestionInsight[] = [
     text: "Throwing food outside or in open areas creates odour, attracts pests, and still generates methane. Use any covered container inside your home for food waste starting today.",
   },
 
-  // food_waste
   {
     sectionId: "waste",
     questionId: "food_waste",

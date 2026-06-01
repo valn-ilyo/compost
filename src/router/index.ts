@@ -1,7 +1,8 @@
+// Vue Router instance with hash history, auth guard, and profile completeness checks
 import { createRouter, createWebHashHistory } from "vue-router";
-import { supabase } from "@/services/supabase";
-import { useProfileStore } from "@/stores/profile";
-import { useSyncStore } from "@/stores/sync";
+import { supabase } from "@/services/supabase.service";
+import { useProfileStore } from "@/stores/profile.store";
+import { useSyncStore } from "@/stores/sync.store";
 
 declare module "vue-router" {
   interface RouteMeta {
@@ -100,27 +101,23 @@ router.beforeEach(async (to, _from) => {
   const isLoggedIn = !!session;
   const syncStore = useSyncStore();
 
-  // ── Unauthenticated ────────────────────────────────────────────────────────
-
+  // Not logged in -- redirect to /auth with ?next so the user lands back here after sign-in.
   if (to.meta.requiresAuth && !isLoggedIn) {
     return { name: "auth", query: { next: to.fullPath } };
   }
 
-  // ── Authenticated but not yet hydrated ────────────────────────────────────
-
+  // Logged in but store not hydrated yet -- send back through /auth to trigger hydration.
   if (to.meta.requiresAuth && isLoggedIn && !syncStore.isHydrated) {
     return { name: "auth", query: { next: to.fullPath } };
   }
 
-  // ── Already hydrated, trying to visit /auth ────────────────────────────────
-
+  // Already hydrated and trying to visit /auth -- skip the auth screen entirely.
   if (to.path.startsWith("/auth") && isLoggedIn && syncStore.isHydrated) {
     const fallback = (to.query.next as string) || "/";
     return { path: fallback };
   }
 
-  // ── Authenticated and hydrated — profile completeness checks ──────────────
-
+  // Logged in and hydrated -- run profile completeness checks.
   if (to.meta.requiresAuth && isLoggedIn && syncStore.isHydrated) {
     const profileStore = useProfileStore();
 
@@ -131,7 +128,7 @@ router.beforeEach(async (to, _from) => {
       return { name: "auth", query: { next: to.fullPath } };
     }
 
-    // Email missing from a previous session — re-hydrate to recover it.
+    // Email missing from a previous session -- re-hydrate to recover it.
     if (profileStore.userEmail === null) {
       syncStore.isHydrated = false;
       return { name: "auth", query: { next: to.fullPath } };
@@ -147,8 +144,7 @@ router.beforeEach(async (to, _from) => {
       return { path: "/" };
     }
 
-    // ── Admin-only routes ──────────────────────────────────────────────────────
-
+    // Admin-only routes -- non-admins fall back to home silently.
     if (to.meta.requiresAdmin && !profileStore.profile?.is_admin) {
       return { path: "/" };
     }

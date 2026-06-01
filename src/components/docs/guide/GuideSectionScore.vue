@@ -1,3 +1,4 @@
+<!-- Component -- guide score section, badge tiers and weak threshold explanation -->
 <script setup lang="ts">
 import { BADGES, WEAK_THRESHOLD } from "@/data/badge";
 </script>

@@ -1,7 +1,8 @@
+<!-- Component -- docs sidebar nav, switches items based on the active route tab -->
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { guideNav, methodologyNav, creditsNav, type NavItem } from "@/data/docsNav";
+import { guideNav, methodologyNav, creditsNav, type NavItem } from "@/data/docs-nav";
 
 defineProps<{
   modelValue: string;

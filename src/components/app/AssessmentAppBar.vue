@@ -1,5 +1,6 @@
+<!-- Component -- app bar for the assessment view with check-in / insights tab navigation -->
 <script setup lang="ts">
-import { useAssessmentStore } from "@/stores/assessment";
+import { useAssessmentStore } from "@/stores/assessment.store";
 
 const store = useAssessmentStore();
 </script>

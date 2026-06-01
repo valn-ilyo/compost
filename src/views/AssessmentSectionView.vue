@@ -2,10 +2,10 @@
 import { ref, computed, watch } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
-import { useAssessmentStore } from "@/stores/assessment";
-import type { SectionAnswers, QuestionId } from "@/types/app";
-import { questionRegistry } from "@/data/index";
-import { SECTIONS } from "../data/index";
+import { useAssessmentStore } from "@/stores/assessment.store";
+import type { SectionAnswers, QuestionId } from "@/types/app.types";
+import { questionRegistry } from "@/data/registry";
+import { SECTIONS } from "../data/registry";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,15 +34,15 @@ const expandedPanel = ref<number | undefined>(undefined);
 const lastAnswered = computed(
   () => lastQuestionId != null && localAnswers.value[lastQuestionId] !== null,
 );
-const submitting = ref(false);
-const hintActive = ref(true);
+const isSubmitting = ref(false);
+const isHintActive = ref(true);
 const flashingOptionKey = ref<string | null>(null);
 const { stop } = useTimeoutFn(() => {
-  hintActive.value = false;
+  isHintActive.value = false;
 }, 2000);
 
 function stopHint(): void {
-  hintActive.value = false;
+  isHintActive.value = false;
   stop();
 }
 watch(expandedPanel, (val) => {
@@ -88,13 +88,13 @@ function selectAndAdvance(questionId: QuestionId, points: number): void {
 //    → triggers recommendation recompute if all 7 sections complete
 // 3. Navigate to /assessment
 async function submit(): Promise<void> {
-  submitting.value = true;
+  isSubmitting.value = true;
   try {
     const answers = localAnswers.value as SectionAnswers;
     store.submitSection(sectionId, answers);
     await router.push({ name: "assessment", query: { tab: "insights" } });
   } finally {
-    submitting.value = false;
+    isSubmitting.value = false;
   }
 }
 </script>
@@ -123,7 +123,7 @@ async function submit(): Promise<void> {
                 <v-btn
                   color="primary"
                   variant="flat"
-                  :loading="submitting"
+                  :loading="isSubmitting"
                   @click="submit"
                   append-icon="mdi-check"
                   >Done</v-btn
@@ -168,7 +168,7 @@ async function submit(): Promise<void> {
                       <v-icon
                         color="tertiary"
                         :icon="expanded ? 'mdi-lightbulb-on' : 'mdi-lightbulb-on-outline'"
-                        :class="{ 'hint-pulse': hintActive }"
+                        :class="{ 'hint-pulse': isHintActive }"
                       />
                     </template>
                   </v-expansion-panel-title>

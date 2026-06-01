@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useProfileStore } from "@/stores/profile";
+import { useProfileStore } from "@/stores/profile.store";
 import { useLogout } from "@/composables/useLogout";
-import { useSyncStore } from "@/stores/sync";
-import { openFeedbackForm } from "@/services/feedbackForm";
-import AppBarProfile from "@/components/app/AppBarProfile.vue";
+import { useSyncStore } from "@/stores/sync.store";
+import { openFeedbackForm } from "@/services/feedback-form.service";
+import ProfileAppBar from "@/components/app/ProfileAppBar.vue";
 
 const { logout, loggingOut } = useLogout();
 const store = useProfileStore();
@@ -37,7 +37,7 @@ function handleLogoutClick() {
 </script>
 
 <template>
-  <AppBarProfile />
+  <ProfileAppBar />
   <v-container class="pt-0">
     <v-row justify="center">
       <v-col cols="12" sm="10" md="8" lg="6" xl="4">

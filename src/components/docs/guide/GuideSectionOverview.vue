@@ -1,7 +1,4 @@
-<script setup lang="ts">
-// No data derivation. Static prose.
-</script>
-
+<!-- Component -- guide overview section, app intro and offline capability -->
 <template>
   <section id="overview">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Overview</div>

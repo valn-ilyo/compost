@@ -1,5 +1,6 @@
+// Composable -- push notification permission flow and subscription persistence
 import { ref, onMounted } from "vue";
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/services/supabase.service";
 
 export function useNotificationPrompt() {
   const showNotificationBanner = ref(false);
@@ -23,7 +24,7 @@ export function useNotificationPrompt() {
     try {
       const registration = await navigator.serviceWorker.ready;
 
-      // Reuse an existing subscription if one exists — avoids throwing when
+      // Reuse an existing subscription if one exists; avoids throwing when
       // subscribe() is called again with the same VAPID key. If the VAPID key
       // has rotated, getSubscription() returns null and we create a fresh one.
       const existing = await registration.pushManager.getSubscription();
@@ -41,7 +42,7 @@ export function useNotificationPrompt() {
 
       if (!endpoint || !p256dh || !auth) return;
 
-      // Upsert on (user_id, endpoint) — one row per user per device.
+      // Upsert on (user_id, endpoint); one row per user per device.
       // If the browser rotates p256dh/auth for the same endpoint, the row is
       // updated in place. A new device gets its own row.
       await supabase
@@ -52,7 +53,7 @@ export function useNotificationPrompt() {
         );
     } catch (e) {
       if (import.meta.env.DEV) console.warn("[push] subscribeAndSave failed", e);
-      // subscription failed silently in prod — user can retry via the banner
+      // subscription failed silently in prod; user can retry via the banner
     }
   }
 
@@ -67,13 +68,13 @@ export function useNotificationPrompt() {
         await subscribeAndSave();
       } else if (permission === "denied") {
         // The system dialog was suppressed or the user explicitly denied.
-        // Hide the banner — there is nothing more the app can do.
+        // Hide the banner; there is nothing more the app can do.
         showNotificationBanner.value = false;
       }
       // "default" (dismissed without choosing): leave the banner visible for retry.
     } catch (e) {
       if (import.meta.env.DEV) console.warn("[push] requestPermission failed", e);
-      // permission request failed — banner stays visible for retry
+      // permission request failed; banner stays visible for retry
     }
   }
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useMasteryStore } from "@/stores/mastery";
-import { FREEZE_CAP } from "@/types/app";
+import { useMasteryStore } from "@/stores/mastery.store";
+import { FREEZE_CAP } from "@/types/app.types";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
-import { useMasteryCheckin } from "@/composables/useMasteryCheckin";
+import { useMasteryCheckIn } from "@/composables/useMasteryCheckIn";
 import { useMasteryActions } from "@/composables/useMasteryActions";
 import HabitCard from "@/components/habit/HabitCard.vue";
 import HabitLibrary from "@/components/habit/HabitLibrary.vue";
@@ -27,7 +27,7 @@ const {
   handleLog,
   handleLogAll,
   handleCheckinDone,
-} = useMasteryCheckin();
+} = useMasteryCheckIn();
 const {
   swapOpen,
   pendingTemplate,

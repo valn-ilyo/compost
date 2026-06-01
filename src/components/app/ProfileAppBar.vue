@@ -1,12 +1,13 @@
+<!-- Component -- app bar for the profile view with settings menu, theme controls, and account management -->
 <script setup lang="ts">
 import { ref } from "vue";
-import { useProfileStore } from "@/stores/profile";
-import { useThemeStore } from "@/stores/theme";
-import { useAssessmentStore } from "@/stores/assessment";
+import { useProfileStore } from "@/stores/profile.store";
+import { useThemeStore } from "@/stores/theme.store";
+import { useAssessmentStore } from "@/stores/assessment.store";
 import { useNotifier } from "@/composables/useNotifier";
 import { useLogout } from "@/composables/useLogout";
-import { useSyncStore } from "@/stores/sync";
-import { supabase } from "@/services/supabase";
+import { useSyncStore } from "@/stores/sync.store";
+import { supabase } from "@/services/supabase.service";
 
 const profileStore = useProfileStore();
 const themeStore = useThemeStore();
@@ -17,14 +18,14 @@ const { deleteAccount: deleteAccountAndLogout } = useLogout();
 
 const showConfirmDialog = ref(false);
 const showDeleteDialog = ref(false);
-const deleting = ref(false);
-const resetting = ref(false);
+const isDeleting = ref(false);
+const isResetting = ref(false);
 
 async function clearAll() {
   const userId = profileStore.profile?.user_id;
   if (!userId) return;
 
-  resetting.value = true;
+  isResetting.value = true;
   try {
     const { error } = await supabase.from("assessment_answers").delete().eq("user_id", userId);
 
@@ -35,21 +36,21 @@ async function clearAll() {
   } catch {
     notify({ message: "Something went wrong. Please try again.", color: "error" });
   } finally {
-    resetting.value = false;
+    isResetting.value = false;
     showConfirmDialog.value = false;
   }
 }
 
 async function deleteAccount() {
-  deleting.value = true;
+  isDeleting.value = true;
   try {
     await deleteAccountAndLogout();
     // deleteAccountAndLogout() navigates to /auth on success.
-    // It deliberately skips supabase.auth.signOut() — the user row no longer
+    // It deliberately skips supabase.auth.signOut() - the user row no longer
     // exists in auth.users after delete_account() runs, so signOut returns
     // 403 user_not_found.
   } catch {
-    deleting.value = false;
+    isDeleting.value = false;
     showDeleteDialog.value = false;
     notify({
       message: "Something went wrong. Please try again.",
@@ -108,8 +109,8 @@ async function deleteAccount() {
     </template>
   </v-app-bar>
 
-  <!-- Reset assessments dialog -->
-  <v-dialog v-model="showConfirmDialog" width="auto" :persistent="resetting">
+  <!-- ─── Reset assessments dialog ───────────────────────────────────────── -->
+  <v-dialog v-model="showConfirmDialog" width="auto" :persistent="isResetting">
     <v-card rounded="lg">
       <v-card-title class="pt-6 px-6">Clear all assessments?</v-card-title>
       <v-card-text class="px-6 text-medium-emphasis">
@@ -117,12 +118,12 @@ async function deleteAccount() {
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" :loading="resetting" @click="clearAll"> Reset </v-btn>
+        <v-btn color="error" variant="text" :loading="isResetting" @click="clearAll"> Reset </v-btn>
         <v-btn
           color="primary"
           variant="flat"
           rounded="lg"
-          :disabled="resetting"
+          :disabled="isResetting"
           @click="showConfirmDialog = false"
         >
           Keep it
@@ -131,8 +132,8 @@ async function deleteAccount() {
     </v-card>
   </v-dialog>
 
-  <!-- Delete account dialog -->
-  <v-dialog v-model="showDeleteDialog" width="auto" :persistent="deleting">
+  <!-- ─── Delete account dialog ──────────────────────────────────────────── -->
+  <v-dialog v-model="showDeleteDialog" width="auto" :persistent="isDeleting">
     <v-card rounded="lg">
       <v-card-title class="pt-6 px-6">Delete your account?</v-card-title>
       <v-card-text class="px-6 text-medium-emphasis">
@@ -140,14 +141,14 @@ async function deleteAccount() {
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" :loading="deleting" @click="deleteAccount">
+        <v-btn color="error" variant="text" :loading="isDeleting" @click="deleteAccount">
           Delete
         </v-btn>
         <v-btn
           color="primary"
           variant="flat"
           rounded="lg"
-          :disabled="deleting"
+          :disabled="isDeleting"
           @click="showDeleteDialog = false"
         >
           Keep it

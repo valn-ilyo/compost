@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
 import AppSnackbar from "./components/app/AppSnackbar.vue";
-import { useMasteryStore } from "@/stores/mastery";
-import { useThemeStore } from "@/stores/theme";
+import { useMasteryStore } from "@/stores/mastery.store";
+import { useThemeStore } from "@/stores/theme.store";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
-import { useSyncStore } from "@/stores/sync";
-import { useAssessmentStore } from "@/stores/assessment";
-import { useProfileStore } from "@/stores/profile";
-import { supabase } from "@/services/supabase";
+import { useSyncStore } from "@/stores/sync.store";
+import { useAssessmentStore } from "@/stores/assessment.store";
+import { useProfileStore } from "@/stores/profile.store";
+import { supabase } from "@/services/supabase.service";
 import { onMidnight } from "@/utils/clock";
 
 const masteryStore   = useMasteryStore();

@@ -1,3 +1,4 @@
+<!-- Component -- credits tab, renders the active credits section by id -->
 <script setup lang="ts">
 import CreditsSectionTeam from "./credits/CreditsSectionTeam.vue";
 import CreditsSectionStack from "./credits/CreditsSectionStack.vue";

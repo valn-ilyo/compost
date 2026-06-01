@@ -1,3 +1,4 @@
+<!-- Component -- freeze balance chip with contextual info popover -->
 <script setup lang="ts">
 import { computed } from "vue";
 

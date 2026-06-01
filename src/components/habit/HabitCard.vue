@@ -1,6 +1,7 @@
+<!-- Component -- habit card with streak chip, log action, pause/remove menu, and mastery retire sheet -->
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { UserHabit } from "@/types/app";
+import type { UserHabit } from "@/types/app.types";
 import MasteryRetireSheet from "@/components/mastery/MasteryRetireSheet.vue";
 
 const props = defineProps<{
@@ -16,8 +17,8 @@ const emit = defineEmits<{
   retire: [id: string];
 }>();
 
-const confirmRemoveOpen = ref(false);
-const retireSheetOpen = ref(false);
+const isConfirmRemoveOpen = ref(false);
+const isRetireSheetOpen = ref(false);
 
 const streakChip = computed(() => {
   if (props.habit.isMastered) {
@@ -50,7 +51,7 @@ const streakChip = computed(() => {
 
 function handleRemoveClick(): void {
   if (props.habit.streak > 0) {
-    confirmRemoveOpen.value = true;
+    isConfirmRemoveOpen.value = true;
   } else {
     emit("remove", props.habit.templateId);
   }
@@ -58,18 +59,13 @@ function handleRemoveClick(): void {
 </script>
 
 <template>
-  <!--
-    Root element is intentionally NOT v-motion — TransitionGroup in the parent
-    owns the enter/leave/move animations for the whole row. v-motion lives only
-    on internal child elements so both layers work independently.
-  -->
   <v-list-item
     density="compact"
     min-height="0"
     class="py-3"
     :ripple="habit.isMastered || !isLoggedToday"
     @click="
-      habit.isMastered ? (retireSheetOpen = true) : !isLoggedToday && emit('log', habit.templateId)
+      habit.isMastered ? (isRetireSheetOpen = true) : !isLoggedToday && emit('log', habit.templateId)
     "
   >
     <template #prepend>
@@ -119,7 +115,7 @@ function handleRemoveClick(): void {
       </v-chip>
     </template>
 
-    <!-- No menu for mastered habits — tap the card instead -->
+    <!-- No menu for mastered habits - tap the card instead -->
     <template v-if="!habit.isMastered" #append>
       <v-menu location="bottom end">
         <template #activator="{ props: menuProps }">
@@ -154,11 +150,11 @@ function handleRemoveClick(): void {
     </template>
   </v-list-item>
 
-  <!-- Retirement bottom sheet — mastered habits only -->
-  <MasteryRetireSheet v-model="retireSheetOpen" :habit="habit" @retire="emit('retire', $event)" />
+  <!-- Retirement bottom sheet - mastered habits only -->
+  <MasteryRetireSheet v-model="isRetireSheetOpen" :habit="habit" @retire="emit('retire', $event)" />
 
-  <!-- Confirmation dialog — only reachable when habit.streak > 0 -->
-  <v-dialog v-model="confirmRemoveOpen" max-width="320">
+  <!-- Confirmation dialog - only reachable when habit.streak > 0 -->
+  <v-dialog v-model="isConfirmRemoveOpen" max-width="320">
     <v-card rounded="xl">
       <v-card-item class="pt-5 pb-1">
         <template #prepend>
@@ -181,7 +177,7 @@ function handleRemoveClick(): void {
           flex="1"
           @click="
             emit('remove', habit.templateId);
-            confirmRemoveOpen = false;
+            isConfirmRemoveOpen = false;
           "
         >
           Remove
@@ -191,7 +187,7 @@ function handleRemoveClick(): void {
           color="primary"
           rounded="lg"
           flex="1"
-          @click="confirmRemoveOpen = false"
+          @click="isConfirmRemoveOpen = false"
         >
           Keep it
         </v-btn>

@@ -1,24 +1,18 @@
-// ─── useMasteryCheckin ────────────────────────────────────────────────────────
-// Manages the check-in sheet state and display values for MasteryView.
+// Composable -- check-in sheet state and display values for MasteryView
 //
 // The sheet buffers answers locally and only flushes them to the store on close,
 // so habit cards behind the sheet remain unchanged while the session is in progress.
-// ─────────────────────────────────────────────────────────────────────────────
 
 import { computed, ref, watch } from "vue";
-import type { HabitLog } from "@/types/app";
-import { useMasteryStore } from "@/stores/mastery";
-import { todayISO } from "@/utils/habitDate";
+import type { HabitLog } from "@/types/app.types";
+import { useMasteryStore } from "@/stores/mastery.store";
+import { todayISO } from "@/utils/habit-date";
 
-export function useMasteryCheckin() {
+export function useMasteryCheckIn() {
   const store = useMasteryStore();
-
-  // ── Sheet state ──────────────────────────────────────────────────────────
 
   const checkinOpen = ref(false);
   const checkinHabitId = ref<string | undefined>(undefined);
-
-  // ── Display helpers ───────────────────────────────────────────────────────
 
   function resolveLogLabel(unlogged: number, total: number): string {
     if (unlogged === total) return "Log your habits";
@@ -26,15 +20,11 @@ export function useMasteryCheckin() {
     return `${unlogged} left to log`;
   }
 
-  /**
-   * Returns the pre-loss streak value for a given template from lastReconcileEvents.
-   * Only 'lost' events exist — protection is derived from freeze_ledger directly.
-   */
+  // Pre-loss streak from lastReconcileEvents; only 'lost' events exist here
+  // since protection is derived from freeze_ledger directly, not stored as events.
   function displayLostStreak(templateId: string): number | undefined {
     return store.lastReconcileEvents.find((e) => e.templateId === templateId)?.streak;
   }
-
-  // ── Computed display values ───────────────────────────────────────────────
 
   const showAllLogged = computed(() => store.allLoggedToday && !checkinOpen.value);
 
@@ -49,16 +39,12 @@ export function useMasteryCheckin() {
     );
   });
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
-
-  /** Open the check-in sheet for a single habit (tapped directly from its card). */
   function handleLog(templateId: string): void {
     if (store.isLoggedToday(templateId)) return;
     checkinHabitId.value = templateId;
     checkinOpen.value = true;
   }
 
-  /** Open the check-in sheet in log-all mode. */
   function handleLogAll(): void {
     checkinHabitId.value = undefined;
     checkinOpen.value = true;

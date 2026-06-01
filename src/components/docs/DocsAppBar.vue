@@ -1,16 +1,13 @@
+<!-- Component -- app bar for the docs view with full-text search and tab slot -->
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 interface SearchEntry {
-  /** Unique key — prevents Vuetify virtual-scroll ID collisions. */
-  id: string;
+  id: string; // unique key, prevents Vuetify virtual-scroll ID collisions
   tab: "guide" | "methodology" | "credits";
-  /** Matches a docsNav id — used to set sectionByTab in DocsView. */
-  anchor: string;
-  /** Display label shown in the result list. */
+  anchor: string; // matches a docs-nav id, used to set sectionByTab in DocsView
   section: string;
-  /** Full prose used for keyword matching and context extraction. */
   text: string;
 }
 
@@ -21,7 +18,7 @@ const TAB_LABELS: Record<string, string> = {
 };
 
 const INDEX: SearchEntry[] = [
-  // ── Guide ──────────────────────────────────────────────────────────────────
+  // ─── Guide ──────────────────────────────────────────────────────────────────
   {
     id: "guide-overview-overview",
     tab: "guide",
@@ -79,7 +76,7 @@ const INDEX: SearchEntry[] = [
     text: "The app stores the minimum data needed to function. Nothing is sold or shared with third parties. Your account is identified by your Google account ID and email address. The app stores your assessment answers, habit slots, mastery state, and display name if you set one. A local copy of all data is kept in your browser storage so the app works offline. Data is stored in a Supabase database. Authentication is handled by Supabase Auth via Google OAuth. Your assessment data is only accessible to your own account. You can reset your assessment answers from the Assessment tab. Deleting your account removes all stored data permanently.",
   },
 
-  // ── Methodology ────────────────────────────────────────────────────────────
+  // ─── Methodology ────────────────────────────────────────────────────────────
   {
     id: "methodology-overview-overview",
     tab: "methodology",
@@ -137,7 +134,7 @@ const INDEX: SearchEntry[] = [
     text: "Ellen MacArthur Foundation circular economy tackles climate change. FAO food wastage footprint impacts on natural resources Food and Agriculture Organization. Freitag Berners-Lee Widdicks Knowles real climate transformative impact ICT critique estimates trends regulations Patterns journal. International Energy Agency world energy outlook global EV outlook IEA. Poore Nemecek reducing food's environmental impacts through producers and consumers Science 360 6392 987-992. Bibliography sources research.",
   },
 
-  // ── Credits ────────────────────────────────────────────────────────────────
+  // ─── Credits ────────────────────────────────────────────────────────────────
   {
     id: "credits-team-supervisors",
     tab: "credits",
@@ -174,7 +171,7 @@ const emit = defineEmits<{
   navigate: [payload: { tab: "guide" | "methodology" | "credits"; section: string }];
 }>();
 
-const searchMode = ref(false);
+const isSearchMode = ref(false);
 const searchQuery = ref("");
 
 function customFilter(_value: string, query: string, item?: { raw: SearchEntry }): boolean {
@@ -218,11 +215,11 @@ function getItemProps(item: SearchEntry) {
 }
 
 function toggleSearch() {
-  searchMode.value = !searchMode.value;
+  isSearchMode.value = !isSearchMode.value;
 }
 
 function closeSearch() {
-  searchMode.value = false;
+  isSearchMode.value = false;
   searchQuery.value = "";
 }
 
@@ -254,16 +251,14 @@ function goHome() {
       />
     </template>
 
-    <!-- Normal: title -->
-    <v-app-bar-title v-if="!searchMode">
+    <v-app-bar-title v-if="!isSearchMode">
       <span class="font-condensed">Documentation</span>
     </v-app-bar-title>
 
-    <!-- Search mode: autocomplete fills the title area -->
     <v-autocomplete
       variant="solo"
       flat
-      v-if="searchMode"
+      v-if="isSearchMode"
       :items="searchQuery.trim().length >= 2 ? INDEX : []"
       :custom-filter="customFilter"
       :item-props="getItemProps"
@@ -292,7 +287,7 @@ function goHome() {
     </v-autocomplete>
 
     <template #append>
-      <v-btn :icon="searchMode ? 'mdi-close' : 'mdi-magnify'" @click="toggleSearch" />
+      <v-btn :icon="isSearchMode ? 'mdi-close' : 'mdi-magnify'" @click="toggleSearch" />
     </template>
 
     <template #extension>

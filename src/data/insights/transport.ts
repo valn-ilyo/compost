@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the transport section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const TRANSPORT_INSIGHTS: QuestionInsight[] = [
-  // commute_mode
   {
     sectionId: "transport",
     questionId: "commute_mode",
@@ -38,7 +38,7 @@ export const TRANSPORT_INSIGHTS: QuestionInsight[] = [
     text: "A private car alone is the highest-emission commute option. Find the shared transport route for your destination and take it once this week.",
   },
 
-  // commute_distance — noHabit: distance is a fixed fact, not a repeatable behaviour.
+  // commute_distance -- noHabit: distance is a fixed fact, not a repeatable behaviour.
   {
     sectionId: "transport",
     questionId: "commute_distance",
@@ -80,7 +80,6 @@ export const TRANSPORT_INSIGHTS: QuestionInsight[] = [
     text: "Over 15 km commutes carry the highest transport footprints. Find the shared transport option for your route, whether bus, train, or carpool, and use it for one trip this week.",
   },
 
-  // commute_frequency
   {
     sectionId: "transport",
     questionId: "commute_frequency",
@@ -117,7 +116,6 @@ export const TRANSPORT_INSIGHTS: QuestionInsight[] = [
     text: "Daily commuting by private vehicle is the highest-impact transport pattern. Replace one commute day with shared transport this week.",
   },
 
-  // short_trips
   {
     sectionId: "transport",
     questionId: "short_trips",
@@ -154,7 +152,6 @@ export const TRANSPORT_INSIGHTS: QuestionInsight[] = [
     text: "A private vehicle for sub-2 km distances is the least efficient option available. Walk one errand today. Distance under 2 km, on foot, no exception.",
   },
 
-  // discretionary_mode
   {
     sectionId: "transport",
     questionId: "discretionary_mode",

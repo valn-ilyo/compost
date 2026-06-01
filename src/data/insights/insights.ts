@@ -1,4 +1,5 @@
-import type { QuestionInsight, SectionMeta, SortedQuestion } from "@/types/app";
+// Insight aggregator and assessment insight picker
+import type { QuestionInsight, SectionMeta, SortedQuestion } from "@/types/app.types";
 import { TRANSPORT_INSIGHTS } from "./transport";
 import { FOOD_INSIGHTS } from "./food";
 import { ENERGY_INSIGHTS } from "./energy";
@@ -17,12 +18,10 @@ const QUESTION_INSIGHTS: QuestionInsight[] = [
   ...DIGITAL_INSIGHTS,
 ];
 
-// ─── Step 2 — getSortedQuestions ─────────────────────────────────────────────
-
 /**
- * Flatten all answers and sort them worst → best:
- *   primary   — section order from getSortedSections (weakest section first)
- *   secondary — score ascending within each section
+ * Flattens all answers and sorts them worst -> best.
+ * Primary sort: section order from getSortedSections (weakest section first).
+ * Secondary sort: score ascending within each section.
  */
 export function getSortedQuestions(
   answers: Partial<Record<string, Record<string, number>>>,
@@ -46,20 +45,18 @@ export function getSortedQuestions(
   });
 }
 
-// ─── Step 4 — getInsightsForAssessment ───────────────────────────────────────
-
 /**
- * Pick exactly 5 insights from the sorted question pool.
+ * Picks exactly 5 insights from the sorted question pool.
  *
- * Slots 1–4 — section-aware allocation:
- *   default (0 weak) → treat as broad, using sortedQuestions section order
- *   focused (1 weak) → 4 from section 1
- *   dual    (2 weak) → 2 from section 1, 2 from section 2
- *   broad   (3+ weak)→ 2 from section 1, 1 from section 2, 1 from section 3
+ * Slots 1-4 use section-aware allocation:
+ *   default (0 weak) -- treat as broad, using sortedQuestions section order
+ *   focused (1 weak) -- 4 from section 1
+ *   dual    (2 weak) -- 2 from section 1, 2 from section 2
+ *   broad   (3+ weak)-- 2 from section 1, 1 from section 2, 1 from section 3
  *
- * Slot 5 — search remaining pool strongest → weakest for score >= 4.
- *   Found     → that question (renders green in the view via score check)
- *   Not found → worst remaining question (renders default)
+ * Slot 5 searches the remaining pool strongest -> weakest for score >= 4.
+ *   Found     -> that question (renders green in the view via score check)
+ *   Not found -> worst remaining question (renders default)
  *
  * No isAffirmation flag. The view checks score >= 4 for colour directly.
  */
@@ -106,12 +103,11 @@ export function getInsightsForAssessment(
     slots.push(...pickFromSection(prioritySections[2]!, 1));
   }
 
-  // Slot 5: remaining pool, iterated strongest → weakest
+  // Slot 5: remaining pool, iterated strongest -> weakest.
   const remaining = sortedQuestions.filter((q) => !used.has(key(q))).reverse();
   const affirmation = remaining.find((q) => q.score >= 4) ?? remaining[remaining.length - 1];
   if (affirmation) slots.push(affirmation);
 
-  // Resolve slots to QuestionInsight entries
   return slots.flatMap(({ sectionId, questionId, score }) => {
     const insight = QUESTION_INSIGHTS.find(
       (i) => i.sectionId === sectionId && i.questionId === questionId && i.score === score,

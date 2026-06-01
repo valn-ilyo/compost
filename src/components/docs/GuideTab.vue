@@ -1,3 +1,4 @@
+<!-- Component -- guide tab, renders the active guide section by id -->
 <script setup lang="ts">
 import GuideSectionOverview from "./guide/GuideSectionOverview.vue";
 import GuideSectionGettingStarted from "./guide/GuideSectionGettingStarted.vue";

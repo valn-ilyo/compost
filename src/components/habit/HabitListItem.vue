@@ -1,5 +1,6 @@
+<!-- Component -- expandable habit list item with icon, subtitle, toggle, and action button -->
 <script setup lang="ts">
-import type { HabitTemplate } from "@/types/app";
+import type { HabitTemplate } from "@/types/app.types";
 
 defineProps<{
   habit: HabitTemplate & {

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/services/supabase.service";
 import { useNotifier } from "@/composables/useNotifier";
-import { useSyncStore } from "@/stores/sync";
-import { useProfileStore } from "@/stores/profile";
-import { useAssessmentStore } from "@/stores/assessment";
-import { useMasteryStore } from "@/stores/mastery";
+import { useSyncStore } from "@/stores/sync.store";
+import { useProfileStore } from "@/stores/profile.store";
+import { useAssessmentStore } from "@/stores/assessment.store";
+import { useMasteryStore } from "@/stores/mastery.store";
 import { resetAllStores } from "@/composables/useLogout";
 
 const { notify } = useNotifier();
@@ -21,25 +21,25 @@ type AuthState = "login" | "loading" | "error";
 const authState = ref<AuthState>("login");
 const errorEmail = ref<string | null>(null);
 const sessionExpiredMsg = ref("");
-const googleLoading = ref(false);
-const privacyDialog = ref(false);
+const isGoogleLoading = ref(false);
+const isPrivacyDialogOpen = ref(false);
 
 // TODO [AuthView > Continue with Google]
 // supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: origin + "/compost/" } })
 const loginWithGoogle = async () => {
   sessionExpiredMsg.value = "";
-  googleLoading.value = true;
+  isGoogleLoading.value = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin + "/compost/" },
     });
     if (error) {
-      googleLoading.value = false;
+      isGoogleLoading.value = false;
       notify({ message: `Login failed: ${error.message}`, color: "error" });
     }
   } catch (err) {
-    googleLoading.value = false;
+    isGoogleLoading.value = false;
     notify({
       message: err instanceof Error ? err.message : "An unexpected error occurred",
       color: "error",
@@ -232,8 +232,8 @@ onMounted(async () => {
             color="background"
             variant="flat"
             elevation="1"
-            :loading="googleLoading"
-            :disabled="googleLoading"
+            :loading="isGoogleLoading"
+            :disabled="isGoogleLoading"
             @click="loginWithGoogle"
           >
             <template #prepend>
@@ -273,14 +273,14 @@ onMounted(async () => {
           color="secondary"
           size="small"
           class="mt-2 mx-auto d-block text-none"
-          @click="privacyDialog = true"
+          @click="isPrivacyDialogOpen = true"
           >About your data</v-btn
         >
       </v-card>
     </template>
 
     <!-- ── Privacy dialog ────────────────────────────────────────────────── -->
-    <v-dialog v-model="privacyDialog" max-width="360">
+    <v-dialog v-model="isPrivacyDialogOpen" max-width="360">
       <v-card rounded="xl">
         <v-card-text class="text-body-2 text-medium-emphasis pt-5">
           <p class="mb-2">
@@ -300,7 +300,7 @@ onMounted(async () => {
             rounded="lg"
             flex="1"
             class="text-none"
-            @click="privacyDialog = false"
+            @click="isPrivacyDialogOpen = false"
           >
             Done
           </v-btn>

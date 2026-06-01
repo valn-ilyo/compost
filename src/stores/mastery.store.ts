@@ -1,34 +1,35 @@
+// Pinia store -- habit mastery state, streak calculations, freeze ledger, and sync queue
 // ═══════════════════════════════════════════════════════════════════════════════
-// masteryStore — local driver for the habit ledger system
+// masteryStore: local driver for the habit ledger system
 // ═══════════════════════════════════════════════════════════════════════════════
 //
 // ARCHITECTURE
 // ────────────
 // Five ref arrays are the local database for all habit state.
 //
-//   habitLogs       ←→  habit_logs         (one row per logged day per habit)
-//   freezeLedger    ←→  freeze_ledger      (one row per freeze token event)
-//   habitSlots      ←→  habit_slots        (one row per active or paused habit)
-//   pauseEvents     ←→  habit_pause_events (one row per pause window)
-//   masteredArchive ←→  mastered_archive   (one row per retired habit)
+//   habitLogs       <->  habit_logs         (one row per logged day per habit)
+//   freezeLedger    <->  freeze_ledger      (one row per freeze token event)
+//   habitSlots      <->  habit_slots        (one row per active or paused habit)
+//   pauseEvents     <->  habit_pause_events (one row per pause window)
+//   masteredArchive <->  mastered_archive   (one row per retired habit)
 //
-// Every UI value — streak counts, freeze balances, active habit lists, mastery
-// status — is derived from these arrays at runtime. Nothing is cached or stored
+// Every UI value (streak counts, freeze balances, active habit lists, mastery
+// status) is derived from these arrays at runtime. Nothing is cached or stored
 // twice.
 //
 // WRITE OWNERSHIP
 // ───────────────
-// habit_logs      — CLIENT ONLY via direct upsert (Sync).
-// freeze_ledger   — CLIENT writes milestone/mastery rows via direct upsert.
-//                   CRON writes spent rows; these never conflict with client rows.
-// mastered_archive — CLIENT ONLY via direct upsert (Sync).
+// habit_logs: CLIENT ONLY via direct upsert (Sync).
+// freeze_ledger: CLIENT writes milestone/mastery rows via direct upsert.
+//               CRON writes spent rows; these never conflict with client rows.
+// mastered_archive: CLIENT ONLY via direct upsert (Sync).
 //
-// habit_slots + habit_pause_events — SECURITY DEFINER RPCs ONLY.
-//   slot_add    — INSERT new slot as 'active' (cap-gated by enforce_slot_cap trigger)
-//   slot_pause  — active → paused + open pause window
-//   slot_resume — paused → active (cap-gated) + close pause window
-//   slot_remove — close open window + DELETE slot row
-//   slot_retire — close open window + DELETE slot row + INSERT mastered_archive
+// habit_slots + habit_pause_events: SECURITY DEFINER RPCs ONLY.
+//   slot_add: INSERT new slot as 'active' (cap-gated by enforce_slot_cap trigger)
+//   slot_pause: active -> paused + open pause window
+//   slot_resume: paused -> active (cap-gated) + close pause window
+//   slot_remove: close open window + DELETE slot row
+//   slot_retire: close open window + DELETE slot row + INSERT mastered_archive
 //
 //   Client RLS on these two tables is SELECT-only (R1). The RPC items in the
 //   sync queue (operation: 'rpc') are drained by sync.ts which calls supabase.rpc().
@@ -37,17 +38,17 @@
 // ────────
 // Maximum 3 ACTIVE slots simultaneously (MAX_SLOTS). Paused slots do not count.
 // The enforce_slot_cap trigger on habit_slots enforces this server-side.
-// usedSlots counts active only — the client uses this to gate the add flow.
+// usedSlots counts active only; the client uses this to gate the add flow.
 //
 // PAUSE / RESUME SEMANTICS
 // ────────────────────────
 // Pausing holds the slot and preserves the streak. The streak walker reads
 // habit_pause_events to skip dates where the habit was paused (R14: only windows
-// whose paused_at >= slot.created_at are considered — prior-cycle windows are ignored).
+// whose paused_at >= slot.created_at are considered; prior-cycle windows are ignored).
 //
 // STREAK BOUNDARY
 // ───────────────
-// streak() uses slot.created_at as the boundary date — the moment the slot was
+// streak() uses slot.created_at as the boundary date, the moment the slot was
 // created. Logs before that date are invisible to the walker. This means re-adding
 // a habit always starts fresh (slot_remove deletes the row; slot_add creates a
 // new one with a new created_at).
@@ -60,7 +61,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { HABIT_TEMPLATES } from "@/data/habits";
-import { todayISO, yesterdayISO } from "@/utils/habitDate";
+import { todayISO, yesterdayISO } from "@/utils/habit-date";
 import type {
   HabitTemplate,
   UserHabit,
@@ -70,24 +71,24 @@ import type {
   HabitPauseEvent,
   MasteredEntry,
   LedgerReconcileEvent,
-} from "@/types/app";
+} from "@/types/app.types";
 import {
   MAX_SLOTS,
   FREEZE_MILESTONE,
   MASTERY_MILESTONE,
   FREEZE_CAP,
   DEBT_FLOOR,
-} from "@/types/app";
-import { useSyncStore } from "@/stores/sync";
-import { supabase } from "@/services/supabase";
+} from "@/types/app.types";
+import { useSyncStore } from "@/stores/sync.store";
+import { supabase } from "@/services/supabase.service";
 
-// ─── Module-level helpers ─────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function isoNow(): string {
   return new Date().toISOString();
 }
 
-/** Shift a YYYY-MM-DD string one day back. */
+// Shift a YYYY-MM-DD string one day back.
 function prevDate(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() - 1);
@@ -118,15 +119,13 @@ function buildUserHabit(
   };
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-
 export const useMasteryStore = defineStore(
   "mastery",
   () => {
-    // ── Local database arrays ─────────────────────────────────────────────────
+    // ─── State ───────────────────────────────────────────────────────────────
     //
-    // habit_logs and freeze_ledger are append-only — rows are pushed, never spliced.
-    // habit_slots and pause_events are mutable state — rows may be updated or removed.
+    // habit_logs and freeze_ledger are append-only; rows are pushed, never spliced.
+    // habit_slots and pause_events are mutable; rows may be updated or removed.
     // All five are persisted to localStorage as the local cache between sessions.
 
     const habitLogs = ref<HabitLog[]>([]);
@@ -142,27 +141,19 @@ export const useMasteryStore = defineStore(
     // Populated from the Supabase auth session during hydrateFromSupabase().
     const userId = ref<string>("");
 
-    // ── Internal read helpers ─────────────────────────────────────────────────
+    // ─── Helpers ─────────────────────────────────────────────────────────────
 
-    /** True if habitLogs has any row for (templateId, date). */
+    // True if habitLogs has any row for (templateId, date).
     function hasLogForDate(templateId: string, date: string): boolean {
       return habitLogs.value.some((l) => l.template_id === templateId && l.date === date);
     }
 
-    /**
-     * True if the habit was in a paused state on the given IST date.
-     * Used by the streak walker to skip pause/resume gaps transparently.
-     *
-     * R14 — prior-cycle isolation: pause windows whose paused_at predates
-     * slot.created_at belong to a previous lifecycle and are ignored.
-     * This ensures that re-adding a habit (new created_at) is a clean slate
-     * even if old pause windows survive in the local array.
-     *
-     * A window covers `date` when:
-     *   paused_at  <= end of day (window opened on or before this day)
-     *   AND resumed_at is null OR resumed_at > start of day (window still open, or
-     *   it closed during or after this day)
-     */
+    // R14 -- prior-cycle isolation: pause windows whose paused_at predates
+    // slot.created_at belong to a previous lifecycle and are ignored, ensuring
+    // re-adding a habit is a clean slate even if old windows survive locally.
+    //
+    // A window covers date when: paused_at <= end of day AND (resumed_at is null
+    // OR resumed_at > start of day).
     function isPausedOnDate(templateId: string, date: string): boolean {
       const slot = habitSlots.value.find((s) => s.template_id === templateId);
       if (!slot) return false;
@@ -178,25 +169,18 @@ export const useMasteryStore = defineStore(
       });
     }
 
-    // ── Derived values ────────────────────────────────────────────────────────
+    // ─── Computed ────────────────────────────────────────────────────────────
 
-    /**
-     * Streak for a template — count of consecutive 'yes' days walking backward.
-     *
-     * @param templateId  The habit to measure.
-     * @param asOf        Optional anchor date (YYYY-MM-DD IST). Defaults to today.
-     *
-     * Boundary: slot.created_at — the moment the current lifecycle started.
-     * Logs before this date are invisible to the walker.
-     *
-     * Walk rules (evaluated in order for each date):
-     *   1. Log exists, value 'yes'                → count++, continue
-     *   2. Log exists, value 'no'                 → continue (chain preserved, not counted)
-     *   3. No log, date is today AND not anchored → skip (not yet logged, transparent)
-     *   4. No log, isPausedOnDate returns true    → skip (pause gap, transparent)
-     *   5. No log, spent row in freeze_ledger     → skip (cron protected this gap)
-     *   6. No log, nothing                        → STOP (unprotected gap, streak ends)
-     */
+    // Boundary: slot.created_at, the moment the current lifecycle started.
+    // Logs before that date are invisible to the walker.
+    //
+    // Walk rules, evaluated in order for each date:
+    //   1. Log exists, value 'yes'                -> count++, continue
+    //   2. Log exists, value 'no'                 -> continue (chain preserved, not counted)
+    //   3. No log, date is today AND not anchored -> skip (not yet logged, transparent)
+    //   4. No log, isPausedOnDate returns true    -> skip (pause gap, transparent)
+    //   5. No log, spent row in freeze_ledger     -> skip (cron protected this gap)
+    //   6. No log, nothing                        -> STOP (unprotected gap, streak ends)
     function streak(templateId: string, asOf?: string): number {
       const slot = habitSlots.value.find((s) => s.template_id === templateId);
       if (!slot) return 0;
@@ -233,13 +217,13 @@ export const useMasteryStore = defineStore(
 
         // No log for this date.
         if (dateStr === referenceDate && !isAnchored) {
-          // Rule 3: today not yet logged — transparent.
+          // Rule 3: today not yet logged, transparent.
           dateStr = prevDate(dateStr);
           continue;
         }
 
         if (isPausedOnDate(templateId, dateStr)) {
-          // Rule 4: pause gap — transparent.
+          // Rule 4: pause gap, transparent.
           dateStr = prevDate(dateStr);
           continue;
         }
@@ -250,18 +234,15 @@ export const useMasteryStore = defineStore(
           continue;
         }
 
-        // Rule 6: unprotected gap — streak ends.
+        // Rule 6: unprotected gap, streak ends.
         break;
       }
 
       return count;
     }
 
-    /**
-     * The streak value the user had before the current gap broke it.
-     * Anchors the walk to the most recent logged date so the pre-loss count
-     * is returned even after the gap has already formed (streak() would return 0).
-     */
+    // Anchors the walk to the most recent logged date so the pre-loss count is
+    // returned even after the gap has already formed (streak() would return 0).
     function lastKnownStreak(templateId: string): number {
       const lastLog = [...habitLogs.value]
         .filter((l) => l.template_id === templateId)
@@ -270,12 +251,10 @@ export const useMasteryStore = defineStore(
       return streak(templateId, lastLog.date);
     }
 
-    /**
-     * Net freeze token balance.
-     * Spent rows are only effective when no habit_log exists for the same
-     * (template_id, date) — a late yes/no implicitly refunds the token.
-     * Balance is floored at DEBT_FLOOR.
-     */
+    // Net freeze token balance.
+    // Spent rows are only effective when no habit_log exists for the same
+    // (template_id, date); a late yes/no implicitly refunds the token.
+    // Balance is floored at DEBT_FLOOR.
     const freezeCount = computed((): number => {
       const raw = freezeLedger.value.reduce((sum, row) => {
         if (row.reason !== "spent") return sum + row.delta;
@@ -298,11 +277,8 @@ export const useMasteryStore = defineStore(
       return streak(templateId) === MASTERY_MILESTONE;
     }
 
-    /**
-     * True if the cron spent a freeze token to protect this habit yesterday AND:
-     *   - No log arrived for that date (which would make the spend a no-op).
-     *   - The current streak is > 0 (the protection kept the chain alive).
-     */
+    // Only true if the cron spent a token yesterday, no log arrived for that date
+    // (a late log makes the spend a no-op), and the streak is still alive.
     function isFreezeUsed(templateId: string): boolean {
       if (streak(templateId) === 0) return false;
       const yesterday = yesterdayISO();
@@ -314,14 +290,8 @@ export const useMasteryStore = defineStore(
       return !habitLogs.value.some((l) => l.template_id === templateId && l.date === yesterday);
     }
 
-    // ── Computed habit lists ──────────────────────────────────────────────────
-    //
-    // All lists read directly from habitSlots.status — no event-scanning needed.
+    // All lists read directly from habitSlots.status; no event-scanning needed.
 
-    /**
-     * Active habits: status = 'active', not archived, streak < MASTERY_MILESTONE.
-     * Habits at 66 go into masteredHabits instead.
-     */
     const activeHabits = computed((): UserHabit[] => {
       const archivedIds = new Set(masteredArchive.value.map((m) => m.template_id));
       const result: UserHabit[] = [];
@@ -337,9 +307,7 @@ export const useMasteryStore = defineStore(
       return result;
     });
 
-    /** Paused habits: status = 'paused', sorted latest-paused first. */
     const pausedHabits = computed((): UserHabit[] => {
-      // Build lookup: templateId → most recent open pause window timestamp.
       const pausedAt = new Map<string, string>();
       for (const e of pauseEvents.value) {
         if (e.resumed_at !== null) continue;
@@ -357,7 +325,7 @@ export const useMasteryStore = defineStore(
         );
       }
 
-      // Latest paused first. ISO strings sort lexicographically so localeCompare is correct.
+      // ISO strings sort lexicographically so localeCompare is correct here.
       result.sort((a, b) => {
         const aTime = pausedAt.get(a.templateId) ?? "";
         const bTime = pausedAt.get(b.templateId) ?? "";
@@ -367,10 +335,8 @@ export const useMasteryStore = defineStore(
       return result;
     });
 
-    /**
-     * Mastered habits awaiting the retire flow: status = 'active', streak = 66,
-     * not yet archived. Still occupy a slot.
-     */
+    // Mastered habits awaiting retire: status = 'active', streak = 66, not yet archived.
+    // Still occupy an active slot until the user retires them.
     const masteredHabits = computed((): UserHabit[] => {
       const archivedIds = new Set(masteredArchive.value.map((m) => m.template_id));
       const result: UserHabit[] = [];
@@ -430,15 +396,12 @@ export const useMasteryStore = defineStore(
       (): Set<string> => new Set(masteredHabits.value.map((h) => h.templateId)),
     );
 
-    /**
-     * Active slot count — used to gate the add flow and displayed as N/3 in the UI.
-     * Paused slots do not count toward the cap (R3).
-     */
+    // Paused slots excluded; R3 says only active slots count toward the cap.
     const usedSlots = computed(
       (): number => habitSlots.value.filter((s) => s.status === "active").length,
     );
 
-    // ── Actions ───────────────────────────────────────────────────────────────
+    // ─── Actions ─────────────────────────────────────────────────────────────
     //
     // Each action:
     //   1. Updates local arrays optimistically (immediate UI feedback).
@@ -449,12 +412,10 @@ export const useMasteryStore = defineStore(
     // slot_cap_exceeded, sync.ts calls the capRejectionCallback which re-hydrates
     // slot state from Supabase and reconciles.
 
-    /** Add a habit to an available active slot. No-op if already active or paused. */
     function addHabit(template: HabitTemplate): void {
       if (activeTemplateIds.value.has(template.id) || pausedTemplateIds.value.has(template.id))
         return;
       const now = isoNow();
-      // Optimistic: insert slot as active with created_at = now.
       habitSlots.value.push({
         user_id: userId.value,
         template_id: template.id,
@@ -470,17 +431,14 @@ export const useMasteryStore = defineStore(
       });
     }
 
-    /** Pause a habit. Slot held, streak preserved, excluded from daily log flow. */
     function pauseHabit(templateId: string): void {
       const idx = habitSlots.value.findIndex((s) => s.template_id === templateId);
       if (idx === -1) return;
-      // Guard: slot must be active — prevents P0002 from slot_pause RPC if already
+      // Guard: slot must be active -- prevents P0002 from slot_pause RPC if already
       // paused (e.g. multi-tab race where Realtime update hasn't arrived yet).
       if (habitSlots.value[idx]!.status !== "active") return;
-      // Optimistic: flip status to paused.
       habitSlots.value[idx] = { ...habitSlots.value[idx]!, status: "paused" };
       const now = isoNow();
-      // Open a pause window locally.
       pauseEvents.value.push({
         user_id: userId.value,
         template_id: templateId,
@@ -496,14 +454,12 @@ export const useMasteryStore = defineStore(
       });
     }
 
-    /** Resume a paused habit. Cap-gated — slot_resume RPC fires enforce_slot_cap. */
+    // Cap-gated; slot_resume fires enforce_slot_cap on the server.
     function resumeHabit(templateId: string): void {
       const idx = habitSlots.value.findIndex((s) => s.template_id === templateId);
       if (idx === -1) return;
-      // Optimistic: flip status to active.
       habitSlots.value[idx] = { ...habitSlots.value[idx]!, status: "active" };
       const now = isoNow();
-      // Close the open pause window locally.
       const openIdx = pauseEvents.value.findIndex(
         (e) => e.template_id === templateId && e.resumed_at === null,
       );
@@ -519,16 +475,11 @@ export const useMasteryStore = defineStore(
       });
     }
 
-    /**
-     * Remove a habit from its slot. Clean slate — on re-add, slot_add creates a
-     * new row with a new created_at, making all prior logs invisible to the walker.
-     * Closes any open pause window atomically (slot_remove RPC handles both).
-     */
+    // Clean slate: slot_add on re-add creates a new created_at, making all prior
+    // logs invisible to the walker. slot_remove closes any open pause window atomically.
     function removeHabit(templateId: string): void {
-      // Optimistic: remove slot row.
       const idx = habitSlots.value.findIndex((s) => s.template_id === templateId);
       if (idx !== -1) habitSlots.value.splice(idx, 1);
-      // Close any open pause window locally.
       const now = isoNow();
       const openIdx = pauseEvents.value.findIndex(
         (e) => e.template_id === templateId && e.resumed_at === null,
@@ -545,13 +496,8 @@ export const useMasteryStore = defineStore(
       });
     }
 
-    /**
-     * Log a habit for today. Idempotent — a second call for the same habit on
-     * the same IST date is a no-op (hasLogForDate guard + unique DB constraint).
-     *
-     * 'yes' checks for milestone and mastery freeze token grants.
-     * 'no' records the day without counting toward 66 or breaking the chain.
-     */
+    // Idempotent; hasLogForDate guard + unique DB constraint prevent double-logging.
+    // 'no' preserves the chain without counting toward the 66-day threshold.
     function logHabit(templateId: string, value: "yes" | "no"): void {
       const today = todayISO();
       if (hasLogForDate(templateId, today)) return;
@@ -618,16 +564,10 @@ export const useMasteryStore = defineStore(
       }
     }
 
-    /**
-     * Retire a mastered habit from its slot into the permanent archive.
-     * slot_retire RPC handles: close pause window + delete slot + insert mastered_archive.
-     * masteredArchive is also written locally for immediate UI update.
-     */
+    // slot_retire RPC handles atomically: close pause window + delete slot + insert archive.
     function retireHabit(templateId: string): void {
-      // Optimistic: remove slot.
       const idx = habitSlots.value.findIndex((s) => s.template_id === templateId);
       if (idx !== -1) habitSlots.value.splice(idx, 1);
-      // Close any open pause window locally.
       const now = isoNow();
       const openIdx = pauseEvents.value.findIndex(
         (e) => e.template_id === templateId && e.resumed_at === null,
@@ -643,7 +583,7 @@ export const useMasteryStore = defineStore(
       };
       masteredArchive.value.push(archiveEntry);
 
-      // Enqueue RPC — slot_retire handles the DB side atomically.
+      // Enqueue RPC; slot_retire handles the DB side atomically.
       // masteredArchive is also written via direct upsert so the local row
       // survives if the RPC fires first and Realtime returns the archive row.
       const syncStore = useSyncStore();
@@ -663,10 +603,10 @@ export const useMasteryStore = defineStore(
       });
     }
 
-    // ── Reconciliation ────────────────────────────────────────────────────────
+    // ─── Utils ───────────────────────────────────────────────────────────────
     //
     // Read-only. Produces lastReconcileEvents for UI "streak lost" notices.
-    // The boundary check uses slot.created_at — a habit added today with no
+    // The boundary check uses slot.created_at; a habit added today with no
     // history is not considered missed.
 
     function reconcile(): void {
@@ -680,7 +620,6 @@ export const useMasteryStore = defineStore(
         );
         if (wasProtected) return false;
 
-        // Only flag as lost if the habit was in the slot before yesterday.
         const slot = habitSlots.value.find((s) => s.template_id === h.templateId);
         if (!slot) return false;
         return slot.created_at.slice(0, 10) < yesterday;
@@ -697,12 +636,12 @@ export const useMasteryStore = defineStore(
       lastReconcileEvents.value = [];
     }
 
-    // ── Hydration ─────────────────────────────────────────────────────────────
+    // ─── Lifecycle ───────────────────────────────────────────────────────────
     //
-    // habit_logs, freeze_ledger, mastered_archive — union merge (append-only,
-    // local-wins: server rows not present locally are appended, local rows kept).
+    // habit_logs, freeze_ledger, mastered_archive: union merge (append-only,
+    // local-wins; server rows not present locally are appended, local rows kept).
     //
-    // habit_slots, habit_pause_events — full replace (server is authoritative;
+    // habit_slots, habit_pause_events: full replace (server is authoritative;
     // all writes go through RPCs so the server always has the canonical state).
     //
     // Called by AuthView on cold start and by App.vue on reconnect.
@@ -724,13 +663,9 @@ export const useMasteryStore = defineStore(
       if (pauseRes.error) throw pauseRes.error;
       if (archiveRes.error) throw archiveRes.error;
 
-      // habit_slots — full replace (R9: server is canonical)
       habitSlots.value = slotsRes.data as HabitSlot[];
-
-      // habit_pause_events — full replace (R10)
       pauseEvents.value = pauseRes.data as HabitPauseEvent[];
 
-      // habit_logs — union merge
       const localLogKeys = new Set(habitLogs.value.map((l) => `${l.template_id}:${l.date}`));
       for (const row of logsRes.data as HabitLog[]) {
         if (!localLogKeys.has(`${row.template_id}:${row.date}`)) {
@@ -738,7 +673,6 @@ export const useMasteryStore = defineStore(
         }
       }
 
-      // freeze_ledger — union merge
       const localFreezeKeys = new Set(
         freezeLedger.value.map((r) => `${r.template_id}:${r.date}:${r.reason}`),
       );
@@ -748,7 +682,6 @@ export const useMasteryStore = defineStore(
         }
       }
 
-      // mastered_archive — union merge
       const localArchiveKeys = new Set(masteredArchive.value.map((m) => m.template_id));
       for (const row of archiveRes.data as MasteredEntry[]) {
         if (!localArchiveKeys.has(row.template_id)) {
@@ -757,18 +690,18 @@ export const useMasteryStore = defineStore(
       }
     }
 
-    // ── Realtime merge handlers ───────────────────────────────────────────────
+    // ─── Helpers ─────────────────────────────────────────────────────────────
     //
     // Called by sync.ts Realtime listeners.
     //
     // habit_slots: INSERT / UPDATE / DELETE
-    //   INSERT — new habit added from another device
-    //   UPDATE — status changed (pause / resume) from another device
-    //   DELETE — removed or retired from another device
+    //   INSERT: new habit added from another device
+    //   UPDATE: status changed (pause / resume) from another device
+    //   DELETE: removed or retired from another device
     //
     // habit_pause_events: INSERT / UPDATE
-    //   INSERT — pause opened from another device
-    //   UPDATE — pause closed (resumed_at set) from another device
+    //   INSERT: pause opened from another device
+    //   UPDATE: pause closed (resumed_at set) from another device
     //
     // habit_logs, freeze_ledger, mastered_archive: INSERT only (append-only).
 
@@ -818,7 +751,6 @@ export const useMasteryStore = defineStore(
     }
 
     return {
-      // Local database (persist targets)
       habitLogs,
       freezeLedger,
       habitSlots,
@@ -826,32 +758,22 @@ export const useMasteryStore = defineStore(
       masteredArchive,
       lastReconcileEvents,
       userId,
-
-      // Derived habit lists
       activeHabits,
       pausedHabits,
       masteredHabits,
       unloggedToday,
-
-      // Derived Sets for HabitLibrary membership checks
       activeTemplateIds,
       pausedTemplateIds,
       masteredTemplateIds,
       masteredSlotTemplateIds,
-
-      // Derived scalars
       freezeCount,
       daysToNextFreeze,
       daysToNextMastery,
       allLoggedToday,
       usedSlots,
-
-      // Per-template derived functions
       isLoggedToday,
       isMastered,
       streak,
-
-      // Actions
       addHabit,
       removeHabit,
       pauseHabit,
@@ -861,14 +783,11 @@ export const useMasteryStore = defineStore(
       reconcile,
       clearReconcileEvents,
       hydrateFromSupabase,
-
-      // Realtime merge handlers (called by sync.ts)
       mergeHabitLog,
       mergeFreezeLedgerRow,
       mergeHabitSlot,
       mergePauseEvent,
       mergeMasteredArchiveRow,
-
       MAX_SLOTS,
     };
   },

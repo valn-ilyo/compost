@@ -1,9 +1,10 @@
+<!-- Component -- profile form used for onboarding and edit mode, with roll number uniqueness check -->
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useProfileStore } from "@/stores/profile";
+import { useProfileStore } from "@/stores/profile.store";
 import { useNotifier } from "@/composables/useNotifier";
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/services/supabase.service";
 
 const props = defineProps<{
   editMode?: boolean;
@@ -19,9 +20,9 @@ const profileStore = useProfileStore();
 
 const form = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null);
 const isValid = ref(false);
-const dobMenu = ref(false);
-const genderMenu = ref(false);
-const loading = ref(false);
+const isDobMenuOpen = ref(false);
+const isGenderMenuOpen = ref(false);
+const isLoading = ref(false);
 
 const nameField = ref();
 const rollField = ref();
@@ -29,6 +30,8 @@ const genderField = ref();
 const dobField = ref();
 
 const existingDob = profileStore.profile?.dob ?? "";
+// Separate ref to avoid the GMT display offset that occurs when binding a
+// string directly to v-date-picker's model-value.
 const dobRaw = ref<Date | null>(existingDob ? new Date(existingDob) : null);
 
 const formData = reactive({
@@ -38,17 +41,14 @@ const formData = reactive({
   dob: existingDob,
 });
 
-// Max DOB = 16 years ago (minimum age)
 const maxDob = new Date();
-maxDob.setFullYear(maxDob.getFullYear() - 16);
+maxDob.setFullYear(maxDob.getFullYear() - 16); // minimum age
 
 const genderOptions = ["Male", "Female", "Prefer not to say"];
 const rules = {
   required: (v: string) => !!v || "Required",
   rollNo: (v: string) => /^[pu]\d{2}[a-z]{2,3}\d+$/i.test(v) || "Roll number not recognised.",
 };
-
-// ── Roll number uniqueness check ──────────────────────────────────────────────
 
 type RollCheckState = "idle" | "taken";
 const rollCheckState = ref<RollCheckState>("idle");
@@ -62,9 +62,9 @@ async function handleSubmit() {
   const { valid } = await form.value!.validate();
   if (!valid) return;
 
-  loading.value = true;
+  isLoading.value = true;
   try {
-    // Uniqueness check — skip if roll number is unchanged (edit mode)
+    // Uniqueness check -- skip if roll number is unchanged (edit mode).
     const trimmed = formData.rollNo.trim();
     const unchanged = trimmed.toLowerCase() === (profileStore.profile?.roll_no ?? "").toLowerCase();
     if (!unchanged) {
@@ -73,7 +73,7 @@ async function handleSubmit() {
       });
       if (!available) {
         rollCheckState.value = "taken";
-        loading.value = false;
+        isLoading.value = false;
         return;
       }
       rollCheckState.value = "idle";
@@ -92,7 +92,7 @@ async function handleSubmit() {
       color: "error",
     });
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 }
 
@@ -101,7 +101,7 @@ function onDateSelect(val: Date | null) {
   formData.dob = val
     ? val.toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })
     : "";
-  dobMenu.value = false;
+  isDobMenuOpen.value = false;
 }
 </script>
 
@@ -111,7 +111,7 @@ function onDateSelect(val: Date | null) {
       ref="nameField"
       v-model="formData.name"
       :rules="[rules.required]"
-      :disabled="disabled || loading"
+      :disabled="disabled || isLoading"
       label="Full Name"
       prepend-inner-icon="mdi-account-outline"
       variant="outlined"
@@ -124,7 +124,7 @@ function onDateSelect(val: Date | null) {
       ref="rollField"
       v-model="formData.rollNo"
       :rules="[rules.required, rules.rollNo]"
-      :disabled="disabled || loading"
+      :disabled="disabled || isLoading"
       :hint="rollHint[rollCheckState]"
       :persistent-hint="rollCheckState === 'taken'"
       :error="rollCheckState === 'taken'"
@@ -139,41 +139,41 @@ function onDateSelect(val: Date | null) {
       "
       @keydown.enter.prevent="
         genderField?.focus();
-        genderMenu = true;
+        isGenderMenuOpen = true;
       "
     />
 
     <v-select
       ref="genderField"
       v-model="formData.gender"
-      v-model:menu="genderMenu"
+      v-model:menu="isGenderMenuOpen"
       :items="genderOptions"
       :rules="[rules.required]"
-      :disabled="disabled || loading"
+      :disabled="disabled || isLoading"
       label="Gender"
       prepend-inner-icon="mdi-gender-male-female"
       variant="outlined"
       class="mb-2"
       @update:model-value="
         dobField?.focus();
-        dobMenu = true;
+        isDobMenuOpen = true;
       "
     />
 
-    <v-menu v-model="dobMenu" :close-on-content-click="false">
+    <v-menu v-model="isDobMenuOpen" :close-on-content-click="false">
       <template #activator="{ props: activatorProps }">
         <v-text-field
           ref="dobField"
           v-bind="activatorProps"
           :model-value="formData.dob"
           :rules="[rules.required]"
-          :disabled="disabled || loading"
+          :disabled="disabled || isLoading"
           label="Date of Birth"
           prepend-inner-icon="mdi-calendar-outline"
           variant="outlined"
           readonly
           clearable
-          @keydown.enter.prevent="dobMenu = true"
+          @keydown.enter.prevent="isDobMenuOpen = true"
           @click:clear="
             formData.dob = '';
             dobRaw = null;
@@ -193,13 +193,13 @@ function onDateSelect(val: Date | null) {
         variant="text"
         color="secondary"
         class="text-none"
-        :disabled="loading"
+        :disabled="isLoading"
         @click="$emit('cancel')"
         >Cancel</v-btn
       >
       <v-btn
-        :loading="loading"
-        :disabled="disabled || loading"
+        :isLoading="isLoading"
+        :disabled="disabled || isLoading"
         type="submit"
         color="primary"
         variant="flat"
@@ -212,8 +212,8 @@ function onDateSelect(val: Date | null) {
 
     <v-card-actions v-else class="px-0 pt-2 justify-end">
       <v-btn
-        :loading="loading"
-        :disabled="disabled || loading"
+        :isLoading="isLoading"
+        :disabled="disabled || isLoading"
         type="submit"
         color="primary"
         variant="flat"

@@ -1,7 +1,8 @@
+<!-- Component -- habit library card with grouped sections: paused, recommended, available, and mastered -->
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { HABIT_TEMPLATES } from "@/data/habits";
-import { useMasteryStore } from "@/stores/mastery";
+import { useMasteryStore } from "@/stores/mastery.store";
 import HabitListItem from "@/components/habit/HabitListItem.vue";
 
 const props = defineProps<{
@@ -86,7 +87,7 @@ function formatStreak(days: number): string {
     </v-card-item>
 
     <v-list lines="two" bg-color="transparent" class="pt-2">
-      <!-- paused -->
+      <!-- ─── Paused ──────────────────────────────────────────────────────────────── -->
       <template v-if="grouped.paused.length">
         <v-list-subheader
           v-motion
@@ -118,7 +119,7 @@ function formatStreak(days: number): string {
         </template>
       </template>
 
-      <!-- recommendations -->
+      <!-- ─── Recommendations ──────────────────────────────────────────────────── -->
       <template v-if="grouped.recommended.length">
         <v-list-subheader
           v-motion
@@ -148,7 +149,7 @@ function formatStreak(days: number): string {
         </template>
       </template>
 
-      <!-- available (first 3) -->
+      <!-- ─── Available (first 3) ───────────────────────────────────────────────── -->
       <template v-if="grouped.available.length">
         <v-list-subheader
           v-motion
@@ -181,7 +182,7 @@ function formatStreak(days: number): string {
         </template>
       </template>
 
-      <!-- available (overflow) + active -->
+      <!-- ─── Available (overflow) and active ──────────────────────────────────── -->
       <v-expand-transition>
         <div v-if="showAll" class="overflow-hidden">
           <template v-for="(t, i) in grouped.available.slice(3)" :key="t.id">

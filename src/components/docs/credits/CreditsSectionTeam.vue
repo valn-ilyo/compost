@@ -1,3 +1,4 @@
+<!-- Component -- credits team section, supervisors and student contributors -->
 <template>
   <v-row justify="start" density="compact">
     <v-col>

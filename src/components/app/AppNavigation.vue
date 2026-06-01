@@ -1,3 +1,4 @@
+<!-- Component -- responsive navigation, rail drawer on md+ and bottom nav on mobile -->
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";

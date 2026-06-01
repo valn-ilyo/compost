@@ -1,4 +1,5 @@
-import type { HabitTemplate } from "../types/app";
+// Habit template definitions with section coverage, prompts, and instructions
+import type { HabitTemplate } from "../types/app.types";
 
 export const HABIT_TEMPLATES: HabitTemplate[] = [
   {
@@ -44,7 +45,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Make lunch your plant-based meal every day. Lentils, legumes, grains, or vegetables, no meat or dairy.",
   },
 
-  // served. Serving a right-sized portion and boxing the rest are the same motion.
   {
     id: "box_leftovers_first",
     covers: [
@@ -142,8 +142,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Enable power-saving mode and auto-brightness on every device. This is a one-time action that reduces device energy draw every hour with no further effort.",
   },
 
-  // ── WATER + WASTE — SHARED HABIT ─────────────────────────────────────────
-  // Water Q5 (drinking_water_source) + Waste Q1 (plastic_bottles) → merged
   {
     id: "reusable_bottle_daily",
     covers: [
@@ -173,7 +171,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Fill your bucket before entering the bathroom. Use only what is in it. A bucket bath uses 15-20 litres. A 10-minute shower uses 60-80.",
   },
 
-  // turning it off is the same attentiveness as noticing a dripping tap and reporting it.
   {
     id: "tap_off_while_soaping",
     covers: [
@@ -228,7 +225,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Fill one bucket with soapy water before starting. Wash everything in it. Use a second bucket for rinsing only if needed. Don't run water continuously.",
   },
 
-  // ── WASTE + WASTE — SHARED HABIT ─────────────────────────────────────────
   {
     id: "food_scraps_in_wet_bin",
     covers: [
@@ -297,8 +293,6 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
       "Open the fridge before you leave for any food shopping. List what needs to be eaten first. Build your shopping list around that.",
   },
 
-  // ── DIGITAL + CONSUMPTION — SHARED HABIT ─────────────────────────────────
-  // Digital Q5 (device_repair) + Consumption Q3 (device_longevity) → merged
   {
     id: "repair_before_replace",
     covers: [

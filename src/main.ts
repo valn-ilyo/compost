@@ -1,4 +1,4 @@
-import type { BeforeInstallPromptEvent } from "@/types/app";
+import type { BeforeInstallPromptEvent } from "@/types/app.types";
 
 declare global {
   interface Window {

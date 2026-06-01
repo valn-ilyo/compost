@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the water section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const WATER_INSIGHTS: QuestionInsight[] = [
-  // bathing_method
   {
     sectionId: "water",
     questionId: "bathing_method",
@@ -38,7 +38,6 @@ export const WATER_INSIGHTS: QuestionInsight[] = [
     text: "No awareness of shower duration means water use is unchecked. Set a timer before your next shower, any duration. Knowing how long you take is the first corrective step.",
   },
 
-  // tap_behaviour
   {
     sectionId: "water",
     questionId: "tap_behaviour",
@@ -75,7 +74,6 @@ export const WATER_INSIGHTS: QuestionInsight[] = [
     text: "Tap running throughout brushing and washing means up to 4,000 litres per year per person is wasted at this single moment. Turn the tap off tonight before bed when you brush. Wet the brush, then off.",
   },
 
-  // dishwashing_method
   {
     sectionId: "water",
     questionId: "dishwashing_method",
@@ -112,7 +110,6 @@ export const WATER_INSIGHTS: QuestionInsight[] = [
     text: "Always leaving the tap running throughout washing means up to 20 extra litres are used per session. Fill the sink or a large bowl before you start today.",
   },
 
-  // laundry_method
   {
     sectionId: "water",
     questionId: "laundry_method",
@@ -149,7 +146,6 @@ export const WATER_INSIGHTS: QuestionInsight[] = [
     text: "Washing individual items under running water is the highest per-garment water use. Fill a bucket, collect a few items, and wash everything together. Do this once today to replace the running tap.",
   },
 
-  // drinking_water_source
   {
     sectionId: "water",
     questionId: "drinking_water_source",
@@ -186,7 +182,6 @@ export const WATER_INSIGHTS: QuestionInsight[] = [
     text: "Always using single-use bottled water is the highest-impact drinking water habit. Fill any bottle you own from the tap today and carry it. That one act starts the replacement.",
   },
 
-  // leak_reporting
   {
     sectionId: "water",
     questionId: "leak_reporting",

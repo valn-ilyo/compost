@@ -1,24 +1,12 @@
-// ─── assessmentStore ──────────────────────────────────────────────────────────
-// Stores section answers and derives assessment scores.
-//
-// Unlike the mastery ledgers, assessment answers are mutable (a user can retake
-// a section). The store shape is largely unchanged from the pre-migration design
-// because answers and scores are not ledger-style state — they don't accumulate
-// across days, they represent the user's current self-assessment.
-//
-// Sync strategy: submitSection enqueues an assessment_answers upsert. The
-// conflict target is (user_id, section_id) so retakes overwrite the previous
-// answer cleanly. Mutable upsert — not ignoreDuplicates.
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Pinia store -- assessment answers, section scores, overall score, and hydration
 import { defineStore } from "pinia";
-import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app";
-import { SECTIONS } from "@/data";
-import { useSyncStore } from "@/stores/sync";
-import { supabase } from "@/services/supabase";
-import type { AssessmentAnswerRow } from "@/types/database";
+import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app.types";
+import { SECTIONS } from "@/data/registry";
+import { useSyncStore } from "@/stores/sync.store";
+import { supabase } from "@/services/supabase.service";
+import type { AssessmentAnswerRow } from "@/types/database.types";
 
-// Total scaled marks across all 7 sections — the denominator for overallScore.
+// Total scaled marks across all 7 sections -- the denominator for overallScore.
 const TOTAL_SCALED_MAX = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 
 export const useAssessmentStore = defineStore("assessment", {
@@ -32,13 +20,11 @@ export const useAssessmentStore = defineStore("assessment", {
   }),
 
   getters: {
-    /** True if the user has submitted answers for this section. */
     isCompleted:
       (state) =>
       (sectionId: string): boolean =>
         sectionId in state.answers && state.answers[sectionId] !== undefined,
 
-    /** Raw point total for a section (sum of all question answer values). */
     rawScore:
       (state) =>
       (sectionId: string): number => {
@@ -47,10 +33,7 @@ export const useAssessmentStore = defineStore("assessment", {
         return Object.values(sectionAnswers).reduce((sum, v) => sum + v, 0);
       },
 
-    /**
-     * Scaled score for a section — maps the raw score onto the section's
-     * weighted contribution to the 325-point total.
-     */
+    // Maps the raw score onto the section's weighted contribution to the 325-point total.
     scaledScore(): (sectionId: string) => number {
       return (sectionId: string): number => {
         const meta = SECTIONS.find((s) => s.id === sectionId);
@@ -59,18 +42,15 @@ export const useAssessmentStore = defineStore("assessment", {
       };
     },
 
-    /**
-     * Overall score across all completed sections, normalised against the
-     * full 325-point total.
-     *
-     * Both `normalized` and `normalizedOutOf` are expressed as a share of
-     * TOTAL_SCALED_MAX so the denominator grows section-by-section:
-     *   - 1 section done  (e.g. Transport, scaledMax 75)  → outOf ≈ 23
-     *   - all 7 sections done                             → outOf = 100
-     *
-     * This gives users a meaningful partial picture instead of always
-     * showing "X / 100" before the assessment is complete.
-     */
+    // Overall score normalised against the full 325-point total.
+    //
+    // Both `normalized` and `normalizedOutOf` are expressed as a share of
+    // TOTAL_SCALED_MAX so the denominator grows section-by-section:
+    //   - 1 section done  (e.g. Transport, scaledMax 75)  → outOf ≈ 23
+    //   - all 7 sections done                             → outOf = 100
+    //
+    // This gives users a meaningful partial picture instead of always
+    // showing "X / 100" before the assessment is complete.
     overallScore(): {
       achieved: number;
       outOf: number;
@@ -95,7 +75,6 @@ export const useAssessmentStore = defineStore("assessment", {
       };
     },
 
-    /** Completed sections paired with their raw and scaled scores. */
     sectionResults(): Array<{ meta: SectionMeta; raw: number; scaled: number }> {
       return SECTIONS.filter((s) => this.isCompleted(s.id)).map((s) => ({
         meta: s,
@@ -106,15 +85,12 @@ export const useAssessmentStore = defineStore("assessment", {
   },
 
   actions: {
-    /**
-     * Record answers for a section and enqueue an upsert to Supabase.
-     * Idempotency key: (user_id, section_id) — retakes overwrite cleanly.
-     */
+    // Idempotency key: (user_id, section_id) -- retakes overwrite cleanly.
     submitSection(sectionId: string, answers: SectionAnswers) {
       this.answers[sectionId] = answers;
       this.completedAt[sectionId] = Date.now();
 
-      if (!this.userId) return; // not hydrated yet — skip enqueue (no-op guard)
+      if (!this.userId) return; // not hydrated yet -- skip enqueue (no-op guard)
 
       useSyncStore().enqueue({
         id: `assessment_answers:${this.userId}:${sectionId}`,
@@ -135,10 +111,7 @@ export const useAssessmentStore = defineStore("assessment", {
       delete this.answers[sectionId];
     },
 
-    /**
-     * Reset the entire assessment locally and dequeue any pending writes.
-     * Does not delete rows from Supabase — the user can retake and resubmit.
-     */
+    // Does not delete rows from Supabase -- the user can retake and resubmit.
     clearAll() {
       this.answers = {};
       this.completedAt = {};
@@ -151,14 +124,10 @@ export const useAssessmentStore = defineStore("assessment", {
       this.recommendedHabitIds = ids;
     },
 
-    /**
-     * Pull assessment_answers from Supabase and merge into local state.
-     *
-     * Merge rule:
-     *   - forceRemote = true (reconnect): server wins — overwrite all local answers.
-     *   - forceRemote = false (cold start): local wins — only fill in sections not
-     *     yet answered locally. This preserves in-progress answers entered offline.
-     */
+    // Merge rule:
+    //   forceRemote = true (reconnect): server wins -- overwrite all local answers.
+    //   forceRemote = false (cold start): local wins -- only fill in sections not
+    //     yet answered locally. This preserves in-progress answers entered offline.
     async hydrateFromSupabase(newUserId: string, forceRemote = false) {
       this.userId = newUserId;
 

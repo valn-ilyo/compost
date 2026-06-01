@@ -1,6 +1,7 @@
+<!-- Component -- guide assessment section, section overview with weight table -->
 <script setup lang="ts">
 import { computed } from "vue";
-import { SECTIONS, questionRegistry } from "@/data/index";
+import { SECTIONS, questionRegistry } from "@/data/registry";
 
 const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 

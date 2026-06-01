@@ -1,5 +1,6 @@
+<!-- Component -- methodology habits section, streak, freeze, and mastery model -->
 <script setup lang="ts">
-import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
+import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app.types";
 </script>
 
 <template>

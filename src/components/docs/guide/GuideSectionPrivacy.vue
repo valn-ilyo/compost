@@ -1,3 +1,4 @@
+<!-- Component -- guide privacy section, data storage and deletion policy -->
 <template>
   <section id="privacy">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Privacy</div>

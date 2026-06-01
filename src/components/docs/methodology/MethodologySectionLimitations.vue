@@ -1,5 +1,6 @@
+<!-- Component -- methodology limitations section, caveats and references -->
 <script setup lang="ts">
-import { SECTIONS } from "@/data/index";
+import { SECTIONS } from "@/data/registry";
 
 const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 </script>
@@ -34,8 +35,8 @@ const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
       <p class="text-body-2">
         Section weights are fixed and derived from global and regional averages. Factors such as
         grid carbon intensity, local transport infrastructure, and climate affect the true relative
-        importance of each domain. A user on a near-zero-carbon electricity grid is
-        over-penalised in the Energy section relative to their actual impact.
+        importance of each domain. A user on a near-zero-carbon electricity grid is over-penalised
+        in the Energy section relative to their actual impact.
       </p>
     </v-card-text>
 

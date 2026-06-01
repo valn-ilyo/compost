@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { useProfileStore } from "@/stores/profile";
-import { supabase } from "@/services/supabase";
+import { useProfileStore } from "@/stores/profile.store";
+import { supabase } from "@/services/supabase.service";
 import { HABIT_TEMPLATES } from "@/data/habits";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ function goBack() {
 // ── Data & filters ────────────────────────────────────────────────────────────
 
 const analytics = ref<AdminAnalytics | null>(null);
-const loading = ref(true);
+const isLoading = ref(true);
 const error = ref<string | null>(null);
 
 const selectedYear = ref<number | null>(null);
@@ -86,7 +86,7 @@ const genderItems = computed(() => [
 const isEmpty = computed(() => !!analytics.value && analytics.value.totals.registered === 0);
 
 async function fetchAnalytics() {
-  loading.value = true;
+  isLoading.value = true;
   error.value = null;
   const { data, error: rpcError } = await supabase.rpc("get_admin_analytics", {
     p_year: selectedYear.value,
@@ -102,7 +102,7 @@ async function fetchAnalytics() {
         .filter((g) => g !== "Not specified");
     }
   }
-  loading.value = false;
+  isLoading.value = false;
 }
 
 onMounted(fetchAnalytics);
@@ -241,7 +241,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
             </v-row>
 
             <!-- ── Loading ───────────────────────────────────────────────── -->
-            <template v-if="loading">
+            <template v-if="isLoading">
               <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
               <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
               <v-skeleton-loader type="card" class="rounded-xl" />

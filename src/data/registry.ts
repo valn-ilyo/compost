@@ -1,4 +1,5 @@
-import type { Question, SectionMeta } from '../types/app'
+// Section meta registry and question lookup for the seven assessment sections
+import type { Question, SectionMeta } from '../types/app.types'
 import { transportMeta, transportQuestions } from './sections/transport'
 import { foodMeta, foodQuestions } from './sections/food'
 import { energyMeta, energyQuestions } from './sections/energy'

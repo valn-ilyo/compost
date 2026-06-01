@@ -1,3 +1,4 @@
+<!-- Component -- SDG chip row, colour-coded by section score -->
 <script setup lang="ts">
 import type { buildSdgChips } from "@/data/sdgs";
 

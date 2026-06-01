@@ -1,5 +1,6 @@
+<!-- Component -- methodology scoring section, raw score, scaled score, and section weighting -->
 <script setup lang="ts">
-import { SECTIONS } from "@/data/index";
+import { SECTIONS } from "@/data/registry";
 
 const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 </script>

@@ -1,7 +1,4 @@
-<script setup lang="ts">
-// No data derivation. Static prose.
-</script>
-
+<!-- Component -- guide insights section, score, breakdown, recommendations, and SDG alignment -->
 <template>
   <section id="insights">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Insights</div>

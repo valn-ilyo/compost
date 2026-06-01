@@ -1,3 +1,4 @@
+<!-- Component -- confirmation card shown when all habits are logged for the day -->
 <template>
   <v-card
     v-motion

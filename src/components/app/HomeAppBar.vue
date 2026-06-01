@@ -1,7 +1,8 @@
+<!-- Component -- app bar for the home view with sync status indicator and climate clock toggle -->
 <script setup lang="ts">
 import { computed } from "vue";
-import { useClockVisibleStore } from "@/stores/climateClock";
-import { useSyncStore } from "@/stores/sync";
+import { useClockVisibleStore } from "@/stores/clock-visible.store";
+import { useSyncStore } from "@/stores/sync.store";
 
 const clockVisibleStore = useClockVisibleStore();
 const syncStore = useSyncStore();

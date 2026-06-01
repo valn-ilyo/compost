@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from "vue"
 import { useRoute } from "vue-router"
-import { useAssessmentStore } from "@/stores/assessment"
+import { useAssessmentStore } from "@/stores/assessment.store"
 import CheckInTab from "@/components/assessment/AssessmentCheckInTab.vue"
 import InsightsTab from "@/components/assessment/AssessmentInsightsTab.vue"
-import AppBarAssessment from "@/components/app/AppBarAssessment.vue"
+import AssessmentAppBar from "@/components/app/AssessmentAppBar.vue"
 
 const store = useAssessmentStore()
 const route = useRoute()
@@ -20,7 +20,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppBarAssessment />
+  <AssessmentAppBar />
   <v-container fluid class="pa-0">
     <v-tabs-window v-model="store.activeTab">
       <v-tabs-window-item value="checkin">

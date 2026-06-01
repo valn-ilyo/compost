@@ -1,16 +1,17 @@
+<!-- Component -- insights tab, score hero, section breakdown, reflections, habit recs, and SDG chips -->
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useAssessmentStore } from "@/stores/assessment";
+import { useAssessmentStore } from "@/stores/assessment.store";
 import { getBadge, getTagline, getSortedSections, WEAK_THRESHOLD } from "@/data/badge";
-import { getSortedQuestions, getInsightsForAssessment } from "@/data/insights";
+import { getSortedQuestions, getInsightsForAssessment } from "@/data/insights/insights";
 import { HABIT_TEMPLATES } from "@/data/habits";
 import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
-import type { HabitTemplate } from "@/types/app";
-import { MAX_SLOTS } from "@/types/app";
+import type { HabitTemplate } from "@/types/app.types";
+import { MAX_SLOTS } from "@/types/app.types";
 
 import { buildSdgChips } from "@/data/sdgs";
 import { scoreColor } from "@/utils/scoring";
-import { SECTIONS } from "@/data";
+import { SECTIONS } from "@/data/registry";
 
 import InsightsScoreHero from "@/components/insights/InsightsScoreHero.vue";
 import InsightsBreakdownBars from "@/components/insights/InsightsBreakdownBars.vue";
@@ -18,7 +19,7 @@ import InsightsContinueAssessment from "@/components/insights/InsightsContinueAs
 import InsightsPanel from "@/components/insights/InsightsPanel.vue";
 import InsightsHabitPanel from "@/components/insights/InsightsHabitPanel.vue";
 import InsightsSdgChips from "@/components/insights/InsightsSdgChips.vue";
-import { useMasteryStore } from "@/stores/mastery";
+import { useMasteryStore } from "@/stores/mastery.store";
 
 const store = useAssessmentStore();
 const masteryStore = useMasteryStore();
@@ -32,9 +33,9 @@ const habitsLabel = computed(() => {
   return "Recommendations";
 });
 
-const insightsOpen = ref(true);
-const habitsOpen = ref(true);
-const sdgOpen = ref(true);
+const isInsightsOpen = ref(true);
+const isHabitsOpen = ref(true);
+const isSdgOpen = ref(true);
 
 const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)));
 const isComplete = computed(() => SECTIONS.every((s) => completedIds.value.has(s.id)));
@@ -178,7 +179,7 @@ const chips = computed(() => {
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"
               role="button"
-              @click="insightsOpen = !insightsOpen"
+              @click="isInsightsOpen = !isInsightsOpen"
             >
               <p
                 v-motion
@@ -193,13 +194,13 @@ const chips = computed(() => {
                 Reflections
               </p>
               <v-icon
-                :icon="insightsOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                :icon="isInsightsOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                 color="medium-emphasis"
                 size="18"
               />
             </div>
             <v-expand-transition>
-              <div v-show="insightsOpen" class="overflow-hidden">
+              <div v-show="isInsightsOpen" class="overflow-hidden">
                 <InsightsPanel :insights="insights" />
               </div>
             </v-expand-transition>
@@ -209,7 +210,7 @@ const chips = computed(() => {
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"
               role="button"
-              @click="habitsOpen = !habitsOpen"
+              @click="isHabitsOpen = !isHabitsOpen"
             >
               <p
                 v-motion
@@ -224,13 +225,13 @@ const chips = computed(() => {
                 {{ habitsLabel }}
               </p>
               <v-icon
-                :icon="habitsOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                :icon="isHabitsOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                 color="medium-emphasis"
                 size="18"
               />
             </div>
             <v-expand-transition>
-              <div v-show="habitsOpen" class="overflow-hidden">
+              <div v-show="isHabitsOpen" class="overflow-hidden">
                 <InsightsHabitPanel
                   :templates="linkedHabits"
                   :has-paused-recs="pausedRecommendedIds.length > 0"
@@ -243,7 +244,7 @@ const chips = computed(() => {
             <div
               class="d-flex align-center justify-space-between mt-6 mb-3 cursor-pointer"
               role="button"
-              @click="sdgOpen = !sdgOpen"
+              @click="isSdgOpen = !isSdgOpen"
             >
               <p
                 v-motion
@@ -267,13 +268,13 @@ const chips = computed(() => {
                 >
               </p>
               <v-icon
-                :icon="sdgOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                :icon="isSdgOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                 color="medium-emphasis"
                 size="18"
               />
             </div>
             <v-expand-transition>
-              <div v-show="sdgOpen" class="pb-4">
+              <div v-show="isSdgOpen" class="pb-4">
                 <InsightsSdgChips :chips="chips" />
               </div>
             </v-expand-transition>

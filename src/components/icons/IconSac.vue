@@ -1,4 +1,4 @@
-<!-- src/components/icons/IconSac.vue -->
+<!-- Component -- SAC logo icon, renders the raw SVG asset at a configurable size -->
 <script setup lang="ts">
 import sacSvg from '@/assets/sac.svg?raw'
 import { computed } from 'vue'

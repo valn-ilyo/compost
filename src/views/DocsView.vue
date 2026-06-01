@@ -2,12 +2,12 @@
 import { computed, nextTick, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
-import AppBarDocs from "@/components/docs/AppBarDocs.vue";
+import DocsAppBar from "@/components/docs/DocsAppBar.vue";
 import DocsSidebar from "@/components/docs/DocsSidebar.vue";
 import GuideView from "@/components/docs/GuideTab.vue";
 import MethodologyView from "@/components/docs/MethodologyTab.vue";
 import CreditsView from "@/components/docs/CreditsTab.vue";
-import { guideNav, methodologyNav, creditsNav } from "@/data/docsNav";
+import { guideNav, methodologyNav, creditsNav } from "@/data/docs-nav";
 
 type DocTab = "guide" | "methodology" | "credits";
 
@@ -58,7 +58,7 @@ async function onDocsNavigate(payload: { tab: DocTab; section: string }) {
 </script>
 
 <template>
-  <AppBarDocs @navigate="onDocsNavigate">
+  <DocsAppBar @navigate="onDocsNavigate">
     <template #tabs>
       <v-tabs :model-value="activeTab" color="on-primary" @update:model-value="onTabChange" grow>
         <v-tab rounded="0" value="guide">Guide</v-tab>
@@ -66,7 +66,7 @@ async function onDocsNavigate(payload: { tab: DocTab; section: string }) {
         <v-tab rounded="0" value="credits">Credits</v-tab>
       </v-tabs>
     </template>
-  </AppBarDocs>
+  </DocsAppBar>
 
   <v-navigation-drawer v-if="mdAndUp" permanent color="secondary">
     <DocsSidebar v-model="activeSection" />

@@ -1,20 +1,10 @@
-// ─── profileStore ─────────────────────────────────────────────────────────────
-// Holds the user's profile row — name, roll_no, and any preferences.
-//
-// fetchProfile is a direct Supabase call (not queued) because it is a
-// prerequisite for hydration — the router needs isComplete before it can decide
-// whether to redirect to onboarding.
-//
-// updateProfile writes locally first and enqueues a upsert — the user never
-// waits for a round-trip to see their changes reflected in the UI.
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Pinia store -- user profile row with optimistic updates, hydration, and onboarding gate
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import type { ProfileRow, ProfileUpdate } from "@/types/database";
+import type { ProfileRow, ProfileUpdate } from "@/types/database.types";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
-import { supabase } from "@/services/supabase";
-import { useSyncStore } from "@/stores/sync";
+import { supabase } from "@/services/supabase.service";
+import { useSyncStore } from "@/stores/sync.store";
 
 export const useProfileStore = defineStore(
   "profile",
@@ -26,10 +16,7 @@ export const useProfileStore = defineStore(
     // Populated during fetchProfile(). Carried on every enqueued row.
     const userId = ref<string>("");
 
-    /**
-     * True when name and roll_no are both non-empty strings.
-     * Controls whether the router redirects to the onboarding flow.
-     */
+    // Controls whether the router redirects to the onboarding flow.
     const isComplete = computed(() => {
       if (!profile.value) return false;
       const nameFilled = profile.value.name?.trim() !== "";
@@ -37,18 +24,18 @@ export const useProfileStore = defineStore(
       return nameFilled && rollFilled;
     });
 
-    /**
-     * Pull the user's profile row from Supabase.
-     *
-     * If no row exists yet (PGRST116), hydration completes with profile=null so
-     * the router can redirect to onboarding where the user creates their profile.
-     * Profile rows are typically created by a Supabase trigger on auth.users insert.
-     *
-     * Merge rule:
-     *   - forceRemote = true (reconnect): server wins — overwrite local profile.
-     *   - forceRemote = false (cold start): local wins if a profile is already cached.
-     *     This prevents a round-trip from discarding profile edits made offline.
-     */
+    // fetchProfile is a direct Supabase call (not queued) because it is a
+    // prerequisite for hydration -- the router needs isComplete before it can
+    // decide whether to redirect to onboarding.
+    //
+    // If no row exists yet (PGRST116), hydration completes with profile=null so
+    // the router can redirect to onboarding where the user creates their profile.
+    // Profile rows are typically created by a Supabase trigger on auth.users insert.
+    //
+    // Merge rule:
+    //   forceRemote = true (reconnect): server wins -- overwrite local profile.
+    //   forceRemote = false (cold start): local wins if a profile is already cached.
+    //     This prevents a round-trip from discarding profile edits made offline.
     async function fetchProfile(newUserId: string, email?: string, forceRemote = false) {
       userId.value = newUserId;
       if (email) userEmail.value = email;
@@ -61,7 +48,7 @@ export const useProfileStore = defineStore(
 
       if (error) {
         if (error.code === "PGRST116") {
-          // No profile row yet — leave profile null, router handles onboarding redirect.
+          // No profile row yet -- leave profile null, router handles onboarding redirect.
           return;
         }
         throw error;
@@ -72,11 +59,9 @@ export const useProfileStore = defineStore(
       }
     }
 
-    /**
-     * Optimistically apply updates to the local profile ref, then enqueue
-     * a upsert. Shallow merge: incoming fields win, others preserved.
-     * Idempotency key: user_id — dedup in drain merges payload fields.
-     */
+    // Optimistically apply updates to the local profile ref, then enqueue a upsert.
+    // Shallow merge: incoming fields win, others preserved.
+    // Idempotency key: user_id -- dedup in drain merges payload fields.
     async function updateProfile(updates: ProfileUpdate) {
       // Always apply optimistically, even on first save when profile.value is
       // null (the trigger created the DB row but fetchProfile hasn't run yet).
@@ -107,7 +92,7 @@ export const useProfileStore = defineStore(
       });
     }
 
-    /** Clear all profile state. Called by resetAllStores() on logout and hydration start. */
+    // Called by resetAllStores() on logout and hydration start.
     function reset() {
       profile.value = null;
       userEmail.value = null;

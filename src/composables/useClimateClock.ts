@@ -1,13 +1,14 @@
+// Composable -- climate clock data fetching, countdown timer, and lifeline rotation
 import { ref, computed, onUnmounted } from "vue";
 import { useIntervalFn, useEventListener } from "@vueuse/core";
-import { useClockDataStore } from "@/stores/climateClock";
+import { useClockDataStore } from "@/stores/clock-data.store";
 import type {
   ClockModule,
   NewsfeedItem,
   Lifeline,
   ClockDisplay,
   ParsedUnit,
-} from "@/types/app";
+} from "@/types/app.types";
 
 const LIFELINE_KEYS = [
   "renewables_1",
@@ -31,7 +32,8 @@ const UNIT_OVERRIDES: Partial<Record<string, ParsedUnit>> = {
   _youth_anxiety: { prefix: "", unit: "% Youth", scale: 1 },
 };
 
-// ── singleton state ─────────────────────────────────────────────────────────
+// ─── State ───────────────────────────────────────────────────────────────────
+
 const initialized = ref(false);
 const loading = ref(false);
 const now = ref(new Date());
@@ -46,23 +48,27 @@ const fetchFailed = ref(false);
 // Consumer counter: ticks pause when the last consumer unmounts.
 let consumers = 0;
 
-// ── VueUse intervals (module-level, immediate: false) ───────────────────────
 // Called at module scope so the refs are shared across all consumers.
-// tryOnScopeDispose inside useIntervalFn is a no-op here — we manage
+// tryOnScopeDispose inside useIntervalFn is a no-op here; we manage
 // pause/resume explicitly via the consumer counter.
 const { pause: pauseClock, resume: resumeClock } = useIntervalFn(
-  () => { now.value = new Date(); },
+  () => {
+    now.value = new Date();
+  },
   1000,
   { immediate: false },
 );
 
 const { pause: pauseLifeline, resume: resumeLifeline } = useIntervalFn(
-  () => { lifelineIndex.value = (lifelineIndex.value + 1) % lifelines.value.length; },
+  () => {
+    lifelineIndex.value = (lifelineIndex.value + 1) % lifelines.value.length;
+  },
   6000,
   { immediate: false },
 );
 
-// ── helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 const pad = (n: number, len = 2) => String(n).padStart(len, "0");
 
 function parseUnit(key: string, raw: string): ParsedUnit {
@@ -148,14 +154,14 @@ async function init() {
   const store = useClockDataStore();
   const hasCachedData = store.isCacheValid && !!store.deadlineTs;
 
-  // Load from cache immediately so the UI is never empty
+  // Load from cache immediately so the UI is never empty.
   if (hasCachedData) {
     hydrateFromStore(store);
     initialized.value = true;
     startTicks();
   }
 
-  // Only show loading skeleton on a true cold start (no cache at all)
+  // Only show loading skeleton on a true cold start (no cache at all).
   if (!hasCachedData) loading.value = true;
 
   try {
@@ -180,17 +186,16 @@ function onOnline() {
   }
 }
 
-// ── composable ──────────────────────────────────────────────────────────────
 export function useClimateClock() {
   consumers++;
   init();
 
-  // useEventListener auto-removes on unmount — no manual removeEventListener needed.
+  // useEventListener auto-removes on unmount; no manual removeEventListener needed.
   useEventListener(window, "online", onOnline);
 
   onUnmounted(() => {
     // Pause the shared intervals only when the last consumer unmounts.
-    // pauseClock/pauseLifeline are idempotent — safe to call even if already paused.
+    // pauseClock/pauseLifeline are idempotent; safe to call even if already paused.
     if (--consumers === 0) {
       pauseClock();
       pauseLifeline();

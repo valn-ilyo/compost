@@ -1,3 +1,4 @@
+<!-- Component -- incomplete assessment prompt, links to each unfinished section -->
 <script setup lang="ts">
 import { ref } from "vue";
 import type { ComponentPublicInstance } from "vue";

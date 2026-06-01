@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the energy section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const ENERGY_INSIGHTS: QuestionInsight[] = [
-  // lights_off
   {
     sectionId: "energy",
     questionId: "lights_off",
@@ -38,7 +38,6 @@ export const ENERGY_INSIGHTS: QuestionInsight[] = [
     text: "Never switching off means every room runs continuously whether occupied or not. Switch one light off the next time you leave a room. That one act is where the habit begins.",
   },
 
-  // standby_power
   {
     sectionId: "energy",
     questionId: "standby_power",
@@ -75,7 +74,6 @@ export const ENERGY_INSIGHTS: QuestionInsight[] = [
     text: "Devices plugged in continuously means phantom load runs all day and night. Unplug one charger tonight before sleeping. That's the first action.",
   },
 
-  // natural_light
   {
     sectionId: "energy",
     questionId: "natural_light",
@@ -112,7 +110,6 @@ export const ENERGY_INSIGHTS: QuestionInsight[] = [
     text: "Never using daylight means electric lighting runs from waking to dark. Open the curtains one morning this week instead of turning on the light and see how much you need the switch.",
   },
 
-  // shared_space_energy
   {
     sectionId: "energy",
     questionId: "shared_space_energy",
@@ -149,7 +146,6 @@ export const ENERGY_INSIGHTS: QuestionInsight[] = [
     text: "Never checking shared spaces means they run after every departure. Look back once before leaving any shared room this week and switch off what is running.",
   },
 
-  // power_saving_mode
   {
     sectionId: "energy",
     questionId: "power_saving_mode",

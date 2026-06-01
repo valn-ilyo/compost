@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the digital section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const DIGITAL_INSIGHTS: QuestionInsight[] = [
-  // streaming_habits
   {
     sectionId: "digital",
     questionId: "streaming_habits",
@@ -38,7 +38,6 @@ export const DIGITAL_INSIGHTS: QuestionInsight[] = [
     text: "4K streaming at over four hours per day transfers roughly 100 times the data of SD per hour. Switch your quality setting to SD now and set a daily time reminder. Both changes, today.",
   },
 
-  // cloud_hygiene
   {
     sectionId: "digital",
     questionId: "cloud_hygiene",
@@ -75,7 +74,6 @@ export const DIGITAL_INSIGHTS: QuestionInsight[] = [
     text: "Automatic backup across multiple accounts without review is one of the largest sources of unnecessary cloud load. Open one cloud folder this week and spend 10 minutes deleting what you no longer need.",
   },
 
-  // email_hygiene
   {
     sectionId: "digital",
     questionId: "email_hygiene",
@@ -112,7 +110,6 @@ export const DIGITAL_INSIGHTS: QuestionInsight[] = [
     text: "Never managing your inbox means storage and server load grow unchecked. Delete everything in your junk or promotional folder older than a month. That one action is the beginning.",
   },
 
-  // intentional_use
   {
     sectionId: "digital",
     questionId: "intentional_use",
@@ -149,7 +146,6 @@ export const DIGITAL_INSIGHTS: QuestionInsight[] = [
     text: "Mostly passive and largely uncontrolled device use means the majority of your data and screen time is unintended. State a purpose before picking up your phone today. That one moment of intention is the start.",
   },
 
-  // device_repair
   {
     sectionId: "digital",
     questionId: "device_repair",

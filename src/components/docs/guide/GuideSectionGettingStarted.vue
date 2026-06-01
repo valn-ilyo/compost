@@ -1,12 +1,12 @@
+<!-- Component -- guide getting started section, sign-in, assessment, habits, and daily logging steps -->
 <script setup lang="ts">
-import { MAX_SLOTS } from "@/types/app";
+import { MAX_SLOTS } from "@/types/app.types";
 </script>
 
 <template>
   <section id="getting-started">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Getting started</div>
     <v-card flat rounded="xl" class="mb-8">
-      <!-- Sign in -->
       <v-list-item prepend-icon="mdi-account-circle-outline" title="Sign in" class="pt-4" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2">
@@ -17,7 +17,6 @@ import { MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Assessment -->
       <v-list-item
         prepend-icon="mdi-clipboard-list-outline"
         title="Complete the assessment"
@@ -36,7 +35,6 @@ import { MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Add habits -->
       <v-list-item prepend-icon="mdi-playlist-plus" title="Add habits" class="pt-2" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2 mb-2">
@@ -51,7 +49,6 @@ import { MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Log daily -->
       <v-list-item prepend-icon="mdi-check-circle-outline" title="Log every day" class="pt-2" />
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2 mb-2">

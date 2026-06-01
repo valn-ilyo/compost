@@ -1,7 +1,7 @@
-import type { QuestionInsight } from "@/types/app";
+// Question insights for the consumption section
+import type { QuestionInsight } from "@/types/app.types";
 
 export const CONSUMPTION_INSIGHTS: QuestionInsight[] = [
-  // printing_habits
   {
     sectionId: "consumption",
     questionId: "printing_habits",
@@ -38,7 +38,6 @@ export const CONSUMPTION_INSIGHTS: QuestionInsight[] = [
     text: "Printing everything by default means every document generates paper and ink waste. Read one document on screen today instead of printing it.",
   },
 
-  // clothing_purchases
   {
     sectionId: "consumption",
     questionId: "clothing_purchases",
@@ -75,7 +74,6 @@ export const CONSUMPTION_INSIGHTS: QuestionInsight[] = [
     text: "More than six unplanned purchases is a frequent pattern. Write a list of three things you need before your next trip and buy only those three.",
   },
 
-  // device_longevity
   {
     sectionId: "consumption",
     questionId: "device_longevity",
@@ -112,7 +110,6 @@ export const CONSUMPTION_INSIGHTS: QuestionInsight[] = [
     text: "Replacing at every new model means devices are discarded with most of their life unused. Skip one upgrade cycle. Your current device almost certainly has more usable life remaining.",
   },
 
-  // circular_economy
   {
     sectionId: "consumption",
     questionId: "circular_economy",

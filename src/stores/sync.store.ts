@@ -1,4 +1,4 @@
-// ─── syncStore ────────────────────────────────────────────────────────────────
+// Pinia store -- sync queue, drain loop, Realtime subscriptions, and reconnect orchestration
 //
 // QUEUE
 // ─────
@@ -13,15 +13,15 @@
 // ─────
 // drain() flushes the queue to Supabase sequentially. Two operation paths:
 //
-//   'upsert' — ledger tables (habit_logs, freeze_ledger, mastered_archive).
-//     ignoreDuplicates=true — conflict means row already on server, silent success.
+//   'upsert' -- ledger tables (habit_logs, freeze_ledger, mastered_archive).
+//     ignoreDuplicates=true -- conflict means row already on server, silent success.
 //     Mutable tables (assessment_answers, profiles) use regular upsert.
 //
-//   'rpc' — SECURITY DEFINER slot lifecycle RPCs.
+//   'rpc' -- SECURITY DEFINER slot lifecycle RPCs.
 //     supabase.rpc(fn, payload). Three error categories:
 //
 //     slot_cap_exceeded (SQLSTATE P0001):
-//       State mismatch — the optimistic local update diverged from server state.
+//       State mismatch -- the optimistic local update diverged from server state.
 //       Discard the item, call capRejectionCallback (which re-hydrates habit_slots
 //       + habit_pause_events and runs reconcile). Continue draining.
 //
@@ -34,7 +34,7 @@
 // CAP REJECTION CALLBACK
 // ──────────────────────
 // capRejectionCallback is registered by App.vue via setCapRejectionCallback().
-// It avoids a circular dependency — sync.ts cannot import mastery.ts (mastery.ts
+// It avoids a circular dependency -- sync.ts cannot import mastery.ts (mastery.ts
 // already imports sync.ts). App.vue wires the two stores together:
 //
 //   syncStore.setCapRejectionCallback(async () => {
@@ -44,21 +44,20 @@
 //
 // RECONNECT SEQUENCE
 // ──────────────────
-// Order is strict — do not deviate:
-//   1. isSyncing = true   ← gates Realtime handlers
-//   2. drain()            ← flush local writes first (local intent wins)
-//   3. reconnectCallback  ← hydrate forceRemote + reconcile
-//   4. isSyncing = false  ← Realtime resumes
+// Order is strict -- do not deviate:
+//   1. isSyncing = true   <- gates Realtime handlers
+//   2. drain()            <- flush local writes first (local intent wins)
+//   3. reconnectCallback  <- hydrate forceRemote + reconcile
+//   4. isSyncing = false  <- Realtime resumes
 //
-// REALTIME SUBSCRIPTIONS (Phase 6D)
-// ──────────────────────────────────
-// habit_logs, freeze_ledger, mastered_archive — INSERT only (append-only).
-// habit_slots         — INSERT + UPDATE + DELETE (mutable server state).
-// habit_pause_events  — INSERT + UPDATE (windows open and close; never deleted).
+// REALTIME SUBSCRIPTIONS
+// ──────────────────────
+// habit_logs, freeze_ledger, mastered_archive -- INSERT only (append-only).
+// habit_slots         -- INSERT + UPDATE + DELETE (mutable server state).
+// habit_pause_events  -- INSERT + UPDATE (windows open and close; never deleted).
 //
-// All handlers gate on isSyncing — events dropped during a drain/hydrate
+// All handlers gate on isSyncing -- events dropped during a drain/hydrate
 // cycle are recovered by the hydrateFromSupabase() full-replace that follows.
-// ─────────────────────────────────────────────────────────────────────────────
 
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
@@ -72,17 +71,16 @@ import type {
   HabitPauseEvent,
   MasteredEntry,
   RealtimeHandlers,
-} from "@/types/app";
+} from "@/types/app.types";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/services/supabase.service";
 
-// ─── Ledger tables — append-only, ignoreDuplicates on upsert ─────────────────
-
+// Append-only tables use ignoreDuplicates=true on upsert -- conflict means the
+// row already landed on the server via another device or a prior drain.
 const LEDGER_TABLES = new Set(["habit_logs", "freeze_ledger", "mastered_archive"]);
 
-// ─── ON_CONFLICT targets per mutable table ────────────────────────────────────
-
+// Unique conflict targets per table -- required by Supabase upsert.
 const ON_CONFLICT: Record<string, string> = {
   habit_logs: "user_id,template_id,date",
   freeze_ledger: "user_id,template_id,date,reason",
@@ -94,7 +92,7 @@ const ON_CONFLICT: Record<string, string> = {
 export const useSyncStore = defineStore(
   "sync",
   () => {
-    // ── State ────────────────────────────────────────────────────────────────
+    // ─── State ───────────────────────────────────────────────────────────────
 
     const queue = ref<SyncQueueItem[]>([]);
     const isOnline = useOnline();
@@ -102,7 +100,7 @@ export const useSyncStore = defineStore(
     const isHydrating = ref(false);
 
     // True during the reconnect flush+backfill window.
-    // All Realtime handlers check this at entry and return early if true —
+    // All Realtime handlers check this at entry and return early if true --
     // prevents incoming server rows from racing with drain/hydrate.
     const isSyncing = ref(false);
 
@@ -115,15 +113,14 @@ export const useSyncStore = defineStore(
 
     // Registered by App.vue after both stores are available.
     // Called when drain() encounters a slot_cap_exceeded error on an RPC item.
-    // Signature: re-hydrate habit_slots + pause_events from server, then reconcile.
-    // Not stored as a ref — it's a module-level closure that never needs to be reactive.
+    // Not stored as a ref -- it's a module-level closure that never needs to be reactive.
     let capRejectionCallback: (() => Promise<void>) | null = null;
 
     function setCapRejectionCallback(cb: () => Promise<void>): void {
       capRejectionCallback = cb;
     }
 
-    // ── Computed ─────────────────────────────────────────────────────────────
+    // ─── Computed ────────────────────────────────────────────────────────────
 
     const status = computed<SyncStatus>(() => {
       if (!isOnline.value) return "offline";
@@ -132,19 +129,13 @@ export const useSyncStore = defineStore(
       return "synced";
     });
 
-    // ── Drain ─────────────────────────────────────────────────────────────────
+    // ─── Actions ─────────────────────────────────────────────────────────────
 
     let draining = false;
 
-    /**
-     * Flush the sync queue to Supabase sequentially.
-     *
-     * Items are processed one at a time in enqueue order. Two operation paths:
-     *   'upsert' — supabase.from(table).upsert(payload, ...)
-     *   'rpc'    — supabase.rpc(fn, payload)
-     *
-     * Returns when the queue is empty or an unrecoverable error stops processing.
-     */
+    // Flush the sync queue to Supabase sequentially.
+    // Items are processed one at a time in enqueue order.
+    // Returns when the queue is empty or an unrecoverable error stops processing.
     async function drain(): Promise<void> {
       if (!isOnline.value || !isHydrated.value || queue.value.length === 0) return;
       if (draining) return;
@@ -154,12 +145,11 @@ export const useSyncStore = defineStore(
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        if (!session) return; // no session — leave queue intact for after next login
+        if (!session) return; // no session -- leave queue intact for after next login
 
         while (queue.value.length > 0) {
           const item = queue.value[0]!;
 
-          // ── RPC path ───────────────────────────────────────────────────────
           if (item.operation === "rpc") {
             const { error, status } = await supabase.rpc(
               item.fn!,
@@ -167,20 +157,17 @@ export const useSyncStore = defineStore(
             );
 
             if (error) {
-              // State mismatch: server rejected the action because the cap was
-              // already full when the RPC ran. The optimistic local write is now
-              // diverged. Discard this item and let the callback re-sync state.
-              // Continue draining — subsequent items may still be valid.
+              // State mismatch: server rejected because the cap was already full.
+              // The optimistic local write is now diverged. Discard and re-sync.
               if (error.code === "P0001" && error.message?.includes("slot_cap_exceeded")) {
                 queue.value.shift();
                 capRejectionCallback?.();
                 continue;
               }
 
-              // Auth error: abort entire drain.
-              if (status === 401) break;
+              if (status === 401) break; // auth error -- abort entire drain
 
-              // Network or 5xx: stop here, preserve order, retry in 5s.
+              // Network or 5xx -- stop here, preserve order, retry in 5s.
               setTimeout(() => drain(), 5000);
               break;
             }
@@ -189,7 +176,6 @@ export const useSyncStore = defineStore(
             continue;
           }
 
-          // ── Upsert path ────────────────────────────────────────────────────
           if (item.operation === "upsert") {
             const isLedger = LEDGER_TABLES.has(item.table!);
             const conflictTarget = ON_CONFLICT[item.table!];
@@ -211,7 +197,6 @@ export const useSyncStore = defineStore(
             continue;
           }
 
-          // ── Delete path (not currently used) ──────────────────────────────
           if (item.operation === "delete") {
             const { error, status } = await supabase
               .from(item.table!)
@@ -228,30 +213,23 @@ export const useSyncStore = defineStore(
             continue;
           }
 
-          // Unknown operation — discard to avoid infinite loop.
-          queue.value.shift();
+          queue.value.shift(); // unknown operation -- discard to avoid infinite loop
         }
       } finally {
         draining = false;
       }
     }
 
-    // ── Queue management ──────────────────────────────────────────────────────
-
-    /**
-     * Add an item to the sync queue.
-     *
-     * Dedup by item.id:
-     *   Not found          → append.
-     *   Found, 'profiles'  → shallow merge payload (incoming fields win).
-     *   Found, everything else → last-write-wins (replace entire item).
-     *
-     * RPC items: always last-write-wins (item.table is undefined so the
-     * profiles merge branch never fires).
-     *
-     * No-op if isHydrated is false — writes before hydration are discarded
-     * because we don't yet know what's already on the server.
-     */
+    // Dedup by item.id:
+    //   Not found          -> append.
+    //   Found, 'profiles'  -> shallow merge payload (incoming fields win).
+    //   Found, everything else -> last-write-wins (replace entire item).
+    //
+    // RPC items are always last-write-wins (item.table is undefined so the
+    // profiles merge branch never fires).
+    //
+    // No-op if isHydrated is false -- writes before hydration are discarded
+    // because we don't yet know what's already on the server.
     function enqueue(item: SyncQueueItem): void {
       if (!isHydrated.value) return;
 
@@ -281,8 +259,6 @@ export const useSyncStore = defineStore(
       queue.value = [];
     }
 
-    // ── Hydration state ───────────────────────────────────────────────────────
-
     function beginHydrating(): void {
       isHydrating.value = true;
     }
@@ -297,7 +273,7 @@ export const useSyncStore = defineStore(
       if (isOnline.value && queue.value.length > 0) drain();
     }
 
-    // ── Init — reconnect watcher ──────────────────────────────────────────────
+    // ─── Lifecycle ───────────────────────────────────────────────────────────
 
     function init(): void {
       watch(isOnline, async (online) => {
@@ -317,34 +293,22 @@ export const useSyncStore = defineStore(
       if (isOnline.value && isHydrated.value && queue.value.length > 0) drain();
     }
 
-    // ── Realtime channel management ───────────────────────────────────────────
+    // ─── Helpers ─────────────────────────────────────────────────────────────
     //
     // startRealtime() is called by App.vue once, when isHydrated becomes true.
     // stopRealtime() is called when isHydrated drops back to false (logout).
     // Calling startRealtime() a second time safely tears down previous channels.
-    //
-    // Subscriptions:
-    //   habit_logs, freeze_ledger, mastered_archive — INSERT only (append-only)
-    //   habit_slots         — INSERT + UPDATE + DELETE (mutable server state)
-    //   habit_pause_events  — INSERT + UPDATE (windows open and close)
     //
     // DELETE events carry the row in payload.old (payload.new is empty).
     // INSERT and UPDATE events carry the new row in payload.new.
 
     let channels: RealtimeChannel[] = [];
 
-    // ── Generic INSERT-only subscription helper ───────────────────────────────
-    //
-    // Captures each row type T individually so the handler stays properly typed.
-    // Using a shared array with a homogeneous handler type would require
-    // (row: Record<string, unknown>) => void, which TypeScript correctly rejects
-    // because function parameters are contravariant — a handler that expects a
-    // HabitLog cannot safely accept an arbitrary Record<string, unknown>.
-    //
-    // The `as unknown as T` cast is intentional: Supabase Realtime's postgres_changes
-    // payload is typed as Record<string, unknown> at the library level, but the
-    // actual runtime value always matches the DB row shape for INSERT events.
-
+    // Supabase Realtime types postgres_changes payload as Record<string, unknown>
+    // at the library level, but INSERT events always carry the full DB row shape.
+    // The `as unknown as T` cast is intentional -- function parameters are
+    // contravariant, so a typed handler cannot safely accept Record<string, unknown>
+    // without this intermediate cast.
     function subscribeInsert<T>(table: string, handler: (row: T) => void): RealtimeChannel {
       return supabase
         .channel(`realtime:${table}`)
@@ -358,13 +322,9 @@ export const useSyncStore = defineStore(
     function startRealtime(handlers: RealtimeHandlers): void {
       stopRealtime();
 
-      // ── Append-only tables — INSERT only ───────────────────────────────────
-
       channels.push(subscribeInsert<HabitLog>("habit_logs", handlers.onHabitLog));
       channels.push(subscribeInsert<FreezeLedgerRow>("freeze_ledger", handlers.onFreezeRow));
       channels.push(subscribeInsert<MasteredEntry>("mastered_archive", handlers.onMasteredEntry));
-
-      // ── habit_slots — INSERT + UPDATE + DELETE ─────────────────────────────
 
       const slotsChannel = supabase
         .channel("realtime:habit_slots")
@@ -395,8 +355,6 @@ export const useSyncStore = defineStore(
         )
         .subscribe();
       channels.push(slotsChannel);
-
-      // ── habit_pause_events — INSERT + UPDATE ───────────────────────────────
 
       const pauseChannel = supabase
         .channel("realtime:habit_pause_events")

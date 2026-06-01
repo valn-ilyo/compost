@@ -1,3 +1,4 @@
+<!-- Component -- score ring, badge chip, and tagline hero card -->
 <script setup lang="ts">
 defineProps<{
   normalized: number;

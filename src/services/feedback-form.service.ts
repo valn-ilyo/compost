@@ -1,5 +1,5 @@
-// src/lib/feedbackForm.ts
-import { useProfileStore } from "@/stores/profile";
+// Service -- Google Forms feedback URL builder with pre-filled name, roll number, and device info
+import { useProfileStore } from "@/stores/profile.store";
 
 const FORM_BASE =
   "https://docs.google.com/forms/d/e/1FAIpQLSc-fEhoV6BB0sK56eb0Gq4BvVquugq_zS3g2PuGorsW7Y5Npw/viewform";

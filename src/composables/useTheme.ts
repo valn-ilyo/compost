@@ -1,6 +1,7 @@
-import { useThemeStore } from "@/stores/theme";
-import { useSyncStore } from "@/stores/sync";
-import { useProfileStore } from "@/stores/profile";
+// Composable -- theme toggle and contrast cycle with sync queue enqueue
+import { useThemeStore } from "@/stores/theme.store";
+import { useSyncStore } from "@/stores/sync.store";
+import { useProfileStore } from "@/stores/profile.store";
 
 /**
  * Coordinates theme changes across the theme store and sync queue without

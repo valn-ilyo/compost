@@ -1,3 +1,4 @@
+<!-- Component -- methodology tab, renders the active methodology section by id -->
 <script setup lang="ts">
 import MethodologySectionOverview from "./methodology/MethodologySectionOverview.vue";
 import MethodologySectionScoring from "./methodology/MethodologySectionScoring.vue";

@@ -1,12 +1,12 @@
+<!-- Component -- guide habits section, streaks, freeze tokens, overflow, debt, and mastery -->
 <script setup lang="ts">
-import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
+import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app.types";
 </script>
 
 <template>
   <section id="habits-and-mastery">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Habits and mastery</div>
     <v-card flat rounded="xl" class="mb-8">
-      <!-- Streaks -->
       <v-list-item prepend-icon="mdi-fire" title="Streaks" class="pt-4" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2 mb-2">
@@ -21,7 +21,6 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Freeze tokens -->
       <v-list-item prepend-icon="mdi-snowflake" title="Freeze tokens" class="pt-2" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2 mb-2">A freeze protects your streak when you miss a day entirely.</p>
@@ -36,7 +35,6 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Freeze overflow -->
       <v-list-item prepend-icon="mdi-snowflake" title="Freeze overflow" class="pt-2" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2 mb-2">
@@ -52,7 +50,6 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Freeze debt -->
       <v-list-item prepend-icon="mdi-snowflake-alert" title="Freeze debt" class="pt-2" />
       <v-card-text class="pt-1 pb-4">
         <p class="text-body-2 mb-2">
@@ -73,7 +70,6 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app";
 
       <v-divider />
 
-      <!-- Mastery -->
       <v-list-item prepend-icon="mdi-check-decagram-outline" title="Mastery" class="pt-2" />
       <v-card-text class="pt-1 pb-3">
         <p class="text-body-2 mb-2">

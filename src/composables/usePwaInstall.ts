@@ -1,14 +1,14 @@
+// Composable -- PWA install prompt capture, iOS detection, and install trigger
 import { ref, onMounted } from "vue";
 import { useMediaQuery } from "@vueuse/core";
-import type { BeforeInstallPromptEvent, NavigatorWithStandalone } from "@/types/app";
+import type { BeforeInstallPromptEvent, NavigatorWithStandalone } from "@/types/app.types";
 
-// ── singleton state ─────────────────────────────────────────────────────────
 const isPwa = ref(false);
 const isIos = ref(false);
 const installPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const showInstallBanner = ref(false);
 
-// Reactive standalone detection — updates automatically if the user installs
+// Reactive standalone detection; updates automatically if the user installs
 // the app mid-session, unlike a one-shot matchMedia().matches call.
 const isStandaloneMediaQuery = useMediaQuery("(display-mode: standalone)");
 
@@ -17,10 +17,7 @@ function isMobile(): boolean {
 }
 
 function isInStandaloneMode(): boolean {
-  return (
-    isStandaloneMediaQuery.value ||
-    (navigator as NavigatorWithStandalone).standalone === true
-  );
+  return isStandaloneMediaQuery.value || (navigator as NavigatorWithStandalone).standalone === true;
 }
 
 function handleBeforeInstallPrompt(e: Event): void {
@@ -53,11 +50,10 @@ function init(): void {
     }
   }
 
-  // Permanent listener — not tied to any component lifecycle
+  // Permanent listener; not tied to any component lifecycle.
   window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 }
 
-// ── composable ──────────────────────────────────────────────────────────────
 export function usePwaInstall() {
   onMounted(init);
 

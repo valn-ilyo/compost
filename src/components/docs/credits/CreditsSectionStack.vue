@@ -1,3 +1,4 @@
+<!-- Component -- credits stack section, open source dependencies -->
 <template>
   <v-row justify="start" density="compact">
     <v-col>

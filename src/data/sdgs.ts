@@ -1,4 +1,5 @@
-import type { SDG, SdgChip } from "../types/app";
+// SDG definitions and chip builder keyed by section-to-performance-tier map
+import type { SDG, SdgChip } from "../types/app.types";
 
 const SDGS: SDG[] = [
   {
@@ -63,18 +64,12 @@ const SDGS: SDG[] = [
   },
 ];
 
-/**
- * Returns SDGs relevant to a given section, deduplicated.
- */
 function getSdgsForSection(sectionId: string): SDG[] {
   return SDGS.filter((sdg) => sdg.sectionIds.includes(sectionId));
 }
 
-/**
- * Given a map of sectionId → performance tier colour token,
- * returns a flat deduplicated list of SDGs with their colour attached.
- * Deduplication favours the worse colour (error > warning > info > success).
- */
+// Deduplication favours the worse colour (error > warning > info > success)
+// so an SDG shared by a weak and a strong section always shows the weak colour.
 const TIER_RANK: Record<string, number> = {
   error: 0,
   warning: 1,
@@ -82,8 +77,12 @@ const TIER_RANK: Record<string, number> = {
   success: 3,
 };
 
+/**
+ * Returns a flat deduplicated list of SDGs with their colour attached,
+ * given a map of sectionId to performance tier colour token.
+ */
 export function buildSdgChips(
-  sectionColorMap: Record<string, string>, // sectionId → 'error' | 'warning' | 'info' | 'success'
+  sectionColorMap: Record<string, string>, // sectionId -> 'error' | 'warning' | 'info' | 'success'
 ): SdgChip[] {
   const seen = new Map<string, SdgChip>();
   for (const [sectionId, color] of Object.entries(sectionColorMap)) {

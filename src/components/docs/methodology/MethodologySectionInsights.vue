@@ -1,8 +1,4 @@
-<script setup lang="ts">
-// No data derivation. Static prose derived from getInsightsForAssessment in
-// src/data/insights/index.ts and the QuestionInsight type in app.types.ts.
-</script>
-
+<!-- Component -- methodology insights section, five-slot selection algorithm and noHabit flag -->
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Insights algorithm</div>
 

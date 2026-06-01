@@ -1,3 +1,4 @@
+// Pinia store -- theme and contrast level with Vuetify sync
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 import { useTheme } from "vuetify";

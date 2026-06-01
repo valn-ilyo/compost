@@ -1,3 +1,4 @@
+<!-- Component -- section score breakdown bars with icon and colour per section -->
 <script setup lang="ts">
 defineProps<{
   sections: Array<{

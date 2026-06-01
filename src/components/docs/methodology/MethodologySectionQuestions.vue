@@ -1,7 +1,8 @@
+<!-- Component -- methodology questions section, per-question environmental rationale grouped by section -->
 <script setup lang="ts">
-import { SECTIONS, questionRegistry } from "@/data/index";
+import { SECTIONS, questionRegistry } from "@/data/registry";
 
-// TODO: add inline citations to each whyItMatters string once sources are
+// TODO(valn): add inline citations to each whyItMatters string once sources are
 // confirmed with the content researchers. See docs coverage guide §1 for
 // the full list of strings that need attribution.
 const sectionGroups = SECTIONS.map((section) => ({
@@ -40,7 +41,7 @@ const sectionGroups = SECTIONS.map((section) => ({
           <v-expansion-panel-text>
             <p class="text-body-2 text-medium-emphasis">
               {{ question.whyItMatters }}
-              <!-- TODO: cite. Source pending confirmation from content researchers. -->
+              <!-- TODO(valn): cite - source pending confirmation from content researchers -->
             </p>
           </v-expansion-panel-text>
         </v-expansion-panel>

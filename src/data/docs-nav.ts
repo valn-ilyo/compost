@@ -1,3 +1,4 @@
+// Navigation item lists for guide, methodology, and credits doc tabs
 export interface NavItem {
   id: string;
   label: string;

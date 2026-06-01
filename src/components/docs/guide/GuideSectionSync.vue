@@ -1,7 +1,4 @@
-<script setup lang="ts">
-// No data derivation. Static prose. Icon states use exact tooltip copy from AppBarHome.vue.
-</script>
-
+<!-- Component -- guide sync section, cloud icon state explanations -->
 <template>
   <section id="sync-and-offline">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Sync and offline</div>

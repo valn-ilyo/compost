@@ -1,10 +1,10 @@
+<!-- Component -- swap sheet for replacing an active habit slot when at capacity -->
 <script setup lang="ts">
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
-import { useMasteryStore } from "@/stores/mastery";
-import type { HabitTemplate } from "@/types/app";
+import { useMasteryStore } from "@/stores/mastery.store";
+import type { HabitTemplate } from "@/types/app.types";
 
-// ─── Props / emits ────────────────────────────────────────────────────────────
 const props = defineProps<{
   modelValue: boolean;
   pendingTemplate: HabitTemplate | null;
@@ -16,22 +16,16 @@ const emit = defineEmits<{
   swap: [removeId: string];
 }>();
 
-// ─── Store / display ──────────────────────────────────────────────────────────
 const store = useMasteryStore();
 const { mdAndUp } = useDisplay();
 
-// ─── Derived ──────────────────────────────────────────────────────────────────
+// ─── Computed ────────────────────────────────────────────────────────────────
 
-/**
- * Subtitle copy accounts for every combination of active / mastered slots,
- * and whether the pending action is an add or a resume.
- *
- * Possible states when this sheet is shown (usedSlots === MAX_SLOTS = 3):
- *   3 active, 0 mastered  → all 3 are swappable
- *   2 active, 1 mastered  → 2 are swappable; 1 mastered slot is locked
- *   1 active,  2 mastered → 1 is swappable; 2 mastered slots are locked
- *   0 active,  3 mastered → nothing to swap; user must retire first
- */
+// Covers every slot combination when at capacity (MAX_SLOTS = 3):
+//   3 active, 0 mastered  → all 3 are swappable
+//   2 active, 1 mastered  → 2 swappable; 1 mastered slot locked
+//   1 active,  2 mastered → 1 swappable; 2 mastered slots locked
+//   0 active,  3 mastered → nothing to swap; user must retire first
 const subtitleCopy = computed<string>(() => {
   const active = store.activeHabits.length;
   const mastered = store.masteredHabits.length;
@@ -60,7 +54,8 @@ const subtitleCopy = computed<string>(() => {
 
 const closeBtnLabel = "Close";
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
+// ─── Actions ─────────────────────────────────────────────────────────────────
+
 function confirmSwap(removeId: string): void {
   emit("swap", removeId);
   emit("update:modelValue", false);

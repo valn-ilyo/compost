@@ -1,3 +1,4 @@
+<!-- Component -- banner card prompting the user to enable daily push reminders -->
 <script setup lang="ts">
 defineProps<{
   show: boolean;

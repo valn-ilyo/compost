@@ -1,3 +1,4 @@
+<!-- Component -- credits license section, MIT license text -->
 <template>
   <v-row justify="center">
     <v-col>

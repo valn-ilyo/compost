@@ -1,62 +1,4 @@
 // Pinia store -- habit mastery state, streak calculations, freeze ledger, and sync queue
-// ═══════════════════════════════════════════════════════════════════════════════
-// masteryStore: local driver for the habit ledger system
-// ═══════════════════════════════════════════════════════════════════════════════
-//
-// ARCHITECTURE
-// ────────────
-// Five ref arrays are the local database for all habit state.
-//
-//   habitLogs       <->  habit_logs         (one row per logged day per habit)
-//   freezeLedger    <->  freeze_ledger      (one row per freeze token event)
-//   habitSlots      <->  habit_slots        (one row per active or paused habit)
-//   pauseEvents     <->  habit_pause_events (one row per pause window)
-//   masteredArchive <->  mastered_archive   (one row per retired habit)
-//
-// Every UI value (streak counts, freeze balances, active habit lists, mastery
-// status) is derived from these arrays at runtime. Nothing is cached or stored
-// twice.
-//
-// WRITE OWNERSHIP
-// ───────────────
-// habit_logs: CLIENT ONLY via direct upsert (Sync).
-// freeze_ledger: CLIENT writes milestone/mastery rows via direct upsert.
-//               CRON writes spent rows; these never conflict with client rows.
-// mastered_archive: CLIENT ONLY via direct upsert (Sync).
-//
-// habit_slots + habit_pause_events: SECURITY DEFINER RPCs ONLY.
-//   slot_add: INSERT new slot as 'active' (cap-gated by enforce_slot_cap trigger)
-//   slot_pause: active -> paused + open pause window
-//   slot_resume: paused -> active (cap-gated) + close pause window
-//   slot_remove: close open window + DELETE slot row
-//   slot_retire: close open window + DELETE slot row + INSERT mastered_archive
-//
-//   Client RLS on these two tables is SELECT-only (R1). The RPC items in the
-//   sync queue (operation: 'rpc') are drained by sync.ts which calls supabase.rpc().
-//
-// SLOT CAP
-// ────────
-// Maximum 3 ACTIVE slots simultaneously (MAX_SLOTS). Paused slots do not count.
-// The enforce_slot_cap trigger on habit_slots enforces this server-side.
-// usedSlots counts active only; the client uses this to gate the add flow.
-//
-// PAUSE / RESUME SEMANTICS
-// ────────────────────────
-// Pausing holds the slot and preserves the streak. The streak walker reads
-// habit_pause_events to skip dates where the habit was paused (R14: only windows
-// whose paused_at >= slot.created_at are considered; prior-cycle windows are ignored).
-//
-// STREAK BOUNDARY
-// ───────────────
-// streak() uses slot.created_at as the boundary date, the moment the slot was
-// created. Logs before that date are invisible to the walker. This means re-adding
-// a habit always starts fresh (slot_remove deletes the row; slot_add creates a
-// new one with a new created_at).
-//
-// DATE FORMAT
-// ───────────
-// All date strings are IST (UTC+05:30) YYYY-MM-DD. See habitDate.ts.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
@@ -88,7 +30,6 @@ function isoNow(): string {
   return new Date().toISOString();
 }
 
-// Shift a YYYY-MM-DD string one day back.
 function prevDate(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() - 1);
@@ -143,7 +84,6 @@ export const useMasteryStore = defineStore(
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
-    // True if habitLogs has any row for (templateId, date).
     function hasLogForDate(templateId: string, date: string): boolean {
       return habitLogs.value.some((l) => l.template_id === templateId && l.date === date);
     }
@@ -215,26 +155,21 @@ export const useMasteryStore = defineStore(
           continue;
         }
 
-        // No log for this date.
         if (dateStr === referenceDate && !isAnchored) {
-          // Rule 3: today not yet logged, transparent.
           dateStr = prevDate(dateStr);
           continue;
         }
 
         if (isPausedOnDate(templateId, dateStr)) {
-          // Rule 4: pause gap, transparent.
           dateStr = prevDate(dateStr);
           continue;
         }
 
         if (spentSet.has(dateStr)) {
-          // Rule 5: cron protected this gap.
           dateStr = prevDate(dateStr);
           continue;
         }
 
-        // Rule 6: unprotected gap, streak ends.
         break;
       }
 
@@ -335,8 +270,6 @@ export const useMasteryStore = defineStore(
       return result;
     });
 
-    // Mastered habits awaiting retire: status = 'active', streak = 66, not yet archived.
-    // Still occupy an active slot until the user retires them.
     const masteredHabits = computed((): UserHabit[] => {
       const archivedIds = new Set(masteredArchive.value.map((m) => m.template_id));
       const result: UserHabit[] = [];
@@ -605,9 +538,8 @@ export const useMasteryStore = defineStore(
 
     // ─── Utils ───────────────────────────────────────────────────────────────
     //
-    // Read-only. Produces lastReconcileEvents for UI "streak lost" notices.
-    // The boundary check uses slot.created_at; a habit added today with no
-    // history is not considered missed.
+    // reconcile() is read-only -- it surfaces lastReconcileEvents for UI "streak
+    // lost" notices. A habit added today with no history is not considered missed.
 
     function reconcile(): void {
       const yesterday = yesterdayISO();
@@ -692,18 +624,8 @@ export const useMasteryStore = defineStore(
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
     //
-    // Called by sync.ts Realtime listeners.
-    //
-    // habit_slots: INSERT / UPDATE / DELETE
-    //   INSERT: new habit added from another device
-    //   UPDATE: status changed (pause / resume) from another device
-    //   DELETE: removed or retired from another device
-    //
-    // habit_pause_events: INSERT / UPDATE
-    //   INSERT: pause opened from another device
-    //   UPDATE: pause closed (resumed_at set) from another device
-    //
-    // habit_logs, freeze_ledger, mastered_archive: INSERT only (append-only).
+    // Realtime patch-in handlers called by sync.ts; habit_slots and pause_events
+    // are fully replaced on UPDATE/DELETE, append-only tables accept INSERT only.
 
     function mergeHabitSlot(row: HabitSlot, eventType: "INSERT" | "UPDATE" | "DELETE"): void {
       const idx = habitSlots.value.findIndex((s) => s.template_id === row.template_id);

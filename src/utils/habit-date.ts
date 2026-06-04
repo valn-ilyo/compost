@@ -1,6 +1,7 @@
+// IST date helpers -- today and yesterday as YYYY-MM-DD strings
+
 import { clock } from '@/utils/clock'
 
-// ─── Timezone note ────────────────────────────────────────────────────────────
 // All date strings stored in the ledger tables are IST dates (UTC+5:30).
 // Using raw UTC dates would cause Indian users logging between midnight IST and
 // 05:30 IST to write rows on the wrong calendar day, because the UTC date has
@@ -9,11 +10,9 @@ import { clock } from '@/utils/clock'
 //
 // If the app expands to other timezones, this offset becomes per-user and must
 // be stored in the profile table. For now India-only is the stated scope.
-// ─────────────────────────────────────────────────────────────────────────────
 
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000 // UTC+05:30
 
-/** Returns the current time shifted to IST. */
 function nowIST(): Date {
   return new Date(clock.now().getTime() + IST_OFFSET_MS)
 }

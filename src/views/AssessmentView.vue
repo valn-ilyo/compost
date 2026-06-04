@@ -1,3 +1,4 @@
+<!-- View -- assessment host with check-in and insights tabs -->
 <script setup lang="ts">
 import { onMounted } from "vue"
 import { useRoute } from "vue-router"
@@ -9,8 +10,6 @@ import AssessmentAppBar from "@/components/app/AssessmentAppBar.vue"
 const store = useAssessmentStore()
 const route = useRoute()
 
-// TODO [AssessmentView > two tabs: Check-in and Insights]
-// Sync active tab from route.query.tab on mount
 onMounted(() => {
   const tab = route.query.tab
   if (tab === "checkin" || tab === "insights") {

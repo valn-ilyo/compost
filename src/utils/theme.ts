@@ -1,7 +1,8 @@
+// Vuetify theme config -- six light and dark variants with Material Design 3 color tokens
+
 export const theme = {
   defaultTheme: "light",
   themes: {
-    // ── LIGHT ────────────────────────────────────────────────────────────────
     light: {
       dark: false,
       colors: {
@@ -39,7 +40,6 @@ export const theme = {
       },
     },
 
-    // ── LIGHT MEDIUM CONTRAST ────────────────────────────────────────────────
     "light-medium-contrast": {
       dark: false,
       colors: {
@@ -77,7 +77,6 @@ export const theme = {
       },
     },
 
-    // ── LIGHT HIGH CONTRAST ──────────────────────────────────────────────────
     "light-high-contrast": {
       dark: false,
       colors: {
@@ -115,7 +114,6 @@ export const theme = {
       },
     },
 
-    // ── DARK ─────────────────────────────────────────────────────────────────
     dark: {
       dark: true,
       colors: {
@@ -153,7 +151,6 @@ export const theme = {
       },
     },
 
-    // ── DARK MEDIUM CONTRAST ─────────────────────────────────────────────────
     "dark-medium-contrast": {
       dark: true,
       colors: {
@@ -191,7 +188,6 @@ export const theme = {
       },
     },
 
-    // ── DARK HIGH CONTRAST ───────────────────────────────────────────────────
     "dark-high-contrast": {
       dark: true,
       colors: {

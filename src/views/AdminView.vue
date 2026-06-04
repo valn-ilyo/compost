@@ -1,11 +1,10 @@
+<!-- View -- admin analytics dashboard with year/gender filters and RPC-backed charts -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useProfileStore } from "@/stores/profile.store";
 import { supabase } from "@/services/supabase.service";
 import { HABIT_TEMPLATES } from "@/data/habits";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AdminAnalytics {
   available_years: number[];
@@ -46,8 +45,6 @@ interface AdminAnalytics {
   }>;
 }
 
-// ── App bar ───────────────────────────────────────────────────────────────────
-
 const router = useRouter();
 const profileStore = useProfileStore();
 
@@ -57,8 +54,6 @@ function goBack() {
   router.push(cameFromApp ? { path: "/profile" } : { path: "/" });
 }
 
-// ── Data & filters ────────────────────────────────────────────────────────────
-
 const analytics = ref<AdminAnalytics | null>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
@@ -66,7 +61,7 @@ const error = ref<string | null>(null);
 const selectedYear = ref<number | null>(null);
 const selectedGender = ref<string | null>(null);
 
-// Stable gender list seeded on first unfiltered fetch — options never disappear when a
+// Stable gender list seeded on first unfiltered fetch -- options never disappear when a
 // batch has zero female (or other) candidates, which would look like a bug.
 const baseGenders = ref<string[]>([]);
 
@@ -108,8 +103,6 @@ async function fetchAnalytics() {
 onMounted(fetchAnalytics);
 watch([selectedYear, selectedGender], fetchAnalytics);
 
-// ── Band distribution — VPie ──────────────────────────────────────────────────
-
 const BAND_COLORS: Record<string, string> = {
   "starting-out": "rgb(var(--v-theme-error))",
   "becoming-aware": "rgb(var(--v-theme-warning))",
@@ -136,8 +129,6 @@ function bandPct(count: number): string {
   return Math.round((count / totalAssessed.value) * 100) + "%";
 }
 
-// ── Section averages ──────────────────────────────────────────────────────────
-
 const SECTION_CONFIG: Record<string, { label: string; icon: string }> = {
   transport: { label: "Transport", icon: "mdi-bus-multiple" },
   food: { label: "Food", icon: "mdi-food-apple-outline" },
@@ -154,11 +145,7 @@ function sectionColor(pct: number): string {
   return "error";
 }
 
-// ── Habit adoption ────────────────────────────────────────────────────────────
-
 const habitNameMap = Object.fromEntries(HABIT_TEMPLATES.map((h) => [h.id, h.name]));
-
-// ── Gender ────────────────────────────────────────────────────────────────────
 
 const GENDER_ORDER: Record<string, number> = { Male: 0, Female: 1 };
 
@@ -178,7 +165,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
 </script>
 
 <template>
-  <!-- ── App bar ────────────────────────────────────────────────────────────── -->
   <v-app-bar color="primary" flat class="border border-b">
     <template #prepend>
       <v-btn
@@ -204,7 +190,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
               transition: { type: 'spring', stiffness: 260, damping: 22 },
             }"
           >
-            <!-- ── Identity card ─────────────────────────────────────────── -->
             <v-card flat class="mb-4 text-center">
               <v-list-item
                 :title="profileStore.profile?.name || 'Admin'"
@@ -212,7 +197,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
               />
             </v-card>
 
-            <!-- ── Filters ──────────────────────────────────────────────── -->
             <div class="text-overline text-medium-emphasis px-1 mb-4">Filters</div>
             <v-row density="compact" class="mb-4">
               <v-col cols="6">
@@ -240,19 +224,16 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
               </v-col>
             </v-row>
 
-            <!-- ── Loading ───────────────────────────────────────────────── -->
             <template v-if="isLoading">
               <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
               <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
               <v-skeleton-loader type="card" class="rounded-xl" />
             </template>
 
-            <!-- ── Error ─────────────────────────────────────────────────── -->
             <v-alert v-else-if="error" type="error" rounded="xl" class="mb-4">
               {{ error }}
             </v-alert>
 
-            <!-- ── Empty state ───────────────────────────────────────────── -->
             <v-card v-else-if="isEmpty" rounded="xl" border flat class="mb-4">
               <v-card-text class="text-center pa-8">
                 <v-icon
@@ -282,7 +263,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
             </v-card>
 
             <template v-else-if="analytics">
-              <!-- ── 1. Totals ─────────────────────────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Overview</div>
               <v-row density="compact" class="mb-4">
                 <v-col cols="6">
@@ -327,7 +307,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                 </v-col>
               </v-row>
 
-              <!-- ── 2. Band distribution — VPie ───────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">
                 Eco band distribution
               </div>
@@ -367,7 +346,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                 </v-card-text>
               </v-card>
 
-              <!-- ── 3. Section averages ───────────────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Section averages</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-table density="comfortable">
@@ -428,7 +406,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                 </v-table>
               </v-card>
 
-              <!-- ── 4. Habit states ───────────────────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habit states</div>
               <v-row dense class="mb-4">
                 <v-col cols="4">
@@ -463,7 +440,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                 </v-col>
               </v-row>
 
-              <!-- ── 5. Habit adoption ─────────────────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habits</div>
               <v-card rounded="xl" border flat class="mb-4">
                 <v-data-table
@@ -495,7 +471,6 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                 </v-data-table>
               </v-card>
 
-              <!-- ── 6. Gender breakdown ───────────────────────────────── -->
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Gender breakdown</div>
               <v-card rounded="xl" border flat class="mb-6">
                 <v-card-text class="pa-4">

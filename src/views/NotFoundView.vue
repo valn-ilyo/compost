@@ -1,3 +1,4 @@
+<!-- View -- 404 not-found screen with animated icon and home link -->
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 const router = useRouter();

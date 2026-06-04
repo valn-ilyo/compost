@@ -1,3 +1,4 @@
+<!-- View -- single assessment section with step-by-step question flow and submit -->
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
@@ -15,8 +16,6 @@ const sectionId = route.params.sectionId as string;
 const questions = questionRegistry[sectionId] ?? [];
 const meta = SECTIONS.find((s) => s.id === sectionId);
 
-// TODO [AssessmentSectionView]
-// Redirect to /assessment if sectionId is invalid or already completed
 if (!meta || questions.length === 0) {
   router.replace("/assessment");
 }
@@ -49,8 +48,6 @@ watch(expandedPanel, (val) => {
   if (val !== undefined) stopHint();
 });
 
-// TODO [AssessmentSectionView > Back]
-// step > 1 → go to previous question. step === 1 → navigate back to /assessment
 function goBack(): void {
   if (step.value === 1) {
     router.push("/assessment");
@@ -60,9 +57,6 @@ function goBack(): void {
   }
 }
 
-// TODO [AssessmentSectionView > Select an option]
-// Record answer locally. If not last question → auto-advance after 220ms.
-// If last question → reveal Submit button.
 function selectAndAdvance(questionId: QuestionId, points: number): void {
   localAnswers.value[questionId] = points;
   flashingOptionKey.value = `${questionId}-${points}`;
@@ -79,14 +73,6 @@ function selectAndAdvance(questionId: QuestionId, points: number): void {
   }
 }
 
-// TODO [AssessmentSectionView > Submit]
-// 1. Validate all questions answered
-// 2. store.submitSection(sectionId, answers as SectionAnswers)
-//    → writes answers + completedAt locally
-//    → computes scaled score
-//    → enqueues assessment_answers upsert
-//    → triggers recommendation recompute if all 7 sections complete
-// 3. Navigate to /assessment
 async function submit(): Promise<void> {
   isSubmitting.value = true;
   try {

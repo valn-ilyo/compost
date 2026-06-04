@@ -1,3 +1,4 @@
+<!-- View -- mastery screen with habit list, log-all action, and habit library -->
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -62,7 +63,6 @@ watch(
   <v-container class="pt-0 overflow-hidden">
     <v-row justify="center">
       <v-col cols="12" md="8">
-        <!-- toolbar -->
         <div
           v-motion
           :initial="{ opacity: 0, y: -12 }"
@@ -94,9 +94,7 @@ watch(
           </v-toolbar>
         </div>
 
-        <!-- empty state / habit list — cross-fade on switch -->
         <Transition name="mastery-section" mode="out-in">
-          <!-- empty state -->
           <div
             v-if="store.activeHabits.length === 0 && store.masteredHabits.length === 0"
             key="empty"
@@ -111,11 +109,9 @@ watch(
             />
           </div>
 
-          <!-- habit list -->
           <div v-else key="habits">
             <v-card variant="outlined" rounded="lg" class="mb-4 overflow-hidden">
               <TransitionGroup name="habit" tag="div" class="habit-list">
-                <!-- Mastered habits render above active. Clicking fires retire. -->
                 <div v-for="habit in store.masteredHabits" :key="habit.id" class="habit-row">
                   <HabitCard
                     :habit="habit"
@@ -140,7 +136,6 @@ watch(
               </TransitionGroup>
             </v-card>
 
-            <!-- log all button — only shown when there are unlogged active habits -->
             <v-expand-transition>
               <div v-if="!showAllLogged && store.activeHabits.length > 0">
                 <v-btn
@@ -159,7 +154,6 @@ watch(
               </div>
             </v-expand-transition>
 
-            <!-- all done card — shown once everything is logged -->
             <v-expand-transition>
               <div v-if="showAllLogged">
                 <AllLoggedCard class="mb-6" />
@@ -170,7 +164,6 @@ watch(
 
         <v-divider class="mb-6" />
 
-        <!-- library -->
         <div
           v-motion
           :initial="{ opacity: 0, y: 32 }"

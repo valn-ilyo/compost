@@ -1,3 +1,4 @@
+<!-- View -- first-time profile setup with switch account fallback -->
 <script setup lang="ts">
 import { ref } from "vue"
 import { useProfileStore } from "@/stores/profile.store"
@@ -8,13 +9,6 @@ const profileStore = useProfileStore()
 const { logout } = useLogout()
 const isLoggingOut = ref(false)
 
-// TODO [ProfileOnboardingView > Save]
-// Validates name and roll_no are non-empty.
-// store.updateProfile(updates) — local + enqueue profiles upsert
-// Navigate to /
-
-// TODO [ProfileOnboardingView > Switch account]
-// Logs out and returns to AuthView
 const handleLogout = async () => {
   isLoggingOut.value = true
   await logout()

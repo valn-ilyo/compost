@@ -1,3 +1,5 @@
+// Score color utility -- maps a 0-1 performance ratio to a Vuetify color token
+
 /**
  * Returns a Vuetify color token based on a 0–1 performance percentage.
  * Used consistently across: hero ring, section breakdown dots/bars, SDG chips.

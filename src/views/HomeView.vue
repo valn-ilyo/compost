@@ -1,3 +1,4 @@
+<!-- View -- home screen with assessment CTA, habit log CTA, and PWA banners -->
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import type { ComponentPublicInstance } from "vue"
@@ -18,26 +19,18 @@ const store = useAssessmentStore()
 const masteryStore = useMasteryStore()
 const router = useRouter()
 
-// TODO [HomeView > assessment CTA card]
-// nextSection: first section not yet in sectionResults
 const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)))
 const hasStarted = computed(() => store.sectionResults.length > 0)
 const nextSection = computed(() => SECTIONS.find((s) => !completedIds.value.has(s.id)))
 
-// TODO [HomeView > Log your habits CTA card]
-// Shown when active habits exist AND not all logged today
 const showLogButton = computed(
   () => masteryStore.activeHabits.length > 0 && !masteryStore.allLoggedToday,
 )
 
-// TODO [HomeView > AllLoggedCard]
-// Shown when active habits exist AND all logged today
 const showAllDoneCard = computed(
   () => masteryStore.activeHabits.length > 0 && masteryStore.allLoggedToday,
 )
 
-// TODO [HomeView > Log your habits CTA card tap]
-// Navigate to /mastery?action=log
 function goToLog(): void {
   router.push({ name: "mastery", query: { action: "log" } })
 }

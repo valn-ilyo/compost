@@ -1,3 +1,4 @@
+<!-- View -- profile screen with details, actions, logout, and danger zone -->
 <script setup lang="ts">
 import { ref } from "vue";
 import { useProfileStore } from "@/stores/profile.store";
@@ -11,9 +12,6 @@ const store = useProfileStore();
 const syncStore = useSyncStore();
 const showLogoutWarning = ref(false);
 
-// TODO [ProfileView > Logout]
-// If queue.length > 0 → show warning dialog
-// Otherwise → logout() directly (drain best-effort, resetAllStores, signOut, navigate /auth)
 function handleLogoutClick() {
   if (syncStore.queue.length > 0) {
     showLogoutWarning.value = true;
@@ -21,19 +19,6 @@ function handleLogoutClick() {
     logout();
   }
 }
-
-// TODO [ProfileView > Reset assessment]
-// Confirmation dialog. On confirm:
-// 1. assessmentStore.clearAll() — clears local state + dequeues pending items
-// 2. Call Supabase directly to DELETE all assessment_answers for this user
-//    (must succeed before confirming — destructive)
-
-// TODO [ProfileView > Delete account]
-// Confirmation dialog. On confirm:
-// 1. Call Supabase Edge Function that deletes all user data server-side
-// 2. resetAllStores()
-// 3. supabase.auth.signOut()
-// 4. Navigate to AuthView
 </script>
 
 <template>
@@ -41,7 +26,6 @@ function handleLogoutClick() {
   <v-container class="pt-0">
     <v-row justify="center">
       <v-col cols="12" sm="10" md="8" lg="6" xl="4">
-        <!-- name -->
         <h1
           v-motion
           :initial="{ opacity: 0, y: 24 }"
@@ -50,7 +34,6 @@ function handleLogoutClick() {
         >
           {{ store.profile?.name || "No name set" }}
         </h1>
-        <!-- details section -->
         <div
           v-motion
           :initial="{ opacity: 0 }"
@@ -87,7 +70,6 @@ function handleLogoutClick() {
             />
           </v-list>
         </v-card>
-        <!-- actions section -->
         <div
           v-motion
           :initial="{ opacity: 0 }"
@@ -149,7 +131,6 @@ function handleLogoutClick() {
     </v-row>
   </v-container>
 
-  <!-- Unsynced changes warning dialog -->
   <v-dialog v-model="showLogoutWarning" max-width="360">
     <v-card rounded="xl">
       <v-card-title class="text-body-1 font-weight-bold pt-5 px-5"> Unsynced changes </v-card-title>

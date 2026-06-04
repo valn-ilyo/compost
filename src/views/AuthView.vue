@@ -1,3 +1,4 @@
+<!-- View -- auth entry point handling cold start, Google OAuth, and hydration -->
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -24,8 +25,6 @@ const sessionExpiredMsg = ref("");
 const isGoogleLoading = ref(false);
 const isPrivacyDialogOpen = ref(false);
 
-// TODO [AuthView > Continue with Google]
-// supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: origin + "/compost/" } })
 const loginWithGoogle = async () => {
   sessionExpiredMsg.value = "";
   isGoogleLoading.value = true;
@@ -47,12 +46,12 @@ const loginWithGoogle = async () => {
   }
 };
 
-// Cold start — cached session present:
-// 1. resetAllStores()       — clear stale state before pulling fresh data
+// Cold start -- cached session present:
+// 1. resetAllStores()       -- clear stale state before pulling fresh data
 // 2. syncStore.beginHydrating()
 // 3. Pull in parallel: profileStore, assessmentStore, masteryStore
-// 4. syncStore.setHydrated() — marks hydration complete, triggers drain if online
-// 5. masteryStore.reconcile() — detect lost streaks now that enqueue() is live
+// 4. syncStore.setHydrated() -- marks hydration complete, triggers drain if online
+// 5. masteryStore.reconcile() -- detect lost streaks now that enqueue() is live
 // 6. Navigate to / (or next query param)
 // On failure: show error state with Retry and Switch Account options.
 async function runHydration() {
@@ -86,7 +85,7 @@ async function runHydration() {
     ]);
 
     // setHydrated() marks hydration complete and triggers drain() if online.
-    // After this point enqueue() is live — any writes reach Supabase.
+    // After this point enqueue() is live -- any writes reach Supabase.
     syncStore.setHydrated();
 
     // Reconcile after setHydrated() so missed streaks are enqueued immediately.
@@ -101,8 +100,6 @@ async function runHydration() {
   }
 }
 
-// TODO [AuthView > Switch account]
-// supabase.auth.signOut() → clear session → return to login state
 async function switchAccount() {
   await supabase.auth.signOut();
   errorEmail.value = null;
@@ -125,13 +122,11 @@ onMounted(async () => {
     class="d-flex flex-column align-center justify-center w-100 px-2"
     style="min-height: 100dvh"
   >
-    <!-- ── Loading state ──────────────────────────────────────────────────── -->
     <template v-if="authState === 'loading'">
       <v-progress-circular indeterminate color="primary" size="48" class="mb-6" />
       <p class="text-body-1 text-medium-emphasis">Setting up your account…</p>
     </template>
 
-    <!-- ── Error state ────────────────────────────────────────────────────── -->
     <template v-else-if="authState === 'error'">
       <v-card
         class="w-100 w-sm-75 w-md-50 w-lg-33 pa-2 text-center"
@@ -170,7 +165,6 @@ onMounted(async () => {
       </v-card>
     </template>
 
-    <!-- ── Login state ────────────────────────────────────────────────────── -->
     <template v-else>
       <v-card
         v-motion
@@ -279,7 +273,6 @@ onMounted(async () => {
       </v-card>
     </template>
 
-    <!-- ── Privacy dialog ────────────────────────────────────────────────── -->
     <v-dialog v-model="isPrivacyDialogOpen" max-width="360">
       <v-card rounded="xl">
         <v-card-text class="text-body-2 text-medium-emphasis pt-5">

@@ -1,3 +1,4 @@
+<!-- View -- docs layout with tab navigation, desktop sidebar, and mobile chip nav -->
 <script setup lang="ts">
 import { computed, nextTick, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";

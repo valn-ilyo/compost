@@ -1,3 +1,5 @@
+// TypeScript types and shared constants for the Compost app
+
 export interface QuestionOption {
   label: string;
   points: number;
@@ -62,61 +64,40 @@ export interface ClockDisplay {
   secs: string;
 }
 
-// ─── Badge ────────────────────────────────────────────────────────────────────
-
 type SectionId = "transport" | "food" | "energy" | "consumption" | "waste" | "water" | "digital";
 
 export interface BadgeTaglines {
-  /** Fallback when no weak sections exist or a focused key is missing. */
-  default: string;
-  /** Exactly one section below the weak threshold — reference it by name. */
-  focused: Partial<Record<SectionId, string>>;
-  /** Exactly two sections below the weak threshold. */
-  split: string;
-  /** Three or more sections below the weak threshold. */
-  broad: string;
+  default: string;                          // fallback when no weak sections exist or a focused key is missing
+  focused: Partial<Record<SectionId, string>>; // exactly one section below the weak threshold -- reference by name
+  split: string;                            // exactly two sections below the weak threshold
+  broad: string;                            // three or more sections below the weak threshold
 }
 
 export interface Badge {
   id: string;
   label: string;
-  /** Inclusive lower bound of overall score (out of 100) */
-  minScore: number;
-  /** Inclusive upper bound */
-  maxScore: number;
+  minScore: number; // inclusive lower bound of overall score (out of 100)
+  maxScore: number; // inclusive upper bound
   taglines: BadgeTaglines;
 }
 
-// ─── SDG ──────────────────────────────────────────────────────────────────────
-
 export interface SDG {
-  /** e.g. 'sdg-6' */
-  id: string;
-  /** e.g. 6 */
-  number: number;
+  id: string;           // e.g. 'sdg-6'
+  number: number;       // e.g. 6
   name: string;
-  /** Section ids that contribute to this goal */
-  sectionIds: string[];
+  sectionIds: string[]; // section ids that contribute to this goal
 }
 
-/** View-model produced by buildSdgChips — an SDG paired with its worst-performing colour. */
 export interface SdgChip {
   sdg: SDG;
   color: string;
 }
 
-// ─── Mastery constants ────────────────────────────────────────────────────────
-
-/** Maximum number of habit slots a user can fill simultaneously. */
 export const MAX_SLOTS = 3;
-
-/** Number of consecutive Yes logs required to earn a freeze token. */
+// 22 consecutive yes logs required to earn a freeze token
 export const FREEZE_MILESTONE = 22;
-
-/** Number of consecutive Yes logs required to master a habit. */
+// 66 consecutive yes logs required to master a habit -- Lally et al. (2010) median for habit automaticity
 export const MASTERY_MILESTONE = 66;
-
-// ─── Insights ─────────────────────────────────────────────────────────────────
 
 export interface Tip {
   icon: string; // mdi icon string
@@ -125,21 +106,14 @@ export interface Tip {
 
 export interface QuestionInsight {
   sectionId: string;
-  questionId: string; // 'q1', 'q2', etc. — must match store keys
+  questionId: string; // 'q1', 'q2', etc. -- must match store keys
   score: 1 | 2 | 3 | 4 | 5;
   icon: string;
   text: string;
-  /**
-   * When true, this question has no coverable habit. The insight still renders
-   * in the Reflections panel but is excluded from habit recommendation slots.
-   */
-  noHabit?: boolean;
+  noHabit?: boolean; // no coverable habit -- renders in Reflections but excluded from recommendation slots
 }
 
-// ─── Mastery ──────────────────────────────────────────────────────────────────
-
 export interface HabitTemplate {
-  /** Unique habit identifier */
   id: string;
   covers: Array<{ sectionId: string; questionId: string }>;
   sectionId: string;
@@ -168,8 +142,6 @@ export interface UserHabit {
   isMastered: boolean;
 }
 
-// ─── Assessment store ─────────────────────────────────────────────────────────
-
 export type SectionAnswers = Record<string, number>;
 
 export interface AssessmentState {
@@ -179,15 +151,11 @@ export interface AssessmentState {
   recommendedHabitIds: string[];
 }
 
-// ─── Notifications ────────────────────────────────────────────────────────────
-
 export interface NotificationOptions {
   message: string;
   color?: "success" | "error" | "info" | "warning";
   timeout?: number;
 }
-
-// ─── PWA ──────────────────────────────────────────────────────────────────────
 
 export interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -198,15 +166,11 @@ export interface NavigatorWithStandalone extends Navigator {
   standalone?: boolean;
 }
 
-// ─── Sorted question ──────────────────────────────────────────────────────────
-
 export interface SortedQuestion {
   sectionId: string;
   questionId: string;
   score: 1 | 2 | 3 | 4 | 5;
 }
-
-// ─── Component view models ────────────────────────────────────────────────────
 
 export interface HabitPanelItem {
   key: string;
@@ -218,8 +182,6 @@ export interface HabitPanelItem {
 
 export type QuestionId = string;
 
-// ─── Realtime ─────────────────────────────────────────────────────────────────
-//
 // startRealtime() in sync.ts accepts this shape from App.vue. Passing handlers
 // as callbacks avoids a circular dependency (mastery.ts already imports sync.ts).
 // onHabitSlot and onPauseEvent receive the event type so the merge handler can
@@ -233,83 +195,63 @@ export interface RealtimeHandlers {
   onMasteredEntry: (row: MasteredEntry) => void;
 }
 
-// ─── Sync ─────────────────────────────────────────────────────────────────────
-
 export interface SyncQueueItem {
-  /** Dedup key: 'table:pk1:pk2' for upsert/delete, 'slot_rpc:fn:userId:templateId' for rpc */
-  id: string;
-  /**
-   * 'upsert'  — ledger tables (habit_logs, freeze_ledger, mastered_archive).
-   *             Uses ignoreDuplicates=true so conflicts on append-only tables are no-ops.
-   * 'delete'  — not currently used.
-   * 'rpc'     — SECURITY DEFINER RPC call. fn must be set. table is unused.
-   *             Used for all habit_slots and habit_pause_events writes (slot_add,
-   *             slot_pause, slot_resume, slot_remove, slot_retire).
-   */
+  id: string; // dedup key: 'table:pk1:pk2' for upsert/delete, 'slot_rpc:fn:userId:templateId' for rpc
+  // 'upsert'  -- ledger tables (habit_logs, freeze_ledger, mastered_archive).
+  //              Uses ignoreDuplicates=true so conflicts on append-only tables are no-ops.
+  // 'delete'  -- not currently used.
+  // 'rpc'     -- SECURITY DEFINER RPC call. fn must be set. table is unused.
+  //              Used for all habit_slots and habit_pause_events writes (slot_add,
+  //              slot_pause, slot_resume, slot_remove, slot_retire).
   operation: 'upsert' | 'delete' | 'rpc';
-  /** Supabase table name — required for upsert/delete, unused for rpc. */
-  table?: string;
-  /** RPC function name — required when operation = 'rpc'. */
-  fn?: string;
+  table?: string;  // required for upsert/delete, unused for rpc
+  fn?: string;     // required when operation = 'rpc'
   payload: Record<string, unknown>;
   enqueuedAt: number;
 }
 
 export type SyncStatus = "offline" | "hydrating" | "syncing" | "synced";
 
-// ─── Ledger types ─────────────────────────────────────────────────────────────
-
-/** Maximum freeze tokens a user can hold from milestone grants. */
-export const FREEZE_CAP = 3;
-
-/** Minimum freeze balance (debt floor — reconciliation may go negative). */
+export const FREEZE_CAP = 3;  // maximum freeze tokens a user can hold from milestone grants
+// Reconciliation may push balance negative; this caps the deficit
 export const DEBT_FLOOR = -2;
 
-/**
- * One logged day for one habit. Unique on (user_id, template_id, date).
- * Client-only. The cron never writes here.
- */
+// One logged day for one habit. Unique on (user_id, template_id, date).
+// Client-only -- the cron never writes here.
 export interface HabitLog {
   [key: string]: unknown
   user_id: string;
   template_id: string;
-  /** YYYY-MM-DD (IST) */
-  date: string;
+  date: string;    // YYYY-MM-DD (IST)
   value: 'yes' | 'no';
   created_at: string;
 }
 
-/**
- * One freeze token event. Append-only; never updated or deleted.
- * reason='spent' is CRON ONLY — the client never writes spent rows.
- */
+// Append-only freeze token event, never updated or deleted.
+// reason='spent' is CRON ONLY -- the client never writes spent rows.
 export interface FreezeLedgerRow {
   [key: string]: unknown
   user_id: string;
   template_id: string;
-  /** +1 for earned, -1 for spent */
-  delta: number;
+  delta: number;   // +1 for earned, -1 for spent
   reason: 'milestone' | 'mastery' | 'spent';
-  /** YYYY-MM-DD */
-  date: string;
+  date: string;    // YYYY-MM-DD
   created_at: string;
 }
 
-/**
- * Server-authoritative habit slot state. One row per habit the user holds
- * in any non-library state (active or paused).
- *
- * status:
- *   'active' — occupies one of the three active slots; counts toward the cap.
- *   'paused' — slot held, streak preserved, excluded from daily log flow.
- *              Does NOT count toward the cap.
- *
- * created_at — set once at INSERT by DEFAULT now(). Never modified.
- *              Streak boundary: the streak walker ignores all logs before this date.
- *              No client code may supply or modify it (R7).
- *
- * All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
- */
+// Server-authoritative habit slot state. One row per habit the user holds
+// in any non-library state (active or paused).
+//
+// status:
+//   'active' -- occupies one of the three active slots; counts toward the cap.
+//   'paused' -- slot held, streak preserved, excluded from daily log flow.
+//               Does NOT count toward the cap.
+//
+// created_at -- set once at INSERT by DEFAULT now(). Never modified.
+//               Streak boundary: the streak walker ignores all logs before this date.
+//               No client code may supply or modify it (R7).
+//
+// All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
 export interface HabitSlot {
   [key: string]: unknown
   user_id: string;
@@ -318,18 +260,16 @@ export interface HabitSlot {
   created_at: string;
 }
 
-/**
- * One pause window per habit. Used by the streak walker to skip pause gaps.
- *
- * paused_at  — when slot_pause ran (window opens).
- * resumed_at — when slot_resume / slot_remove / slot_retire ran.
- *              null = window still open (habit is currently paused).
- *
- * At most one open window (resumed_at IS NULL) per (user_id, template_id) at
- * any time. Enforced by slot_pause only operating on status = 'active' rows.
- *
- * All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
- */
+// One pause window per habit. Used by the streak walker to skip pause gaps.
+//
+// paused_at  -- when slot_pause ran (window opens).
+// resumed_at -- when slot_resume / slot_remove / slot_retire ran.
+//               null = window still open (habit is currently paused).
+//
+// At most one open window (resumed_at IS NULL) per (user_id, template_id) at
+// any time. Enforced by slot_pause only operating on status = 'active' rows.
+//
+// All writes go through SECURITY DEFINER RPCs. Client RLS is SELECT-only (R1).
 export interface HabitPauseEvent {
   [key: string]: unknown
   user_id: string;
@@ -338,7 +278,7 @@ export interface HabitPauseEvent {
   resumed_at: string | null;
 }
 
-/** A habit that has been mastered and retired from slots. Written once via slot_retire. */
+// Written once via slot_retire, never updated or deleted.
 export interface MasteredEntry {
   [key: string]: unknown
   user_id: string;
@@ -346,5 +286,5 @@ export interface MasteredEntry {
   created_at: string;
 }
 
-/** Session-scoped event produced by reconcile(). Never persisted. */
+// Session-scoped, never persisted -- produced by reconcile().
 export type LedgerReconcileEvent = { type: 'lost'; templateId: string; streak: number };

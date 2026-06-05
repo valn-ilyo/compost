@@ -252,10 +252,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                   variant="tonal"
                   size="small"
                   rounded="xl"
-                  @click="
-                    selectedYear = null
-                    selectedGender = null
-                  "
+                  @click="selectedYear = null; selectedGender = null"
                 >
                   Clear filters
                 </VBtn>

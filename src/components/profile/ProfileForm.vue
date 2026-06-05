@@ -133,14 +133,8 @@ function onDateSelect(val: Date | null) {
       variant="outlined"
       clearable
       class="mb-2"
-      @input="
-        formData.rollNo = formData.rollNo.toUpperCase()
-        rollCheckState = 'idle'
-      "
-      @keydown.enter.prevent="
-        genderField?.focus()
-        isGenderMenuOpen = true
-      "
+      @input="formData.rollNo = formData.rollNo.toUpperCase(); rollCheckState = 'idle'"
+      @keydown.enter.prevent="genderField?.focus(); isGenderMenuOpen = true"
     />
 
     <VSelect
@@ -154,10 +148,7 @@ function onDateSelect(val: Date | null) {
       prepend-inner-icon="mdi-gender-male-female"
       variant="outlined"
       class="mb-2"
-      @update:model-value="
-        dobField?.focus()
-        isDobMenuOpen = true
-      "
+      @update:model-value="dobField?.focus(); isDobMenuOpen = true"
     />
 
     <VMenu v-model="isDobMenuOpen" :close-on-content-click="false">
@@ -174,10 +165,7 @@ function onDateSelect(val: Date | null) {
           readonly
           clearable
           @keydown.enter.prevent="isDobMenuOpen = true"
-          @click:clear="
-            formData.dob = ''
-            dobRaw = null
-          "
+          @click:clear="formData.dob = ''; dobRaw = null"
         />
       </template>
       <VDatePicker

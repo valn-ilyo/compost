@@ -177,10 +177,7 @@ function handleRemoveClick(): void {
           color="error"
           rounded="lg"
           flex="1"
-          @click="
-            emit('remove', habit.templateId)
-            isConfirmRemoveOpen = false
-          "
+          @click="emit('remove', habit.templateId); isConfirmRemoveOpen = false"
         >
           Remove
         </VBtn>

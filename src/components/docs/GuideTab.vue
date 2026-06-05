@@ -1,17 +1,17 @@
 <!-- Component -- guide tab, renders the active guide section by id -->
 <script setup lang="ts">
-import GuideSectionOverview from "./guide/GuideSectionOverview.vue";
-import GuideSectionGettingStarted from "./guide/GuideSectionGettingStarted.vue";
-import GuideSectionAssessment from "./guide/GuideSectionAssessment.vue";
-import GuideSectionHabits from "./guide/GuideSectionHabits.vue";
-import GuideSectionScore from "./guide/GuideSectionScore.vue";
-import GuideSectionInsights from "./guide/GuideSectionInsights.vue";
-import GuideSectionSync from "./guide/GuideSectionSync.vue";
-import GuideSectionPrivacy from "./guide/GuideSectionPrivacy.vue";
+import GuideSectionOverview from './guide/GuideSectionOverview.vue'
+import GuideSectionGettingStarted from './guide/GuideSectionGettingStarted.vue'
+import GuideSectionAssessment from './guide/GuideSectionAssessment.vue'
+import GuideSectionHabits from './guide/GuideSectionHabits.vue'
+import GuideSectionScore from './guide/GuideSectionScore.vue'
+import GuideSectionInsights from './guide/GuideSectionInsights.vue'
+import GuideSectionSync from './guide/GuideSectionSync.vue'
+import GuideSectionPrivacy from './guide/GuideSectionPrivacy.vue'
 
 defineProps<{
-  activeSection: string;
-}>();
+  activeSection: string
+}>()
 </script>
 
 <template>

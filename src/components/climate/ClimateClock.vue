@@ -1,9 +1,9 @@
 <!-- Component -- climate clock display with deadline countdown and rotating lifeline counter -->
 <script setup lang="ts">
-import { useClimateClock } from "@/composables/useClimateClock";
+import { useClimateClock } from '@/composables/useClimateClock'
 
 const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIndex } =
-  useClimateClock();
+  useClimateClock()
 </script>
 
 <template>

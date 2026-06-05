@@ -1,8 +1,8 @@
 <!-- Component -- methodology limitations section, caveats and references -->
 <script setup lang="ts">
-import { SECTIONS } from "@/data/registry";
+import { SECTIONS } from '@/data/registry'
 
-const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
+const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
 </script>
 
 <template>

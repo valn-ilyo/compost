@@ -1,22 +1,22 @@
 <!-- View -- profile screen with details, actions, logout, and danger zone -->
 <script setup lang="ts">
-import { ref } from "vue";
-import { useProfileStore } from "@/stores/profile.store";
-import { useLogout } from "@/composables/useLogout";
-import { useSyncStore } from "@/stores/sync.store";
-import { openFeedbackForm } from "@/services/feedback-form.service";
-import ProfileAppBar from "@/components/app/ProfileAppBar.vue";
+import { ref } from 'vue'
+import { useProfileStore } from '@/stores/profile.store'
+import { useLogout } from '@/composables/useLogout'
+import { useSyncStore } from '@/stores/sync.store'
+import { openFeedbackForm } from '@/services/feedback-form.service'
+import ProfileAppBar from '@/components/app/ProfileAppBar.vue'
 
-const { logout, loggingOut } = useLogout();
-const store = useProfileStore();
-const syncStore = useSyncStore();
-const showLogoutWarning = ref(false);
+const { logout, loggingOut } = useLogout()
+const store = useProfileStore()
+const syncStore = useSyncStore()
+const showLogoutWarning = ref(false)
 
 function handleLogoutClick() {
   if (syncStore.queue.length > 0) {
-    showLogoutWarning.value = true;
+    showLogoutWarning.value = true
   } else {
-    logout();
+    logout()
   }
 }
 </script>
@@ -32,7 +32,7 @@ function handleLogoutClick() {
           :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
           class="font-condensed font-weight-bold text-onSurface text-center"
         >
-          {{ store.profile?.name || "No name set" }}
+          {{ store.profile?.name || 'No name set' }}
         </h1>
         <div
           v-motion
@@ -123,7 +123,7 @@ function handleLogoutClick() {
             @click="handleLogoutClick"
           >
             <v-list-item-title :class="{ 'text-flashing': loggingOut }">
-              {{ loggingOut ? "Logging out…" : "Logout" }}
+              {{ loggingOut ? 'Logging out…' : 'Logout' }}
             </v-list-item-title>
           </v-list-item>
         </v-card>
@@ -145,8 +145,8 @@ function handleLogoutClick() {
           :loading="loggingOut"
           @click="
             () => {
-              showLogoutWarning = false;
-              logout();
+              showLogoutWarning = false
+              logout()
             }
           "
         >

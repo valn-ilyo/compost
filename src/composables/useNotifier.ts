@@ -1,43 +1,43 @@
 // Composable -- singleton snackbar queue with message, color, and timeout
-import { ref } from "vue";
-import type { NotificationOptions } from "@/types/app.types";
+import { ref } from 'vue'
+import type { NotificationOptions } from '@/types/app.types'
 
-const isActive = ref(false);
-const message = ref("");
-const color = ref<"success" | "error" | "info" | "warning">("info");
-const timeout = ref(3000);
+const isActive = ref(false)
+const message = ref('')
+const color = ref<'success' | 'error' | 'info' | 'warning'>('info')
+const timeout = ref(3000)
 
-const queue = ref<NotificationOptions[]>([]);
+const queue = ref<NotificationOptions[]>([])
 
 function showNext() {
   if (queue.value.length === 0) {
-    isActive.value = false;
-    return;
+    isActive.value = false
+    return
   }
 
-  const next = queue.value.shift()!;
-  message.value = next.message;
-  color.value = next.color ?? "info";
-  timeout.value = next.timeout ?? 3000;
-  isActive.value = true;
+  const next = queue.value.shift()!
+  message.value = next.message
+  color.value = next.color ?? 'info'
+  timeout.value = next.timeout ?? 3000
+  isActive.value = true
 }
 
 export function useNotifier() {
   const notify = (options: NotificationOptions) => {
     if (isActive.value) {
-      queue.value.push(options);
+      queue.value.push(options)
     } else {
-      message.value = options.message;
-      color.value = options.color ?? "info";
-      timeout.value = options.timeout ?? 3000;
-      isActive.value = true;
+      message.value = options.message
+      color.value = options.color ?? 'info'
+      timeout.value = options.timeout ?? 3000
+      isActive.value = true
     }
-  };
+  }
 
   const onClosed = () => {
     // Brief delay so the exit animation completes before the next one appears
-    setTimeout(showNext, 300);
-  };
+    setTimeout(showNext, 300)
+  }
 
   return {
     isActive,
@@ -47,5 +47,5 @@ export function useNotifier() {
     queue,
     notify,
     onClosed,
-  };
+  }
 }

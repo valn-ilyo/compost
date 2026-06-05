@@ -1,23 +1,23 @@
 <!-- Component -- swap sheet for replacing an active habit slot when at capacity -->
 <script setup lang="ts">
-import { computed } from "vue";
-import { useDisplay } from "vuetify";
-import { useMasteryStore } from "@/stores/mastery.store";
-import type { HabitTemplate } from "@/types/app.types";
+import { computed } from 'vue'
+import { useDisplay } from 'vuetify'
+import { useMasteryStore } from '@/stores/mastery.store'
+import type { HabitTemplate } from '@/types/app.types'
 
 const props = defineProps<{
-  modelValue: boolean;
-  pendingTemplate: HabitTemplate | null;
-  pendingAction?: "add" | "resume";
-}>();
+  modelValue: boolean
+  pendingTemplate: HabitTemplate | null
+  pendingAction?: 'add' | 'resume'
+}>()
 
 const emit = defineEmits<{
-  "update:modelValue": [value: boolean];
-  swap: [removeId: string];
-}>();
+  'update:modelValue': [value: boolean]
+  swap: [removeId: string]
+}>()
 
-const store = useMasteryStore();
-const { mdAndUp } = useDisplay();
+const store = useMasteryStore()
+const { mdAndUp } = useDisplay()
 
 // ─── Computed ────────────────────────────────────────────────────────────────
 
@@ -27,42 +27,42 @@ const { mdAndUp } = useDisplay();
 //   1 active,  2 mastered → 1 swappable; 2 mastered slots locked
 //   0 active,  3 mastered → nothing to swap; user must retire first
 const subtitleCopy = computed<string>(() => {
-  const active = store.activeHabits.length;
-  const mastered = store.masteredHabits.length;
-  const isResume = props.pendingAction === "resume";
+  const active = store.activeHabits.length
+  const mastered = store.masteredHabits.length
+  const isResume = props.pendingAction === 'resume'
 
   if (active === 0) {
-    const n = mastered === 1 ? "1 slot is" : `${mastered} slots are`;
-    return `${n} mastered. Retire one to make room for something new.`;
+    const n = mastered === 1 ? '1 slot is' : `${mastered} slots are`
+    return `${n} mastered. Retire one to make room for something new.`
   }
 
-  const swapVerb = isResume ? "pause to resume" : "replace";
+  const swapVerb = isResume ? 'pause to resume' : 'replace'
   const streakNote = isResume
     ? "Resuming will restore its streak. The paused habit's streak is also preserved."
-    : "Its streak will be paused, not deleted.";
+    : 'Its streak will be paused, not deleted.'
 
   if (mastered === 0) {
-    return `You have 3 active habits. Choose one to ${swapVerb}. ${streakNote}`;
+    return `You have 3 active habits. Choose one to ${swapVerb}. ${streakNote}`
   }
 
-  const masteredLabel = mastered === 1 ? "1 mastered habit" : `${mastered} mastered habits`;
-  const swappableLabel = active === 1 ? "1 habit" : `${active} habits`;
+  const masteredLabel = mastered === 1 ? '1 mastered habit' : `${mastered} mastered habits`
+  const swappableLabel = active === 1 ? '1 habit' : `${active} habits`
   return `${swappableLabel} can be swapped. ${masteredLabel} occupy the other ${
-    mastered === 1 ? "slot" : "slots"
-  }. Retire ${mastered === 1 ? "it" : "one"} to free up more room. ${streakNote}`;
-});
+    mastered === 1 ? 'slot' : 'slots'
+  }. Retire ${mastered === 1 ? 'it' : 'one'} to free up more room. ${streakNote}`
+})
 
-const closeBtnLabel = "Close";
+const closeBtnLabel = 'Close'
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 
 function confirmSwap(removeId: string): void {
-  emit("swap", removeId);
-  emit("update:modelValue", false);
+  emit('swap', removeId)
+  emit('update:modelValue', false)
 }
 
 function close(): void {
-  emit("update:modelValue", false);
+  emit('update:modelValue', false)
 }
 </script>
 

@@ -1,22 +1,22 @@
 // Pinia store -- assessment answers, section scores, overall score, and hydration
-import { defineStore } from "pinia";
-import type { SectionMeta, SectionAnswers, AssessmentState } from "../types/app.types";
-import { SECTIONS } from "@/data/registry";
-import { useSyncStore } from "@/stores/sync.store";
-import { supabase } from "@/services/supabase.service";
-import type { AssessmentAnswerRow } from "@/types/database.types";
+import { defineStore } from 'pinia'
+import type { SectionMeta, SectionAnswers, AssessmentState } from '../types/app.types'
+import { SECTIONS } from '@/data/registry'
+import { useSyncStore } from '@/stores/sync.store'
+import { supabase } from '@/services/supabase.service'
+import type { AssessmentAnswerRow } from '@/types/database.types'
 
 // Total scaled marks across all 7 sections -- the denominator for overallScore.
-const TOTAL_SCALED_MAX = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
+const TOTAL_SCALED_MAX = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
 
-export const useAssessmentStore = defineStore("assessment", {
+export const useAssessmentStore = defineStore('assessment', {
   state: (): AssessmentState & { userId: string } => ({
     answers: {},
     completedAt: {},
-    activeTab: "checkin",
+    activeTab: 'checkin',
     recommendedHabitIds: [],
     // Populated during hydrateFromSupabase(). Carried on every enqueued row.
-    userId: "",
+    userId: '',
   }),
 
   getters: {
@@ -28,18 +28,18 @@ export const useAssessmentStore = defineStore("assessment", {
     rawScore:
       (state) =>
       (sectionId: string): number => {
-        const sectionAnswers = state.answers[sectionId];
-        if (!sectionAnswers) return 0;
-        return Object.values(sectionAnswers).reduce((sum, v) => sum + v, 0);
+        const sectionAnswers = state.answers[sectionId]
+        if (!sectionAnswers) return 0
+        return Object.values(sectionAnswers).reduce((sum, v) => sum + v, 0)
       },
 
     // Maps the raw score onto the section's weighted contribution to the 325-point total.
     scaledScore(): (sectionId: string) => number {
       return (sectionId: string): number => {
-        const meta = SECTIONS.find((s) => s.id === sectionId);
-        if (!meta) return 0;
-        return Math.round((this.rawScore(sectionId) / meta.maxRaw) * meta.scaledMax);
-      };
+        const meta = SECTIONS.find((s) => s.id === sectionId)
+        if (!meta) return 0
+        return Math.round((this.rawScore(sectionId) / meta.maxRaw) * meta.scaledMax)
+      }
     },
 
     // Overall score normalised against the full 325-point total.
@@ -52,18 +52,18 @@ export const useAssessmentStore = defineStore("assessment", {
     // This gives users a meaningful partial picture instead of always
     // showing "X / 100" before the assessment is complete.
     overallScore(): {
-      achieved: number;
-      outOf: number;
-      normalized: number;
-      normalizedOutOf: number;
+      achieved: number
+      outOf: number
+      normalized: number
+      normalizedOutOf: number
     } {
-      let achieved = 0;
-      let outOf = 0;
+      let achieved = 0
+      let outOf = 0
 
       for (const section of SECTIONS) {
         if (this.isCompleted(section.id)) {
-          achieved += this.scaledScore(section.id);
-          outOf += section.scaledMax;
+          achieved += this.scaledScore(section.id)
+          outOf += section.scaledMax
         }
       }
 
@@ -72,7 +72,7 @@ export const useAssessmentStore = defineStore("assessment", {
         outOf,
         normalized: Math.round((achieved / TOTAL_SCALED_MAX) * 100),
         normalizedOutOf: Math.round((outOf / TOTAL_SCALED_MAX) * 100),
-      };
+      }
     },
 
     sectionResults(): Array<{ meta: SectionMeta; raw: number; scaled: number }> {
@@ -80,22 +80,22 @@ export const useAssessmentStore = defineStore("assessment", {
         meta: s,
         raw: this.rawScore(s.id),
         scaled: this.scaledScore(s.id),
-      }));
+      }))
     },
   },
 
   actions: {
     // Idempotency key: (user_id, section_id) -- retakes overwrite cleanly.
     submitSection(sectionId: string, answers: SectionAnswers) {
-      this.answers[sectionId] = answers;
-      this.completedAt[sectionId] = Date.now();
+      this.answers[sectionId] = answers
+      this.completedAt[sectionId] = Date.now()
 
-      if (!this.userId) return; // not hydrated yet -- skip enqueue (no-op guard)
+      if (!this.userId) return // not hydrated yet -- skip enqueue (no-op guard)
 
       useSyncStore().enqueue({
         id: `assessment_answers:${this.userId}:${sectionId}`,
-        table: "assessment_answers",
-        operation: "upsert",
+        table: 'assessment_answers',
+        operation: 'upsert',
         payload: {
           user_id: this.userId,
           section_id: sectionId,
@@ -104,24 +104,24 @@ export const useAssessmentStore = defineStore("assessment", {
           completed_at: new Date().toISOString(),
         },
         enqueuedAt: Date.now(),
-      });
+      })
     },
 
     clearSection(sectionId: string) {
-      delete this.answers[sectionId];
+      delete this.answers[sectionId]
     },
 
     // Does not delete rows from Supabase -- the user can retake and resubmit.
     clearAll() {
-      this.answers = {};
-      this.completedAt = {};
-      this.activeTab = "checkin";
-      this.recommendedHabitIds = [];
-      useSyncStore().dequeueByTable("assessment_answers");
+      this.answers = {}
+      this.completedAt = {}
+      this.activeTab = 'checkin'
+      this.recommendedHabitIds = []
+      useSyncStore().dequeueByTable('assessment_answers')
     },
 
     setRecommendedHabits(ids: string[]) {
-      this.recommendedHabitIds = ids;
+      this.recommendedHabitIds = ids
     },
 
     // Merge rule:
@@ -129,23 +129,23 @@ export const useAssessmentStore = defineStore("assessment", {
     //   forceRemote = false (cold start): local wins -- only fill in sections not
     //     yet answered locally. This preserves in-progress answers entered offline.
     async hydrateFromSupabase(newUserId: string, forceRemote = false) {
-      this.userId = newUserId;
+      this.userId = newUserId
 
       const { data, error } = await supabase
-        .from("assessment_answers")
-        .select("*")
-        .eq("user_id", newUserId);
+        .from('assessment_answers')
+        .select('*')
+        .eq('user_id', newUserId)
 
-      if (error) throw error;
+      if (error) throw error
 
       for (const row of data as AssessmentAnswerRow[]) {
         if (forceRemote || !this.isCompleted(row.section_id)) {
-          this.answers[row.section_id] = row.answers;
-          this.completedAt[row.section_id] = new Date(row.completed_at).getTime();
+          this.answers[row.section_id] = row.answers
+          this.completedAt[row.section_id] = new Date(row.completed_at).getTime()
         }
       }
     },
   },
 
   persist: true,
-});
+})

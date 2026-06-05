@@ -1,27 +1,27 @@
 <!-- Component -- retire sheet confirming mastered habit removal from an active slot -->
 <script setup lang="ts">
-import { useDisplay } from "vuetify";
-import type { UserHabit } from "@/types/app.types";
+import { useDisplay } from 'vuetify'
+import type { UserHabit } from '@/types/app.types'
 
 defineProps<{
-  modelValue: boolean;
-  habit: UserHabit | null;
-}>();
+  modelValue: boolean
+  habit: UserHabit | null
+}>()
 
 const emit = defineEmits<{
-  "update:modelValue": [value: boolean];
-  retire: [id: string];
-}>();
+  'update:modelValue': [value: boolean]
+  retire: [id: string]
+}>()
 
-const { mdAndUp } = useDisplay();
+const { mdAndUp } = useDisplay()
 
 function confirmRetire(id: string): void {
-  emit("retire", id);
-  emit("update:modelValue", false);
+  emit('retire', id)
+  emit('update:modelValue', false)
 }
 
 function close(): void {
-  emit("update:modelValue", false);
+  emit('update:modelValue', false)
 }
 </script>
 

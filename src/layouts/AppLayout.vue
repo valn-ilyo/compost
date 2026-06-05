@@ -1,15 +1,15 @@
 <!-- Component -- root layout with nav bar, conditional climate clock system bar, and router outlet -->
 <script setup lang="ts">
-import AppNavigation from "@/components/app/AppNavigation.vue";
-import ClimateClock from "@/components/climate/ClimateClock.vue";
-import { useClockVisibleStore } from "@/stores/clock-visible.store";
-import { storeToRefs } from "pinia";
-import { useRoute } from "vue-router";
-import { computed } from "vue";
+import AppNavigation from '@/components/app/AppNavigation.vue'
+import ClimateClock from '@/components/climate/ClimateClock.vue'
+import { useClockVisibleStore } from '@/stores/clock-visible.store'
+import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
-const { clockVisible } = storeToRefs(useClockVisibleStore());
-const route = useRoute();
-const showClock = computed(() => clockVisible.value && route.name === "home");
+const { clockVisible } = storeToRefs(useClockVisibleStore())
+const route = useRoute()
+const showClock = computed(() => clockVisible.value && route.name === 'home')
 </script>
 
 <template>

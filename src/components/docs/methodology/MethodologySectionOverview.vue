@@ -1,16 +1,16 @@
 <!-- Component -- methodology overview section, footprint model summary and structure table -->
 <script setup lang="ts">
-import { SECTIONS, questionRegistry } from "@/data/registry";
+import { SECTIONS, questionRegistry } from '@/data/registry'
 
-const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
+const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
 
 const sectionRows = SECTIONS.map((s) => ({
   label: s.label,
   questions: questionRegistry[s.id]?.length ?? 0,
   maxRaw: s.maxRaw,
   scaledMax: s.scaledMax,
-  weight: ((s.scaledMax / totalScaledMax) * 100).toFixed(1) + "%",
-}));
+  weight: ((s.scaledMax / totalScaledMax) * 100).toFixed(1) + '%',
+}))
 </script>
 
 <template>

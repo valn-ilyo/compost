@@ -1,20 +1,20 @@
 <!-- Component -- habit library card with grouped sections: paused, recommended, available, and mastered -->
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { HABIT_TEMPLATES } from "@/data/habits";
-import { useMasteryStore } from "@/stores/mastery.store";
-import HabitListItem from "@/components/habit/HabitListItem.vue";
+import { computed, ref } from 'vue'
+import { HABIT_TEMPLATES } from '@/data/habits'
+import { useMasteryStore } from '@/stores/mastery.store'
+import HabitListItem from '@/components/habit/HabitListItem.vue'
 
 const props = defineProps<{
-  recommendedIds?: string[];
-}>();
+  recommendedIds?: string[]
+}>()
 
-const store = useMasteryStore();
-const showAll = ref(false);
-const expandedId = ref<string | null>(null);
+const store = useMasteryStore()
+const showAll = ref(false)
+const expandedId = ref<string | null>(null)
 
 function toggleExpand(id: string) {
-  expandedId.value = expandedId.value === id ? null : id;
+  expandedId.value = expandedId.value === id ? null : id
 }
 
 const templates = computed(() =>
@@ -26,9 +26,9 @@ const templates = computed(() =>
       isMastered: store.masteredTemplateIds.has(t.id),
       isRecommended: props.recommendedIds?.includes(t.id) ?? false,
       pausedHabit: store.pausedHabits.find((h) => h.templateId === t.id) ?? null,
-    };
+    }
   }),
-);
+)
 
 const grouped = computed(() => ({
   mastered: store.masteredArchive
@@ -44,18 +44,18 @@ const grouped = computed(() => ({
     (t) => !t.isPaused && !t.isActive && !t.isRecommended && !t.isMastered,
   ),
   active: templates.value.filter((t) => t.isActive),
-}));
+}))
 
 const emit = defineEmits<{
-  add: [templateId: string];
-  resume: [habitId: string];
-}>();
+  add: [templateId: string]
+  resume: [habitId: string]
+}>()
 
 function formatStreak(days: number): string {
-  if (days < 7) return `${days}-day`;
-  if (days < 30) return `${Math.floor(days / 7)}-week`;
-  if (days < 365) return `${Math.floor(days / 30)}-month`;
-  return `${Math.floor(days / 365)}-year`;
+  if (days < 7) return `${days}-day`
+  if (days < 30) return `${Math.floor(days / 7)}-week`
+  if (days < 365) return `${Math.floor(days / 30)}-month`
+  return `${Math.floor(days / 365)}-year`
 }
 </script>
 
@@ -279,7 +279,7 @@ function formatStreak(days: number): string {
         :append-icon="showAll ? 'mdi-chevron-up' : 'mdi-chevron-down'"
         @click="showAll = !showAll"
       >
-        {{ showAll ? "Show less" : `See all ${templates.length}` }}
+        {{ showAll ? 'Show less' : `See all ${templates.length}` }}
       </v-btn>
     </v-card-actions>
   </v-card>

@@ -1,37 +1,37 @@
 <!-- Component -- climate headlines carousel with RAF-driven progress indicator -->
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
-import { useRafFn } from "@vueuse/core";
-import { useClimateClock } from "@/composables/useClimateClock";
+import { ref, watch, onMounted } from 'vue'
+import { useRafFn } from '@vueuse/core'
+import { useClimateClock } from '@/composables/useClimateClock'
 
-const { loading, tickerItems } = useClimateClock();
+const { loading, tickerItems } = useClimateClock()
 
 const activeIndex = ref(
   tickerItems.value.length > 1 ? Math.floor(Math.random() * tickerItems.value.length) : 0,
-);
-const progress = ref(0);
+)
+const progress = ref(0)
 
-const INTERVAL = 5000;
-let startTime: number | null = null;
+const INTERVAL = 5000
+let startTime: number | null = null
 
 // useRafFn cancels the loop automatically on unmount - no rafId or
 // onBeforeUnmount needed.
 const { pause, resume } = useRafFn(
   ({ timestamp }) => {
-    if (startTime === null) startTime = timestamp;
-    progress.value = Math.min(((timestamp - startTime) / INTERVAL) * 100, 100);
+    if (startTime === null) startTime = timestamp
+    progress.value = Math.min(((timestamp - startTime) / INTERVAL) * 100, 100)
   },
   { immediate: false },
-);
+)
 
 function resetProgress() {
-  pause();
-  startTime = null;
-  progress.value = 0;
-  resume();
+  pause()
+  startTime = null
+  progress.value = 0
+  resume()
 }
 
-watch(activeIndex, () => resetProgress());
+watch(activeIndex, () => resetProgress())
 // Cold-start only: tickerItems was empty at setup (no cache), so activeIndex
 // couldn't be randomized above. Watch fires with flush: "sync" - before the
 // carousel mounts - then tears itself down. Skipped entirely on cache hits.
@@ -39,18 +39,18 @@ if (!tickerItems.value.length) {
   const stopWatch = watch(
     tickerItems,
     (items) => {
-      if (items.length > 1) activeIndex.value = Math.floor(Math.random() * items.length);
-      resetProgress();
-      stopWatch();
+      if (items.length > 1) activeIndex.value = Math.floor(Math.random() * items.length)
+      resetProgress()
+      stopWatch()
     },
-    { flush: "sync" },
-  );
+    { flush: 'sync' },
+  )
 }
-onMounted(() => resetProgress());
+onMounted(() => resetProgress())
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getDate()} ${d.toLocaleDateString("en-US", { month: "short" })} '${d.getFullYear().toString().slice(2)}`;
+  const d = new Date(iso)
+  return `${d.getDate()} ${d.toLocaleDateString('en-US', { month: 'short' })} '${d.getFullYear().toString().slice(2)}`
 }
 </script>
 

@@ -1,71 +1,71 @@
 <!-- Component -- habit recommendations panel, adapts to slot state and mastery store -->
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRouter } from "vue-router";
-import { useMasteryStore } from "@/stores/mastery.store";
-import { MAX_SLOTS } from "@/types/app.types";
-import type { HabitTemplate, HabitPanelItem } from "@/types/app.types";
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useMasteryStore } from '@/stores/mastery.store'
+import { MAX_SLOTS } from '@/types/app.types'
+import type { HabitTemplate, HabitPanelItem } from '@/types/app.types'
 
 const props = defineProps<{
-  templates: HabitTemplate[];
-  hasPausedRecs?: boolean;
-}>();
+  templates: HabitTemplate[]
+  hasPausedRecs?: boolean
+}>()
 
-const router = useRouter();
-const masteryStore = useMasteryStore();
+const router = useRouter()
+const masteryStore = useMasteryStore()
 
-const hasSlot = computed(() => masteryStore.usedSlots < MAX_SLOTS && props.templates.length > 0);
-const isEmpty = computed(() => props.templates.length === 0 && masteryStore.usedSlots < MAX_SLOTS);
+const hasSlot = computed(() => masteryStore.usedSlots < MAX_SLOTS && props.templates.length > 0)
+const isEmpty = computed(() => props.templates.length === 0 && masteryStore.usedSlots < MAX_SLOTS)
 
 const items = computed((): HabitPanelItem[] => {
   if (isEmpty.value) {
     if (props.hasPausedRecs) {
       return [
         {
-          key: "paused",
-          icon: "mdi-play",
-          iconColor: "warning",
+          key: 'paused',
+          icon: 'mdi-play',
+          iconColor: 'warning',
           name: "Your recommended habits are paused. Resume them in Habits whenever you're ready.",
         },
-      ];
+      ]
     }
     return [
       {
-        key: "empty",
-        icon: "mdi-check-circle-outline",
-        iconColor: "success",
-        name: "Your habits are strong where it counts. Browse the library to go further.",
+        key: 'empty',
+        icon: 'mdi-check-circle-outline',
+        iconColor: 'success',
+        name: 'Your habits are strong where it counts. Browse the library to go further.',
       },
-    ];
+    ]
   }
   if (hasSlot.value) {
     return props.templates.map((t) => ({
       key: t.id,
       icon: t.icon,
-      iconColor: "secondary",
+      iconColor: 'secondary',
       name: t.name,
-    }));
+    }))
   }
   return masteryStore.activeHabits.map((h) => ({
     key: h.id,
-    icon: "mdi-check-bold",
-    iconColor: "success",
+    icon: 'mdi-check-bold',
+    iconColor: 'success',
     name: h.name,
     chip: {
-      color: h.streak > 0 ? "error" : "success",
-      icon: h.streak > 0 ? "mdi-fire" : "mdi-sprout",
-      label: h.streak > 0 ? `${h.streak}d` : "New",
+      color: h.streak > 0 ? 'error' : 'success',
+      icon: h.streak > 0 ? 'mdi-fire' : 'mdi-sprout',
+      label: h.streak > 0 ? `${h.streak}d` : 'New',
     },
-  }));
-});
+  }))
+})
 
 const btnLabel = computed(() => {
-  if (isEmpty.value) return props.hasPausedRecs ? "Go to Habits" : "Explore";
-  return hasSlot.value ? "Start a habit" : "Swap one out";
-});
+  if (isEmpty.value) return props.hasPausedRecs ? 'Go to Habits' : 'Explore'
+  return hasSlot.value ? 'Start a habit' : 'Swap one out'
+})
 
 function goToMastery(): void {
-  router.push({ name: "mastery" });
+  router.push({ name: 'mastery' })
 }
 </script>
 

@@ -1,48 +1,48 @@
 <!-- Component -- responsive navigation, rail drawer on md+ and bottom nav on mobile -->
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 
 const items = ref([
   {
-    title: "Home",
-    iconOutline: "mdi-home-outline",
-    iconFilled: "mdi-home",
-    to: "/",
+    title: 'Home',
+    iconOutline: 'mdi-home-outline',
+    iconFilled: 'mdi-home',
+    to: '/',
     exact: true,
   },
   {
-    title: "Assessment",
-    iconOutline: "mdi-receipt-text-edit-outline",
-    iconFilled: "mdi-receipt-text-edit",
-    to: "/assessment",
+    title: 'Assessment',
+    iconOutline: 'mdi-receipt-text-edit-outline',
+    iconFilled: 'mdi-receipt-text-edit',
+    to: '/assessment',
   },
   {
-    title: "Mastery",
-    iconOutline: "mdi-chart-timeline-variant",
-    iconFilled: "mdi-chart-timeline-variant-shimmer",
-    to: "/mastery",
+    title: 'Mastery',
+    iconOutline: 'mdi-chart-timeline-variant',
+    iconFilled: 'mdi-chart-timeline-variant-shimmer',
+    to: '/mastery',
   },
   {
-    title: "Profile",
-    iconOutline: "mdi-account-outline",
-    iconFilled: "mdi-account",
-    to: "/profile",
+    title: 'Profile',
+    iconOutline: 'mdi-account-outline',
+    iconFilled: 'mdi-account',
+    to: '/profile',
     exact: true,
   },
-]);
+])
 
-const selected = ref<string>();
+const selected = ref<string>()
 
 watch(
   () => route.path,
   (newPath) => {
-    selected.value = newPath;
+    selected.value = newPath
   },
   { immediate: true },
-);
+)
 </script>
 
 <template>

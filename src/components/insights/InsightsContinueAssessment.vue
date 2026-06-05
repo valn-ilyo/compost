@@ -1,22 +1,22 @@
 <!-- Component -- incomplete assessment prompt, links to each unfinished section -->
 <script setup lang="ts">
-import { ref } from "vue";
-import type { ComponentPublicInstance } from "vue";
+import { ref } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 
 defineProps<{
   sections: Array<{
-    id: string;
-    label: string;
-    icon: string;
-    description: string;
-  }>;
-}>();
+    id: string
+    label: string
+    icon: string
+    description: string
+  }>
+}>()
 
-const tooltipWidths = ref<Record<string, number>>({});
+const tooltipWidths = ref<Record<string, number>>({})
 
 function measureTooltip(el: Element | ComponentPublicInstance | null, id: string) {
-  if (el && "$el" in el) {
-    tooltipWidths.value[id] = (el.$el as HTMLElement).getBoundingClientRect().width;
+  if (el && '$el' in el) {
+    tooltipWidths.value[id] = (el.$el as HTMLElement).getBoundingClientRect().width
   }
 }
 </script>

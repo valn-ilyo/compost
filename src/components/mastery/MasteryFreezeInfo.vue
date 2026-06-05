@@ -1,56 +1,56 @@
 <!-- Component -- freeze balance chip with contextual info popover -->
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue'
 
 const props = defineProps<{
-  freezeCount: number;
-  freezeCap: number;
-  daysToNextFreeze: number | null;
-  daysToNextMastery: number | null;
-  anyFreezeUsed: boolean;
-  masteredToday: boolean;
-}>();
+  freezeCount: number
+  freezeCap: number
+  daysToNextFreeze: number | null
+  daysToNextMastery: number | null
+  anyFreezeUsed: boolean
+  masteredToday: boolean
+}>()
 
-const inDebt = computed(() => props.freezeCount < 0);
-const isOverflow = computed(() => props.freezeCount > props.freezeCap);
+const inDebt = computed(() => props.freezeCount < 0)
+const isOverflow = computed(() => props.freezeCount > props.freezeCap)
 const atCap = computed(
   () => !inDebt.value && !isOverflow.value && props.freezeCount === props.freezeCap,
-);
+)
 
-const btnColor = computed(() => (inDebt.value ? "error" : "info"));
-const btnIcon = computed(() => (inDebt.value ? "mdi-snowflake-alert" : "mdi-snowflake"));
+const btnColor = computed(() => (inDebt.value ? 'error' : 'info'))
+const btnIcon = computed(() => (inDebt.value ? 'mdi-snowflake-alert' : 'mdi-snowflake'))
 
 const cardTitle = computed(() => {
-  if (isOverflow.value) return "Freeze overflow";
-  if (!inDebt.value) return "Streak freeze";
-  return "Freeze debt";
-});
+  if (isOverflow.value) return 'Freeze overflow'
+  if (!inDebt.value) return 'Streak freeze'
+  return 'Freeze debt'
+})
 
 const progressionLabel = computed(() => {
   if (isOverflow.value) {
-    if (props.daysToNextMastery === null) return null;
-    return "Next freeze in";
+    if (props.daysToNextMastery === null) return null
+    return 'Next freeze in'
   }
-  if (props.daysToNextFreeze === null) return null;
+  if (props.daysToNextFreeze === null) return null
   if (inDebt.value) {
-    return props.freezeCount === -1 ? "Debt clears in" : "Debt reduces in";
+    return props.freezeCount === -1 ? 'Debt clears in' : 'Debt reduces in'
   }
-  return "Next freeze in";
-});
+  return 'Next freeze in'
+})
 
 const daysLabel = computed(() => {
   if (isOverflow.value) {
-    if (props.daysToNextMastery === null) return null;
-    return props.daysToNextMastery === 1 ? "1 day" : `${props.daysToNextMastery} days`;
+    if (props.daysToNextMastery === null) return null
+    return props.daysToNextMastery === 1 ? '1 day' : `${props.daysToNextMastery} days`
   }
-  if (props.daysToNextFreeze === null) return null;
-  return props.daysToNextFreeze === 1 ? "1 day" : `${props.daysToNextFreeze} days`;
-});
+  if (props.daysToNextFreeze === null) return null
+  return props.daysToNextFreeze === 1 ? '1 day' : `${props.daysToNextFreeze} days`
+})
 
 const showProgressRow = computed(() => {
-  if (isOverflow.value) return props.daysToNextMastery !== null;
-  return props.daysToNextFreeze !== null;
-});
+  if (isOverflow.value) return props.daysToNextMastery !== null
+  return props.daysToNextFreeze !== null
+})
 </script>
 
 <template>

@@ -1,105 +1,105 @@
 <!-- Component -- insights tab, score hero, section breakdown, reflections, habit recs, and SDG chips -->
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useAssessmentStore } from "@/stores/assessment.store";
-import { getBadge, getTagline, getSortedSections, WEAK_THRESHOLD } from "@/data/badge";
-import { getSortedQuestions, getInsightsForAssessment } from "@/data/insights/insights";
-import { HABIT_TEMPLATES } from "@/data/habits";
-import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
-import type { HabitTemplate } from "@/types/app.types";
-import { MAX_SLOTS } from "@/types/app.types";
+import { computed, ref } from 'vue'
+import { useAssessmentStore } from '@/stores/assessment.store'
+import { getBadge, getTagline, getSortedSections, WEAK_THRESHOLD } from '@/data/badge'
+import { getSortedQuestions, getInsightsForAssessment } from '@/data/insights/insights'
+import { HABIT_TEMPLATES } from '@/data/habits'
+import { useMasteryRecommendations } from '@/composables/useMasteryRecommendations'
+import type { HabitTemplate } from '@/types/app.types'
+import { MAX_SLOTS } from '@/types/app.types'
 
-import { buildSdgChips } from "@/data/sdgs";
-import { scoreColor } from "@/utils/scoring";
-import { SECTIONS } from "@/data/registry";
+import { buildSdgChips } from '@/data/sdgs'
+import { scoreColor } from '@/utils/scoring'
+import { SECTIONS } from '@/data/registry'
 
-import InsightsScoreHero from "@/components/insights/InsightsScoreHero.vue";
-import InsightsBreakdownBars from "@/components/insights/InsightsBreakdownBars.vue";
-import InsightsContinueAssessment from "@/components/insights/InsightsContinueAssessment.vue";
-import InsightsPanel from "@/components/insights/InsightsPanel.vue";
-import InsightsHabitPanel from "@/components/insights/InsightsHabitPanel.vue";
-import InsightsSdgChips from "@/components/insights/InsightsSdgChips.vue";
-import { useMasteryStore } from "@/stores/mastery.store";
+import InsightsScoreHero from '@/components/insights/InsightsScoreHero.vue'
+import InsightsBreakdownBars from '@/components/insights/InsightsBreakdownBars.vue'
+import InsightsContinueAssessment from '@/components/insights/InsightsContinueAssessment.vue'
+import InsightsPanel from '@/components/insights/InsightsPanel.vue'
+import InsightsHabitPanel from '@/components/insights/InsightsHabitPanel.vue'
+import InsightsSdgChips from '@/components/insights/InsightsSdgChips.vue'
+import { useMasteryStore } from '@/stores/mastery.store'
 
-const store = useAssessmentStore();
-const masteryStore = useMasteryStore();
-const { recommendedIds, pausedRecommendedIds } = useMasteryRecommendations();
+const store = useAssessmentStore()
+const masteryStore = useMasteryStore()
+const { recommendedIds, pausedRecommendedIds } = useMasteryRecommendations()
 
 const habitsLabel = computed(() => {
-  if (masteryStore.usedSlots >= MAX_SLOTS) return "What you're working on";
+  if (masteryStore.usedSlots >= MAX_SLOTS) return "What you're working on"
   if (linkedHabits.value.length === 0 && pausedRecommendedIds.value.length > 0)
-    return "Recommendations paused";
-  if (linkedHabits.value.length === 0) return "No recommendations";
-  return "Recommendations";
-});
+    return 'Recommendations paused'
+  if (linkedHabits.value.length === 0) return 'No recommendations'
+  return 'Recommendations'
+})
 
-const isInsightsOpen = ref(true);
-const isHabitsOpen = ref(true);
-const isSdgOpen = ref(true);
+const isInsightsOpen = ref(true)
+const isHabitsOpen = ref(true)
+const isSdgOpen = ref(true)
 
-const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)));
-const isComplete = computed(() => SECTIONS.every((s) => completedIds.value.has(s.id)));
+const completedIds = computed(() => new Set(store.sectionResults.map((r) => r.meta.id)))
+const isComplete = computed(() => SECTIONS.every((s) => completedIds.value.has(s.id)))
 
-const achieved = computed(() => store.overallScore.achieved);
-const outOf = computed(() => store.overallScore.outOf);
-const pct = computed(() => (outOf.value > 0 ? achieved.value / outOf.value : 0));
-const color = computed(() => scoreColor(pct.value));
+const achieved = computed(() => store.overallScore.achieved)
+const outOf = computed(() => store.overallScore.outOf)
+const pct = computed(() => (outOf.value > 0 ? achieved.value / outOf.value : 0))
+const color = computed(() => scoreColor(pct.value))
 
-const badge = computed(() => getBadge(store.overallScore.normalized));
+const badge = computed(() => getBadge(store.overallScore.normalized))
 
-const sortedSections = computed(() => getSortedSections(store.sectionResults));
+const sortedSections = computed(() => getSortedSections(store.sectionResults))
 const weakSections = computed(() =>
   sortedSections.value
     .filter((r) => r.scaled / r.meta.scaledMax < WEAK_THRESHOLD)
     .map((r) => r.meta.id),
-);
+)
 
 const heroProps = computed(() => ({
   normalized: store.overallScore.normalized,
   normalizedOutOf: store.overallScore.normalizedOutOf,
   ringValue: outOf.value > 0 ? Math.round((achieved.value / outOf.value) * 100) : 0,
   color: color.value,
-  badgeColor: isComplete.value ? color.value : "secondary",
-  badgeLabel: isComplete.value ? badge.value.label : "Too early to say",
+  badgeColor: isComplete.value ? color.value : 'secondary',
+  badgeLabel: isComplete.value ? badge.value.label : 'Too early to say',
   tagline: isComplete.value
     ? getTagline(badge.value, weakSections.value)
-    : "Partial picture. Finish the rest to see your full score.",
-}));
+    : 'Partial picture. Finish the rest to see your full score.',
+}))
 
 const sections = computed(() =>
   store.sectionResults.map((r) => {
-    const p = r.scaled / r.meta.scaledMax;
+    const p = r.scaled / r.meta.scaledMax
     return {
       id: r.meta.id,
       label: r.meta.label,
       icon: r.meta.icon,
       barValue: Math.round(p * 100),
       color: scoreColor(p),
-    };
+    }
   }),
-);
+)
 
-const incompleteSections = computed(() => SECTIONS.filter((s) => !completedIds.value.has(s.id)));
+const incompleteSections = computed(() => SECTIONS.filter((s) => !completedIds.value.has(s.id)))
 
 const insights = computed(() => {
-  if (!isComplete.value) return [];
-  const sortedQuestions = getSortedQuestions(store.answers, sortedSections.value);
-  return getInsightsForAssessment(sortedQuestions, weakSections.value);
-});
-const hasInsights = computed(() => isComplete.value && insights.value.length > 0);
+  if (!isComplete.value) return []
+  const sortedQuestions = getSortedQuestions(store.answers, sortedSections.value)
+  return getInsightsForAssessment(sortedQuestions, weakSections.value)
+})
+const hasInsights = computed(() => isComplete.value && insights.value.length > 0)
 
 const linkedHabits = computed(() =>
   recommendedIds.value
     .map((id) => HABIT_TEMPLATES.find((h) => h.id === id))
     .filter((h): h is HabitTemplate => h !== undefined),
-);
+)
 
 const chips = computed(() => {
   const colorMap = Object.fromEntries(
     store.sectionResults.map((r) => [r.meta.id, scoreColor(r.scaled / r.meta.scaledMax)]),
-  );
-  return buildSdgChips(colorMap);
-});
+  )
+  return buildSdgChips(colorMap)
+})
 </script>
 
 <template>

@@ -1,29 +1,29 @@
 <!-- Component -- expandable habit list item with icon, subtitle, toggle, and action button -->
 <script setup lang="ts">
-import type { HabitTemplate } from "@/types/app.types";
+import type { HabitTemplate } from '@/types/app.types'
 
 defineProps<{
   habit: HabitTemplate & {
-    icon: string;
-    iconOutline: string;
-    pausedHabit?: { id: string; streak: number } | null;
-  };
-  isExpanded: boolean;
-  iconColor: string;
-  actionIcon: string;
-  actionColor: string;
-  actionDisabled?: boolean;
-  outlined?: boolean;
-  subtitle?: string;
-  borderClass?: string;
-  delay?: number;
-  expandColor?: string;
-}>();
+    icon: string
+    iconOutline: string
+    pausedHabit?: { id: string; streak: number } | null
+  }
+  isExpanded: boolean
+  iconColor: string
+  actionIcon: string
+  actionColor: string
+  actionDisabled?: boolean
+  outlined?: boolean
+  subtitle?: string
+  borderClass?: string
+  delay?: number
+  expandColor?: string
+}>()
 
 const emit = defineEmits<{
-  toggle: [];
-  action: [];
-}>();
+  toggle: []
+  action: []
+}>()
 </script>
 
 <template>

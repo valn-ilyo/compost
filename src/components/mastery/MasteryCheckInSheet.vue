@@ -1,33 +1,33 @@
 <!-- Component -- check-in bottom sheet for logging yes/no on unlogged active habits -->
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useDisplay } from "vuetify";
-import { useMasteryStore } from "@/stores/mastery.store";
-import type { UserHabit } from "@/types/app.types";
+import { ref, computed, watch } from 'vue'
+import { useDisplay } from 'vuetify'
+import { useMasteryStore } from '@/stores/mastery.store'
+import type { UserHabit } from '@/types/app.types'
 
 const props = defineProps<{
-  modelValue: boolean;
-  habitId?: string;
-}>();
+  modelValue: boolean
+  habitId?: string
+}>()
 
 const emit = defineEmits<{
-  "update:modelValue": [value: boolean];
-  done: [];
-}>();
+  'update:modelValue': [value: boolean]
+  done: []
+}>()
 
-const store = useMasteryStore();
-const { mdAndUp } = useDisplay();
+const store = useMasteryStore()
+const { mdAndUp } = useDisplay()
 
-const session = ref<UserHabit[]>([]);
-const idx = ref(0);
-const isAnswered = ref(false);
-const navDirection = ref<"forward" | "back">("forward");
+const session = ref<UserHabit[]>([])
+const idx = ref(0)
+const isAnswered = ref(false)
+const navDirection = ref<'forward' | 'back'>('forward')
 
 // Buffered answers: templateId → 'yes' | 'no'. Flushed to the store on close.
-const pendingAnswers = ref<Map<string, "yes" | "no">>(new Map());
+const pendingAnswers = ref<Map<string, 'yes' | 'no'>>(new Map())
 
-const current = computed(() => session.value[idx.value] ?? null);
-const isLast = computed(() => idx.value === session.value.length - 1);
+const current = computed(() => session.value[idx.value] ?? null)
+const isLast = computed(() => idx.value === session.value.length - 1)
 
 watch(
   () => props.modelValue,
@@ -35,37 +35,37 @@ watch(
     if (open) {
       session.value = props.habitId
         ? store.activeHabits.filter((h) => h.templateId === props.habitId)
-        : [...store.unloggedToday];
-      idx.value = 0;
-      isAnswered.value = false;
-      navDirection.value = "forward";
-      pendingAnswers.value = new Map();
+        : [...store.unloggedToday]
+      idx.value = 0
+      isAnswered.value = false
+      navDirection.value = 'forward'
+      pendingAnswers.value = new Map()
     }
   },
-);
+)
 
 function answer(didIt: boolean): void {
-  if (!current.value || isAnswered.value) return;
-  isAnswered.value = true;
-  pendingAnswers.value.set(current.value.templateId, didIt ? "yes" : "no");
+  if (!current.value || isAnswered.value) return
+  isAnswered.value = true
+  pendingAnswers.value.set(current.value.templateId, didIt ? 'yes' : 'no')
   setTimeout(() => {
     if (isLast.value) {
-      close();
-      emit("done");
+      close()
+      emit('done')
     } else {
-      navDirection.value = "forward";
-      idx.value++;
-      isAnswered.value = false;
+      navDirection.value = 'forward'
+      idx.value++
+      isAnswered.value = false
     }
-  }, 300);
+  }, 300)
 }
 
 function close(): void {
   for (const [templateId, value] of pendingAnswers.value) {
-    store.logHabit(templateId, value);
+    store.logHabit(templateId, value)
   }
-  pendingAnswers.value = new Map();
-  emit("update:modelValue", false);
+  pendingAnswers.value = new Map()
+  emit('update:modelValue', false)
 }
 </script>
 

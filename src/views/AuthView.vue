@@ -1,50 +1,50 @@
 <!-- View -- auth entry point handling cold start, Google OAuth, and hydration -->
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { supabase } from "@/services/supabase.service";
-import { useNotifier } from "@/composables/useNotifier";
-import { useSyncStore } from "@/stores/sync.store";
-import { useProfileStore } from "@/stores/profile.store";
-import { useAssessmentStore } from "@/stores/assessment.store";
-import { useMasteryStore } from "@/stores/mastery.store";
-import { resetAllStores } from "@/composables/useLogout";
+import { onMounted, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { supabase } from '@/services/supabase.service'
+import { useNotifier } from '@/composables/useNotifier'
+import { useSyncStore } from '@/stores/sync.store'
+import { useProfileStore } from '@/stores/profile.store'
+import { useAssessmentStore } from '@/stores/assessment.store'
+import { useMasteryStore } from '@/stores/mastery.store'
+import { resetAllStores } from '@/composables/useLogout'
 
-const { notify } = useNotifier();
-const router = useRouter();
-const route = useRoute();
-const syncStore = useSyncStore();
-const profileStore = useProfileStore();
-const assessmentStore = useAssessmentStore();
-const masteryStore = useMasteryStore();
+const { notify } = useNotifier()
+const router = useRouter()
+const route = useRoute()
+const syncStore = useSyncStore()
+const profileStore = useProfileStore()
+const assessmentStore = useAssessmentStore()
+const masteryStore = useMasteryStore()
 
-type AuthState = "login" | "loading" | "error";
-const authState = ref<AuthState>("login");
-const errorEmail = ref<string | null>(null);
-const sessionExpiredMsg = ref("");
-const isGoogleLoading = ref(false);
-const isPrivacyDialogOpen = ref(false);
+type AuthState = 'login' | 'loading' | 'error'
+const authState = ref<AuthState>('login')
+const errorEmail = ref<string | null>(null)
+const sessionExpiredMsg = ref('')
+const isGoogleLoading = ref(false)
+const isPrivacyDialogOpen = ref(false)
 
 const loginWithGoogle = async () => {
-  sessionExpiredMsg.value = "";
-  isGoogleLoading.value = true;
+  sessionExpiredMsg.value = ''
+  isGoogleLoading.value = true
   try {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + "/compost/" },
-    });
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/compost/' },
+    })
     if (error) {
-      isGoogleLoading.value = false;
-      notify({ message: `Login failed: ${error.message}`, color: "error" });
+      isGoogleLoading.value = false
+      notify({ message: `Login failed: ${error.message}`, color: 'error' })
     }
   } catch (err) {
-    isGoogleLoading.value = false;
+    isGoogleLoading.value = false
     notify({
-      message: err instanceof Error ? err.message : "An unexpected error occurred",
-      color: "error",
-    });
+      message: err instanceof Error ? err.message : 'An unexpected error occurred',
+      color: 'error',
+    })
   }
-};
+}
 
 // Cold start -- cached session present:
 // 1. resetAllStores()       -- clear stale state before pulling fresh data
@@ -55,65 +55,65 @@ const loginWithGoogle = async () => {
 // 6. Navigate to / (or next query param)
 // On failure: show error state with Retry and Switch Account options.
 async function runHydration() {
-  authState.value = "loading";
-  let knownEmail: string | null = null;
+  authState.value = 'loading'
+  let knownEmail: string | null = null
 
   try {
     const {
       data: { session },
       error: sessionError,
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getSession()
     if (sessionError || !session) {
-      await supabase.auth.signOut();
-      sessionExpiredMsg.value = "Session expired. Sign in again.";
-      authState.value = "login";
-      return;
+      await supabase.auth.signOut()
+      sessionExpiredMsg.value = 'Session expired. Sign in again.'
+      authState.value = 'login'
+      return
     }
 
-    knownEmail = session.user.email ?? null;
+    knownEmail = session.user.email ?? null
 
-    const userId = session.user.id;
-    const email = session.user.email ?? undefined;
+    const userId = session.user.id
+    const email = session.user.email ?? undefined
 
-    resetAllStores();
-    syncStore.beginHydrating();
+    resetAllStores()
+    syncStore.beginHydrating()
 
     await Promise.all([
       profileStore.fetchProfile(userId, email),
       assessmentStore.hydrateFromSupabase(userId),
       masteryStore.hydrateFromSupabase(userId),
-    ]);
+    ])
 
     // setHydrated() marks hydration complete and triggers drain() if online.
     // After this point enqueue() is live -- any writes reach Supabase.
-    syncStore.setHydrated();
+    syncStore.setHydrated()
 
     // Reconcile after setHydrated() so missed streaks are enqueued immediately.
-    masteryStore.reconcile();
+    masteryStore.reconcile()
 
-    const next = (route.query.next as string) || "/";
-    await router.push(next);
+    const next = (route.query.next as string) || '/'
+    await router.push(next)
   } catch {
-    syncStore.endHydrating();
-    errorEmail.value = knownEmail;
-    authState.value = "error";
+    syncStore.endHydrating()
+    errorEmail.value = knownEmail
+    authState.value = 'error'
   }
 }
 
 async function switchAccount() {
-  await supabase.auth.signOut();
-  errorEmail.value = null;
-  authState.value = "login";
+  await supabase.auth.signOut()
+  errorEmail.value = null
+  authState.value = 'login'
 }
 
 onMounted(async () => {
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.getSession()
   if (session && !syncStore.isHydrated) {
-    await runHydration();
+    await runHydration()
   }
-});
+})
 </script>
 
 <template>

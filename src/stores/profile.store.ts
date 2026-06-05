@@ -1,28 +1,28 @@
 // Pinia store -- user profile row with optimistic updates, hydration, and onboarding gate
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import type { ProfileRow, ProfileUpdate } from "@/types/database.types";
-import type { PersistenceOptions } from "pinia-plugin-persistedstate";
-import { supabase } from "@/services/supabase.service";
-import { useSyncStore } from "@/stores/sync.store";
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { ProfileRow, ProfileUpdate } from '@/types/database.types'
+import type { PersistenceOptions } from 'pinia-plugin-persistedstate'
+import { supabase } from '@/services/supabase.service'
+import { useSyncStore } from '@/stores/sync.store'
 
 export const useProfileStore = defineStore(
-  "profile",
+  'profile',
   () => {
-    const profile = ref<ProfileRow | null>(null);
-    const userEmail = ref<string | null>(null);
-    const loading = ref(false);
+    const profile = ref<ProfileRow | null>(null)
+    const userEmail = ref<string | null>(null)
+    const loading = ref(false)
 
     // Populated during fetchProfile(). Carried on every enqueued row.
-    const userId = ref<string>("");
+    const userId = ref<string>('')
 
     // Controls whether the router redirects to the onboarding flow.
     const isComplete = computed(() => {
-      if (!profile.value) return false;
-      const nameFilled = profile.value.name?.trim() !== "";
-      const rollFilled = profile.value.roll_no?.trim() !== "";
-      return nameFilled && rollFilled;
-    });
+      if (!profile.value) return false
+      const nameFilled = profile.value.name?.trim() !== ''
+      const rollFilled = profile.value.roll_no?.trim() !== ''
+      return nameFilled && rollFilled
+    })
 
     // fetchProfile is a direct Supabase call (not queued) because it is a
     // prerequisite for hydration -- the router needs isComplete before it can
@@ -37,25 +37,25 @@ export const useProfileStore = defineStore(
     //   forceRemote = false (cold start): local wins if a profile is already cached.
     //     This prevents a round-trip from discarding profile edits made offline.
     async function fetchProfile(newUserId: string, email?: string, forceRemote = false) {
-      userId.value = newUserId;
-      if (email) userEmail.value = email;
+      userId.value = newUserId
+      if (email) userEmail.value = email
 
       const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", newUserId)
-        .single();
+        .from('profiles')
+        .select('*')
+        .eq('user_id', newUserId)
+        .single()
 
       if (error) {
-        if (error.code === "PGRST116") {
+        if (error.code === 'PGRST116') {
           // No profile row yet -- leave profile null, router handles onboarding redirect.
-          return;
+          return
         }
-        throw error;
+        throw error
       }
 
       if (forceRemote || !profile.value) {
-        profile.value = data as ProfileRow;
+        profile.value = data as ProfileRow
       }
     }
 
@@ -81,32 +81,32 @@ export const useProfileStore = defineStore(
             theme: null,
           } satisfies ProfileRow)),
         ...updates,
-      };
+      }
 
       useSyncStore().enqueue({
         id: `profiles:${userId.value}`,
-        table: "profiles",
-        operation: "upsert",
+        table: 'profiles',
+        operation: 'upsert',
         payload: { user_id: userId.value, ...updates },
         enqueuedAt: Date.now(),
-      });
+      })
     }
 
     // Called by resetAllStores() on logout and hydration start.
     function reset() {
-      profile.value = null;
-      userEmail.value = null;
-      userId.value = "";
-      loading.value = false;
+      profile.value = null
+      userEmail.value = null
+      userId.value = ''
+      loading.value = false
     }
 
-    return { profile, userEmail, userId, isComplete, loading, fetchProfile, updateProfile, reset };
+    return { profile, userEmail, userId, isComplete, loading, fetchProfile, updateProfile, reset }
   },
   {
     persist: {
-      key: "profile-store",
+      key: 'profile-store',
       storage: localStorage,
-      pick: ["profile", "userEmail"],
+      pick: ['profile', 'userEmail'],
     } as PersistenceOptions,
   },
-);
+)

@@ -1,9 +1,9 @@
 <!-- View -- first-time profile setup with switch account fallback -->
 <script setup lang="ts">
-import { ref } from "vue"
-import { useProfileStore } from "@/stores/profile.store"
-import { useLogout } from "@/composables/useLogout"
-import ProfileForm from "@/components/profile/ProfileForm.vue"
+import { ref } from 'vue'
+import { useProfileStore } from '@/stores/profile.store'
+import { useLogout } from '@/composables/useLogout'
+import ProfileForm from '@/components/profile/ProfileForm.vue'
 
 const profileStore = useProfileStore()
 const { logout } = useLogout()

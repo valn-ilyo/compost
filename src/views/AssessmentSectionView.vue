@@ -1,86 +1,86 @@
 <!-- View -- single assessment section with step-by-step question flow and submit -->
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useTimeoutFn } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router";
-import { useAssessmentStore } from "@/stores/assessment.store";
-import type { SectionAnswers, QuestionId } from "@/types/app.types";
-import { questionRegistry } from "@/data/registry";
-import { SECTIONS } from "../data/registry";
+import { ref, computed, watch } from 'vue'
+import { useTimeoutFn } from '@vueuse/core'
+import { useRoute, useRouter } from 'vue-router'
+import { useAssessmentStore } from '@/stores/assessment.store'
+import type { SectionAnswers, QuestionId } from '@/types/app.types'
+import { questionRegistry } from '@/data/registry'
+import { SECTIONS } from '../data/registry'
 
-const route = useRoute();
-const router = useRouter();
-const store = useAssessmentStore();
+const route = useRoute()
+const router = useRouter()
+const store = useAssessmentStore()
 
-const sectionId = route.params.sectionId as string;
-const questions = questionRegistry[sectionId] ?? [];
-const meta = SECTIONS.find((s) => s.id === sectionId);
+const sectionId = route.params.sectionId as string
+const questions = questionRegistry[sectionId] ?? []
+const meta = SECTIONS.find((s) => s.id === sectionId)
 
 if (!meta || questions.length === 0) {
-  router.replace("/assessment");
+  router.replace('/assessment')
 }
 
-const step = ref(1);
-const totalSteps = questions.length;
-const isLastStep = computed(() => step.value === totalSteps);
-const progress = computed(() => (step.value / totalSteps) * 100);
-const navDirection = ref<"forward" | "back">("forward");
-const lastQuestionId = questions.at(-1)?.id;
+const step = ref(1)
+const totalSteps = questions.length
+const isLastStep = computed(() => step.value === totalSteps)
+const progress = computed(() => (step.value / totalSteps) * 100)
+const navDirection = ref<'forward' | 'back'>('forward')
+const lastQuestionId = questions.at(-1)?.id
 const localAnswers = ref<Record<QuestionId, number | null>>(
   Object.fromEntries(questions.map((q) => [q.id, null])) as Record<QuestionId, number | null>,
-);
-const expandedPanel = ref<number | undefined>(undefined);
+)
+const expandedPanel = ref<number | undefined>(undefined)
 const lastAnswered = computed(
   () => lastQuestionId != null && localAnswers.value[lastQuestionId] !== null,
-);
-const isSubmitting = ref(false);
-const isHintActive = ref(true);
-const flashingOptionKey = ref<string | null>(null);
+)
+const isSubmitting = ref(false)
+const isHintActive = ref(true)
+const flashingOptionKey = ref<string | null>(null)
 const { stop } = useTimeoutFn(() => {
-  isHintActive.value = false;
-}, 2000);
+  isHintActive.value = false
+}, 2000)
 
 function stopHint(): void {
-  isHintActive.value = false;
-  stop();
+  isHintActive.value = false
+  stop()
 }
 watch(expandedPanel, (val) => {
-  if (val !== undefined) stopHint();
-});
+  if (val !== undefined) stopHint()
+})
 
 function goBack(): void {
   if (step.value === 1) {
-    router.push("/assessment");
+    router.push('/assessment')
   } else {
-    navDirection.value = "back";
-    step.value--;
+    navDirection.value = 'back'
+    step.value--
   }
 }
 
 function selectAndAdvance(questionId: QuestionId, points: number): void {
-  localAnswers.value[questionId] = points;
-  flashingOptionKey.value = `${questionId}-${points}`;
+  localAnswers.value[questionId] = points
+  flashingOptionKey.value = `${questionId}-${points}`
   if (!isLastStep.value) {
-    navDirection.value = "forward";
+    navDirection.value = 'forward'
     setTimeout(() => {
-      flashingOptionKey.value = null;
-      step.value++;
-    }, 220);
+      flashingOptionKey.value = null
+      step.value++
+    }, 220)
   } else {
     setTimeout(() => {
-      flashingOptionKey.value = null;
-    }, 220);
+      flashingOptionKey.value = null
+    }, 220)
   }
 }
 
 async function submit(): Promise<void> {
-  isSubmitting.value = true;
+  isSubmitting.value = true
   try {
-    const answers = localAnswers.value as SectionAnswers;
-    store.submitSection(sectionId, answers);
-    await router.push({ name: "assessment", query: { tab: "insights" } });
+    const answers = localAnswers.value as SectionAnswers
+    store.submitSection(sectionId, answers)
+    await router.push({ name: 'assessment', query: { tab: 'insights' } })
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
   }
 }
 </script>

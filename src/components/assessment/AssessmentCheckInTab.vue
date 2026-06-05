@@ -1,43 +1,43 @@
 <!-- Component -- assessment check-in tab, section cards sorted by completion with time hints -->
 <script setup lang="ts">
-import { useAssessmentStore } from "@/stores/assessment.store";
-import { SECTIONS } from "@/data/registry";
-import { computed } from "vue";
+import { useAssessmentStore } from '@/stores/assessment.store'
+import { SECTIONS } from '@/data/registry'
+import { computed } from 'vue'
 
-const store = useAssessmentStore();
+const store = useAssessmentStore()
 
 const sortedSections = computed(() =>
   [...SECTIONS].sort((a, b) => {
-    const aComplete = store.isCompleted(a.id) ? 1 : 0;
-    const bComplete = store.isCompleted(b.id) ? 1 : 0;
-    return aComplete - bComplete;
+    const aComplete = store.isCompleted(a.id) ? 1 : 0
+    const bComplete = store.isCompleted(b.id) ? 1 : 0
+    return aComplete - bComplete
   }),
-);
+)
 
 function timeAgo(ms: number): string {
-  const diff = Date.now() - ms;
-  const minutes = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days = Math.floor(diff / 86_400_000);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
+  const diff = Date.now() - ms
+  const minutes = Math.floor(diff / 60_000)
+  const hours = Math.floor(diff / 3_600_000)
+  const days = Math.floor(diff / 86_400_000)
+  const weeks = Math.floor(days / 7)
+  const months = Math.floor(days / 30)
+  const years = Math.floor(days / 365)
 
-  if (minutes < 60) return "Today";
-  if (hours < 24) return "Today";
-  if (days === 1) return "Yesterday";
-  if (days < 7) return `${days}d ago`;
-  if (weeks < 4) return `${weeks}w ago`;
-  if (months < 12) return `${months}mo ago`;
+  if (minutes < 60) return 'Today'
+  if (hours < 24) return 'Today'
+  if (days === 1) return 'Yesterday'
+  if (days < 7) return `${days}d ago`
+  if (weeks < 4) return `${weeks}w ago`
+  if (months < 12) return `${months}mo ago`
 
-  const remainingMonths = months - years * 12;
-  return remainingMonths > 0 ? `${years}y ${remainingMonths}mo ago` : `${years}y ago`;
+  const remainingMonths = months - years * 12
+  return remainingMonths > 0 ? `${years}y ${remainingMonths}mo ago` : `${years}y ago`
 }
 
 function timeHint(sectionId: string): string {
-  const ts = store.completedAt[sectionId];
-  if (!ts) return "Not started";
-  return timeAgo(ts);
+  const ts = store.completedAt[sectionId]
+  if (!ts) return 'Not started'
+  return timeAgo(ts)
 }
 </script>
 
@@ -119,7 +119,7 @@ function timeHint(sectionId: string): string {
                 color="tertiary"
                 :append-icon="store.isCompleted(section.id) ? 'mdi-refresh' : 'mdi-arrow-right'"
               >
-                {{ store.isCompleted(section.id) ? "Retake" : "Start" }}
+                {{ store.isCompleted(section.id) ? 'Retake' : 'Start' }}
               </v-btn>
             </v-card-actions>
           </v-card>

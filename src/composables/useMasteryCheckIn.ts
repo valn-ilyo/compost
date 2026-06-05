@@ -3,51 +3,51 @@
 // The sheet buffers answers locally and only flushes them to the store on close,
 // so habit cards behind the sheet remain unchanged while the session is in progress.
 
-import { computed, ref, watch } from "vue";
-import type { HabitLog } from "@/types/app.types";
-import { useMasteryStore } from "@/stores/mastery.store";
-import { todayISO } from "@/utils/habit-date";
+import { computed, ref, watch } from 'vue'
+import type { HabitLog } from '@/types/app.types'
+import { useMasteryStore } from '@/stores/mastery.store'
+import { todayISO } from '@/utils/habit-date'
 
 export function useMasteryCheckIn() {
-  const store = useMasteryStore();
+  const store = useMasteryStore()
 
-  const checkinOpen = ref(false);
-  const checkinHabitId = ref<string | undefined>(undefined);
+  const checkinOpen = ref(false)
+  const checkinHabitId = ref<string | undefined>(undefined)
 
   function resolveLogLabel(unlogged: number, total: number): string {
-    if (unlogged === total) return "Log your habits";
-    if (unlogged === 1) return "One left";
-    return `${unlogged} left to log`;
+    if (unlogged === total) return 'Log your habits'
+    if (unlogged === 1) return 'One left'
+    return `${unlogged} left to log`
   }
 
   // Pre-loss streak from lastReconcileEvents; only 'lost' events exist here
   // since protection is derived from freeze_ledger directly, not stored as events.
   function displayLostStreak(templateId: string): number | undefined {
-    return store.lastReconcileEvents.find((e) => e.templateId === templateId)?.streak;
+    return store.lastReconcileEvents.find((e) => e.templateId === templateId)?.streak
   }
 
-  const showAllLogged = computed(() => store.allLoggedToday && !checkinOpen.value);
+  const showAllLogged = computed(() => store.allLoggedToday && !checkinOpen.value)
 
   const logLabel = computed(() =>
     resolveLogLabel(store.unloggedToday.length, store.activeHabits.length),
-  );
+  )
 
   const displayMasteredToday = computed(() => {
-    const today = todayISO();
+    const today = todayISO()
     return (store.habitLogs as HabitLog[]).some(
       (l) => l.date === today && store.masteredSlotTemplateIds.has(l.template_id),
-    );
-  });
+    )
+  })
 
   function handleLog(templateId: string): void {
-    if (store.isLoggedToday(templateId)) return;
-    checkinHabitId.value = templateId;
-    checkinOpen.value = true;
+    if (store.isLoggedToday(templateId)) return
+    checkinHabitId.value = templateId
+    checkinOpen.value = true
   }
 
   function handleLogAll(): void {
-    checkinHabitId.value = undefined;
-    checkinOpen.value = true;
+    checkinHabitId.value = undefined
+    checkinOpen.value = true
   }
 
   function handleCheckinDone(): void {
@@ -59,9 +59,9 @@ export function useMasteryCheckIn() {
   watch(
     () => store.allLoggedToday,
     (allDone) => {
-      if (allDone) store.clearReconcileEvents();
+      if (allDone) store.clearReconcileEvents()
     },
-  );
+  )
 
   return {
     checkinOpen,
@@ -73,5 +73,5 @@ export function useMasteryCheckIn() {
     handleLog,
     handleLogAll,
     handleCheckinDone,
-  };
+  }
 }

@@ -1,61 +1,61 @@
 <!-- Component -- app bar for the profile view with settings menu, theme controls, and account management -->
 <script setup lang="ts">
-import { ref } from "vue";
-import { useProfileStore } from "@/stores/profile.store";
-import { useThemeStore } from "@/stores/theme.store";
-import { useAssessmentStore } from "@/stores/assessment.store";
-import { useNotifier } from "@/composables/useNotifier";
-import { useLogout } from "@/composables/useLogout";
-import { useSyncStore } from "@/stores/sync.store";
-import { supabase } from "@/services/supabase.service";
+import { ref } from 'vue'
+import { useProfileStore } from '@/stores/profile.store'
+import { useThemeStore } from '@/stores/theme.store'
+import { useAssessmentStore } from '@/stores/assessment.store'
+import { useNotifier } from '@/composables/useNotifier'
+import { useLogout } from '@/composables/useLogout'
+import { useSyncStore } from '@/stores/sync.store'
+import { supabase } from '@/services/supabase.service'
 
-const profileStore = useProfileStore();
-const themeStore = useThemeStore();
-const assessmentStore = useAssessmentStore();
-const syncStore = useSyncStore();
-const { notify } = useNotifier();
-const { deleteAccount: deleteAccountAndLogout } = useLogout();
+const profileStore = useProfileStore()
+const themeStore = useThemeStore()
+const assessmentStore = useAssessmentStore()
+const syncStore = useSyncStore()
+const { notify } = useNotifier()
+const { deleteAccount: deleteAccountAndLogout } = useLogout()
 
-const showConfirmDialog = ref(false);
-const showDeleteDialog = ref(false);
-const isDeleting = ref(false);
-const isResetting = ref(false);
+const showConfirmDialog = ref(false)
+const showDeleteDialog = ref(false)
+const isDeleting = ref(false)
+const isResetting = ref(false)
 
 async function clearAll() {
-  const userId = profileStore.profile?.user_id;
-  if (!userId) return;
+  const userId = profileStore.profile?.user_id
+  if (!userId) return
 
-  isResetting.value = true;
+  isResetting.value = true
   try {
-    const { error } = await supabase.from("assessment_answers").delete().eq("user_id", userId);
+    const { error } = await supabase.from('assessment_answers').delete().eq('user_id', userId)
 
-    if (error) throw error;
+    if (error) throw error
 
-    assessmentStore.clearAll();
-    notify({ message: "All assessments cleared.", color: "info" });
+    assessmentStore.clearAll()
+    notify({ message: 'All assessments cleared.', color: 'info' })
   } catch {
-    notify({ message: "Something went wrong. Please try again.", color: "error" });
+    notify({ message: 'Something went wrong. Please try again.', color: 'error' })
   } finally {
-    isResetting.value = false;
-    showConfirmDialog.value = false;
+    isResetting.value = false
+    showConfirmDialog.value = false
   }
 }
 
 async function deleteAccount() {
-  isDeleting.value = true;
+  isDeleting.value = true
   try {
-    await deleteAccountAndLogout();
+    await deleteAccountAndLogout()
     // deleteAccountAndLogout() navigates to /auth on success.
     // It deliberately skips supabase.auth.signOut() - the user row no longer
     // exists in auth.users after delete_account() runs, so signOut returns
     // 403 user_not_found.
   } catch {
-    isDeleting.value = false;
-    showDeleteDialog.value = false;
+    isDeleting.value = false
+    showDeleteDialog.value = false
     notify({
-      message: "Something went wrong. Please try again.",
-      color: "error",
-    });
+      message: 'Something went wrong. Please try again.',
+      color: 'error',
+    })
   }
 }
 </script>
@@ -63,7 +63,7 @@ async function deleteAccount() {
 <template>
   <v-app-bar color="surface" flat>
     <v-app-bar-title>
-      <span class="font-condensed">{{ profileStore.userEmail || "Profile" }}</span>
+      <span class="font-condensed">{{ profileStore.userEmail || 'Profile' }}</span>
     </v-app-bar-title>
 
     <template #append>

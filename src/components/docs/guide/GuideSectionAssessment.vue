@@ -1,9 +1,9 @@
 <!-- Component -- guide assessment section, section overview with weight table -->
 <script setup lang="ts">
-import { computed } from "vue";
-import { SECTIONS, questionRegistry } from "@/data/registry";
+import { computed } from 'vue'
+import { SECTIONS, questionRegistry } from '@/data/registry'
 
-const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
+const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
 
 const sectionRows = computed(() =>
   SECTIONS.map((s) => ({
@@ -11,7 +11,7 @@ const sectionRows = computed(() =>
     questions: questionRegistry[s.id]?.length ?? 0,
     weight: Math.round((s.scaledMax / totalScaledMax) * 100),
   })),
-);
+)
 </script>
 
 <template>

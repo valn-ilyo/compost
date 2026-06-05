@@ -1,14 +1,14 @@
 <!-- Component -- install banner for Android native prompt and iOS Add to Home Screen flow -->
 <script setup lang="ts">
 defineProps<{
-  show: boolean;
-  hasInstallPrompt: boolean;
-  isIos: boolean;
-}>();
+  show: boolean
+  hasInstallPrompt: boolean
+  isIos: boolean
+}>()
 
 defineEmits<{
-  install: [];
-}>();
+  install: []
+}>()
 </script>
 
 <template>

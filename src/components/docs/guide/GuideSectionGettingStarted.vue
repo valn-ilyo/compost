@@ -1,6 +1,6 @@
 <!-- Component -- guide getting started section, sign-in, assessment, habits, and daily logging steps -->
 <script setup lang="ts">
-import { MAX_SLOTS } from "@/types/app.types";
+import { MAX_SLOTS } from '@/types/app.types'
 </script>
 
 <template>

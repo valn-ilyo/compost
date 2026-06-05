@@ -1,60 +1,60 @@
 <!-- View -- docs layout with tab navigation, desktop sidebar, and mobile chip nav -->
 <script setup lang="ts">
-import { computed, nextTick, reactive, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useDisplay } from "vuetify";
-import DocsAppBar from "@/components/docs/DocsAppBar.vue";
-import DocsSidebar from "@/components/docs/DocsSidebar.vue";
-import GuideView from "@/components/docs/GuideTab.vue";
-import MethodologyView from "@/components/docs/MethodologyTab.vue";
-import CreditsView from "@/components/docs/CreditsTab.vue";
-import { guideNav, methodologyNav, creditsNav } from "@/data/docs-nav";
+import { computed, nextTick, reactive, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useDisplay } from 'vuetify'
+import DocsAppBar from '@/components/docs/DocsAppBar.vue'
+import DocsSidebar from '@/components/docs/DocsSidebar.vue'
+import GuideView from '@/components/docs/GuideTab.vue'
+import MethodologyView from '@/components/docs/MethodologyTab.vue'
+import CreditsView from '@/components/docs/CreditsTab.vue'
+import { guideNav, methodologyNav, creditsNav } from '@/data/docs-nav'
 
-type DocTab = "guide" | "methodology" | "credits";
+type DocTab = 'guide' | 'methodology' | 'credits'
 
-const route = useRoute();
-const router = useRouter();
-const { mdAndUp } = useDisplay();
+const route = useRoute()
+const router = useRouter()
+const { mdAndUp } = useDisplay()
 
-const activeTab = computed(() => route.params.tab as DocTab);
+const activeTab = computed(() => route.params.tab as DocTab)
 
 const navForTab = computed(() => {
   switch (activeTab.value) {
-    case "methodology":
-      return methodologyNav;
-    case "credits":
-      return creditsNav;
+    case 'methodology':
+      return methodologyNav
+    case 'credits':
+      return creditsNav
     default:
-      return guideNav;
+      return guideNav
   }
-});
+})
 
 const sectionByTab = reactive<Record<DocTab, string>>({
-  guide: guideNav[0]?.id ?? "overview",
-  methodology: methodologyNav[0]?.id ?? "overview",
-  credits: creditsNav[0]?.id ?? "team",
-});
+  guide: guideNav[0]?.id ?? 'overview',
+  methodology: methodologyNav[0]?.id ?? 'overview',
+  credits: creditsNav[0]?.id ?? 'team',
+})
 
 const activeSection = computed({
   get: () => sectionByTab[activeTab.value],
   set: (v: string) => {
-    sectionByTab[activeTab.value] = v;
+    sectionByTab[activeTab.value] = v
   },
-});
+})
 
 watch(activeSection, async () => {
-  await nextTick();
-  window.scrollTo({ top: 0, behavior: "instant" });
-});
+  await nextTick()
+  window.scrollTo({ top: 0, behavior: 'instant' })
+})
 
 function onTabChange(tab: unknown) {
-  router.push(`/docs/${tab as DocTab}`);
+  router.push(`/docs/${tab as DocTab}`)
 }
 
 async function onDocsNavigate(payload: { tab: DocTab; section: string }) {
-  const { tab, section } = payload;
-  sectionByTab[tab] = section;
-  await router.push(`/docs/${tab}`);
+  const { tab, section } = payload
+  sectionByTab[tab] = section
+  await router.push(`/docs/${tab}`)
 }
 </script>
 

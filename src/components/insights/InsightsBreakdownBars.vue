@@ -2,13 +2,13 @@
 <script setup lang="ts">
 defineProps<{
   sections: Array<{
-    id: string;
-    label: string;
-    icon: string;
-    barValue: number;
-    color: string;
-  }>;
-}>();
+    id: string
+    label: string
+    icon: string
+    barValue: number
+    color: string
+  }>
+}>()
 </script>
 
 <template>

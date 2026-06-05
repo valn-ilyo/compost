@@ -1,6 +1,6 @@
 <!-- Component -- methodology badges section, badge tiers and tagline variant logic -->
 <script setup lang="ts">
-import { BADGES, WEAK_THRESHOLD } from "@/data/badge";
+import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
 </script>
 
 <template>

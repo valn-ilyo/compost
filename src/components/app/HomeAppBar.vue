@@ -1,36 +1,36 @@
 <!-- Component -- app bar for the home view with sync status indicator and climate clock toggle -->
 <script setup lang="ts">
-import { computed } from "vue";
-import { useClockVisibleStore } from "@/stores/clock-visible.store";
-import { useSyncStore } from "@/stores/sync.store";
+import { computed } from 'vue'
+import { useClockVisibleStore } from '@/stores/clock-visible.store'
+import { useSyncStore } from '@/stores/sync.store'
 
-const clockVisibleStore = useClockVisibleStore();
-const syncStore = useSyncStore();
+const clockVisibleStore = useClockVisibleStore()
+const syncStore = useSyncStore()
 
 const cloudIcon = computed(() => {
-  if (syncStore.status === "hydrating") return "mdi-cloud-arrow-down-outline";
-  if (syncStore.status === "synced") return "mdi-cloud-check-outline";
-  if (syncStore.status === "syncing") return "mdi-cloud-sync-outline";
-  return "mdi-cloud-off-outline";
-});
+  if (syncStore.status === 'hydrating') return 'mdi-cloud-arrow-down-outline'
+  if (syncStore.status === 'synced') return 'mdi-cloud-check-outline'
+  if (syncStore.status === 'syncing') return 'mdi-cloud-sync-outline'
+  return 'mdi-cloud-off-outline'
+})
 
 const cloudColor = computed(() => {
-  if (syncStore.status === "hydrating") return "info";
-  if (syncStore.status === "syncing") return "info";
-  if (syncStore.status === "offline") return "error";
-  return undefined;
-});
+  if (syncStore.status === 'hydrating') return 'info'
+  if (syncStore.status === 'syncing') return 'info'
+  if (syncStore.status === 'offline') return 'error'
+  return undefined
+})
 
 const cloudTooltip = computed(() => {
-  if (syncStore.status === "hydrating") {
+  if (syncStore.status === 'hydrating') {
     return syncStore.queue.length > 0
-      ? "Restoring your data. Changes will sync after."
-      : "Restoring your data.";
+      ? 'Restoring your data. Changes will sync after.'
+      : 'Restoring your data.'
   }
-  if (syncStore.status === "synced") return "Data synced.";
-  if (syncStore.status === "syncing") return "Syncing data.";
-  return "You're offline. Data syncs when you reconnect.";
-});
+  if (syncStore.status === 'synced') return 'Data synced.'
+  if (syncStore.status === 'syncing') return 'Syncing data.'
+  return "You're offline. Data syncs when you reconnect."
+})
 </script>
 
 <template>

@@ -1,59 +1,59 @@
 <!-- Component -- habit card with streak chip, log action, pause/remove menu, and mastery retire sheet -->
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import type { UserHabit } from "@/types/app.types";
-import MasteryRetireSheet from "@/components/mastery/MasteryRetireSheet.vue";
+import { computed, ref } from 'vue'
+import type { UserHabit } from '@/types/app.types'
+import MasteryRetireSheet from '@/components/mastery/MasteryRetireSheet.vue'
 
 const props = defineProps<{
-  habit: UserHabit;
-  isLoggedToday: boolean;
-  lostStreak?: number;
-}>();
+  habit: UserHabit
+  isLoggedToday: boolean
+  lostStreak?: number
+}>()
 
 const emit = defineEmits<{
-  pause: [id: string];
-  remove: [id: string];
-  log: [id: string];
-  retire: [id: string];
-}>();
+  pause: [id: string]
+  remove: [id: string]
+  log: [id: string]
+  retire: [id: string]
+}>()
 
-const isConfirmRemoveOpen = ref(false);
-const isRetireSheetOpen = ref(false);
+const isConfirmRemoveOpen = ref(false)
+const isRetireSheetOpen = ref(false)
 
 const streakChip = computed(() => {
   if (props.habit.isMastered) {
-    const days = props.habit.streak;
-    const unit = days === 1 ? "day" : "days";
+    const days = props.habit.streak
+    const unit = days === 1 ? 'day' : 'days'
     return {
-      icon: "mdi-star-shooting",
-      color: "primary",
+      icon: 'mdi-star-shooting',
+      color: 'primary',
       label: `${days}-${unit} streak, mastered`,
-    };
+    }
   }
-  const days = props.lostStreak ?? props.habit.streak;
-  const unit = days === 1 ? "day" : "days";
+  const days = props.lostStreak ?? props.habit.streak
+  const unit = days === 1 ? 'day' : 'days'
   if (props.lostStreak !== undefined && !props.isLoggedToday)
     return {
-      icon: "mdi-fire-off",
-      color: "error",
+      icon: 'mdi-fire-off',
+      color: 'error',
       label: `${days}-${unit} streak ended`,
-    };
+    }
   if (props.habit.streak === 0)
-    return { icon: "mdi-sprout", color: "success", label: "Start your streak" };
+    return { icon: 'mdi-sprout', color: 'success', label: 'Start your streak' }
   return props.habit.freezeUsed
     ? {
-        icon: "mdi-snowflake",
-        color: "info",
+        icon: 'mdi-snowflake',
+        color: 'info',
         label: `${days}-${unit} streak, frozen`,
       }
-    : { icon: "mdi-fire", color: "error", label: `${days}-${unit} streak` };
-});
+    : { icon: 'mdi-fire', color: 'error', label: `${days}-${unit} streak` }
+})
 
 function handleRemoveClick(): void {
   if (props.habit.streak > 0) {
-    isConfirmRemoveOpen.value = true;
+    isConfirmRemoveOpen.value = true
   } else {
-    emit("remove", props.habit.templateId);
+    emit('remove', props.habit.templateId)
   }
 }
 </script>
@@ -65,7 +65,9 @@ function handleRemoveClick(): void {
     class="py-3"
     :ripple="habit.isMastered || !isLoggedToday"
     @click="
-      habit.isMastered ? (isRetireSheetOpen = true) : !isLoggedToday && emit('log', habit.templateId)
+      habit.isMastered
+        ? (isRetireSheetOpen = true)
+        : !isLoggedToday && emit('log', habit.templateId)
     "
   >
     <template #prepend>
@@ -176,8 +178,8 @@ function handleRemoveClick(): void {
           rounded="lg"
           flex="1"
           @click="
-            emit('remove', habit.templateId);
-            isConfirmRemoveOpen = false;
+            emit('remove', habit.templateId)
+            isConfirmRemoveOpen = false
           "
         >
           Remove

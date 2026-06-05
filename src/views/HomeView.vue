@@ -1,19 +1,19 @@
 <!-- View -- home screen with assessment CTA, habit log CTA, and PWA banners -->
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import type { ComponentPublicInstance } from "vue"
-import { useElementSize } from "@vueuse/core"
-import { useRouter } from "vue-router"
-import { useAssessmentStore } from "@/stores/assessment.store"
-import { useMasteryStore } from "@/stores/mastery.store"
-import { usePwaInstall } from "@/composables/usePwaInstall"
-import { useNotificationPrompt } from "@/composables/useNotificationPrompt"
-import { SECTIONS } from "@/data/registry"
-import HomeAppBar from "@/components/app/HomeAppBar.vue"
-import ClimateHeadlines from "@/components/climate/ClimateHeadlines.vue"
-import PwaInstallBanner from "@/components/pwa/PwaInstallBanner.vue"
-import NotificationPromptBanner from "@/components/notification/NotificationPromptBanner.vue"
-import AllLoggedCard from "@/components/habit/AllLoggedCard.vue"
+import { computed, ref } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
+import { useElementSize } from '@vueuse/core'
+import { useRouter } from 'vue-router'
+import { useAssessmentStore } from '@/stores/assessment.store'
+import { useMasteryStore } from '@/stores/mastery.store'
+import { usePwaInstall } from '@/composables/usePwaInstall'
+import { useNotificationPrompt } from '@/composables/useNotificationPrompt'
+import { SECTIONS } from '@/data/registry'
+import HomeAppBar from '@/components/app/HomeAppBar.vue'
+import ClimateHeadlines from '@/components/climate/ClimateHeadlines.vue'
+import PwaInstallBanner from '@/components/pwa/PwaInstallBanner.vue'
+import NotificationPromptBanner from '@/components/notification/NotificationPromptBanner.vue'
+import AllLoggedCard from '@/components/habit/AllLoggedCard.vue'
 
 const store = useAssessmentStore()
 const masteryStore = useMasteryStore()
@@ -32,7 +32,7 @@ const showAllDoneCard = computed(
 )
 
 function goToLog(): void {
-  router.push({ name: "mastery", query: { action: "log" } })
+  router.push({ name: 'mastery', query: { action: 'log' } })
 }
 
 const { isIos, installPrompt, showInstallBanner, triggerInstall } = usePwaInstall()
@@ -40,7 +40,7 @@ const { showNotificationBanner, requestPermission } = useNotificationPrompt()
 
 const cardRef = ref<ComponentPublicInstance | null>(null)
 const { width: cardWidth } = useElementSize(
-  computed(() => (cardRef.value as ComponentPublicInstance)?.$el as HTMLElement ?? null),
+  computed(() => ((cardRef.value as ComponentPublicInstance)?.$el as HTMLElement) ?? null),
 )
 </script>
 
@@ -79,7 +79,7 @@ const { width: cardWidth } = useElementSize(
                 <template #title>
                   <div>
                     <div class="text-label-small text-uppercase">
-                      {{ hasStarted ? "Continue your assessment" : "Start your assessment" }}
+                      {{ hasStarted ? 'Continue your assessment' : 'Start your assessment' }}
                     </div>
                     <div class="text-title-large mb-1">
                       {{ nextSection.label }}

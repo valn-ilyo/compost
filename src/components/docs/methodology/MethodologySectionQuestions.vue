@@ -1,6 +1,6 @@
 <!-- Component -- methodology questions section, per-question environmental rationale grouped by section -->
 <script setup lang="ts">
-import { SECTIONS, questionRegistry } from "@/data/registry";
+import { SECTIONS, questionRegistry } from '@/data/registry'
 
 // TODO(valn): add inline citations to each whyItMatters string once sources are
 // confirmed with the content researchers. See docs coverage guide §1 for
@@ -8,7 +8,7 @@ import { SECTIONS, questionRegistry } from "@/data/registry";
 const sectionGroups = SECTIONS.map((section) => ({
   meta: section,
   questions: questionRegistry[section.id] ?? [],
-}));
+}))
 </script>
 
 <template>

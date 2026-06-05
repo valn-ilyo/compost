@@ -1,10 +1,10 @@
 <!-- Component -- SDG chip row, colour-coded by section score -->
 <script setup lang="ts">
-import type { buildSdgChips } from "@/data/sdgs";
+import type { buildSdgChips } from '@/data/sdgs'
 
 defineProps<{
-  chips: ReturnType<typeof buildSdgChips>;
-}>();
+  chips: ReturnType<typeof buildSdgChips>
+}>()
 </script>
 
 <template>

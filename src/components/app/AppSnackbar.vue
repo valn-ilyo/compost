@@ -9,16 +9,17 @@ watch(isActive, (val) => {
 </script>
 
 <template>
-  <v-snackbar
-    v-model="isActive"
-    :color="color"
-    :timeout="timeout"
-    multi-line
-  >
+  <v-snackbar v-model="isActive" :color="color" :timeout="timeout" multi-line>
     {{ message }}
 
     <template #actions>
-      <v-btn variant="text" size="small" color="on-error" @click="isActive = false" icon="mdi-close"/>
+      <v-btn
+        variant="text"
+        size="small"
+        color="on-error"
+        @click="isActive = false"
+        icon="mdi-close"
+      />
     </template>
   </v-snackbar>
 </template>

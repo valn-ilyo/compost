@@ -1,23 +1,23 @@
 <!-- View -- mastery screen with habit list, log-all action, and habit library -->
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useMasteryStore } from "@/stores/mastery.store";
-import { FREEZE_CAP } from "@/types/app.types";
-import { useMasteryRecommendations } from "@/composables/useMasteryRecommendations";
-import { useMasteryCheckIn } from "@/composables/useMasteryCheckIn";
-import { useMasteryActions } from "@/composables/useMasteryActions";
-import HabitCard from "@/components/habit/HabitCard.vue";
-import HabitLibrary from "@/components/habit/HabitLibrary.vue";
-import AllLoggedCard from "@/components/habit/AllLoggedCard.vue";
-import MasteryCheckinSheet from "@/components/mastery/MasteryCheckInSheet.vue";
-import MasterySwapSheet from "@/components/mastery/MasterySwapSheet.vue";
-import MasteryFreezeInfo from "@/components/mastery/MasteryFreezeInfo.vue";
+import { onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useMasteryStore } from '@/stores/mastery.store'
+import { FREEZE_CAP } from '@/types/app.types'
+import { useMasteryRecommendations } from '@/composables/useMasteryRecommendations'
+import { useMasteryCheckIn } from '@/composables/useMasteryCheckIn'
+import { useMasteryActions } from '@/composables/useMasteryActions'
+import HabitCard from '@/components/habit/HabitCard.vue'
+import HabitLibrary from '@/components/habit/HabitLibrary.vue'
+import AllLoggedCard from '@/components/habit/AllLoggedCard.vue'
+import MasteryCheckinSheet from '@/components/mastery/MasteryCheckInSheet.vue'
+import MasterySwapSheet from '@/components/mastery/MasterySwapSheet.vue'
+import MasteryFreezeInfo from '@/components/mastery/MasteryFreezeInfo.vue'
 
-const route = useRoute();
-const router = useRouter();
-const store = useMasteryStore();
-const { recommendedIds } = useMasteryRecommendations();
+const route = useRoute()
+const router = useRouter()
+const store = useMasteryStore()
+const { recommendedIds } = useMasteryRecommendations()
 const {
   checkinOpen,
   checkinHabitId,
@@ -28,7 +28,7 @@ const {
   handleLog,
   handleLogAll,
   handleCheckinDone,
-} = useMasteryCheckIn();
+} = useMasteryCheckIn()
 const {
   swapOpen,
   pendingTemplate,
@@ -39,24 +39,24 @@ const {
   handleRemove,
   handleSwap,
   handleRetire,
-} = useMasteryActions();
+} = useMasteryActions()
 
 onMounted(async () => {
-  if (route.query.action === "log" && store.activeHabits.length > 0) {
-    await router.replace({ name: "mastery" });
-    handleLogAll();
+  if (route.query.action === 'log' && store.activeHabits.length > 0) {
+    await router.replace({ name: 'mastery' })
+    handleLogAll()
   }
-});
+})
 
 watch(
   () => route.query.action,
   async (action) => {
-    if (action === "log" && store.activeHabits.length > 0) {
-      await router.replace({ name: "mastery" });
-      handleLogAll();
+    if (action === 'log' && store.activeHabits.length > 0) {
+      await router.replace({ name: 'mastery' })
+      handleLogAll()
     }
   },
-);
+)
 </script>
 
 <template>

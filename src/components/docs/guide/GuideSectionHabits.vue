@@ -1,6 +1,6 @@
 <!-- Component -- guide habits section, streaks, freeze tokens, overflow, debt, and mastery -->
 <script setup lang="ts">
-import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app.types";
+import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.types'
 </script>
 
 <template>

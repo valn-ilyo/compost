@@ -2,8 +2,8 @@
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Insights algorithm</div>
 
-  <v-card flat rounded="xl" class="mb-8">
-    <v-card-text class="pb-1">
+  <VCard flat rounded="xl" class="mb-8">
+    <VCardText class="pb-1">
       <p class="text-body-2 mb-2">
         The Insights tab selects exactly five questions from the completed assessment to surface as
         actionable insights. It follows a deterministic algorithm that prioritises the user's
@@ -14,17 +14,17 @@
         where questions are ordered by section weakness first and raw score ascending within each
         section.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Slot allocation: slots 1–4" class="pt-2" />
-    <v-card-text class="pt-1 pb-3">
+    <VListItem title="Slot allocation: slots 1–4" class="pt-2" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2 mb-2">
         The number of weak sections (those scoring below 50% of their maximum) determines how slots
         1–4 are distributed:
       </p>
-      <v-table density="compact" class="mb-2">
+      <VTable density="compact" class="mb-2">
         <thead>
           <tr>
             <th class="text-left text-body-2">Weak sections</th>
@@ -49,17 +49,17 @@
             <td class="text-body-2">2 from section 1, 1 from section 2, 1 from section 3</td>
           </tr>
         </tbody>
-      </v-table>
+      </VTable>
       <p class="text-body-2">
         When no weak sections exist, the algorithm falls back to broad distribution using the
         natural section order rather than skipping the selection entirely.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Slot 5: the affirmation slot" class="pt-2" />
-    <v-card-text class="pt-1 pb-3">
+    <VListItem title="Slot 5: the affirmation slot" class="pt-2" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2 mb-2">
         After slots 1–4 are filled, the remaining question pool is iterated from strongest to
         weakest looking for a question with a score of 4 or higher. If one is found, it occupies
@@ -71,12 +71,12 @@
         slot and renders in the default style. There is no explicit affirmation flag on the insight
         object: the view determines colour by checking the score directly.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="The noHabit flag" class="pt-2" />
-    <v-card-text class="pt-1 pb-4">
+    <VListItem title="The noHabit flag" class="pt-2" />
+    <VCardText class="pt-1 pb-4">
       <p class="text-body-2 mb-2">
         Some questions are marked <code>noHabit: true</code> in the insights data. The
         <code>commute_distance</code> question is the primary example: it asks how far a user lives
@@ -90,6 +90,6 @@
         recommendations. The insight text still appears, because distance is worth knowing, but no
         habit is suggested.
       </p>
-    </v-card-text>
-  </v-card>
+    </VCardText>
+  </VCard>
 </template>

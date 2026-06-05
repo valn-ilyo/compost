@@ -35,8 +35,8 @@ function measureTooltip(el: Element | ComponentPublicInstance | null, id: string
     Keep going
   </p>
 
-  <v-row density="comfortable">
-    <v-col
+  <VRow density="comfortable">
+    <VCol
       v-for="(section, i) in sections"
       :key="section.id"
       v-motion
@@ -49,8 +49,8 @@ function measureTooltip(el: Element | ComponentPublicInstance | null, id: string
       cols="12"
       md="6"
     >
-      <v-hover v-slot="{ isHovering, props: hoverProps }">
-        <v-list
+      <VHover v-slot="{ isHovering, props: hoverProps }">
+        <VList
           v-bind="hoverProps"
           rounded
           bg-color="tertiary-container"
@@ -61,7 +61,7 @@ function measureTooltip(el: Element | ComponentPublicInstance | null, id: string
             transition: 'transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease',
           }"
         >
-          <v-tooltip
+          <VTooltip
             :text="section.description"
             location="top"
             :content-props="{
@@ -69,7 +69,7 @@ function measureTooltip(el: Element | ComponentPublicInstance | null, id: string
             }"
           >
             <template #activator="{ props }">
-              <v-list-item
+              <VListItem
                 v-bind="props"
                 :ref="(el) => measureTooltip(el, section.id)"
                 :to="`/assessment/${section.id}`"
@@ -79,9 +79,9 @@ function measureTooltip(el: Element | ComponentPublicInstance | null, id: string
                 rounded
               />
             </template>
-          </v-tooltip>
-        </v-list>
-      </v-hover>
-    </v-col>
-  </v-row>
+          </VTooltip>
+        </VList>
+      </VHover>
+    </VCol>
+  </VRow>
 </template>

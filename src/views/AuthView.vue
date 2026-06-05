@@ -117,41 +117,41 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-sheet
+  <VSheet
     color="background"
     class="d-flex flex-column align-center justify-center w-100 px-2"
     style="min-height: 100dvh"
   >
     <template v-if="authState === 'loading'">
-      <v-progress-circular indeterminate color="primary" size="48" class="mb-6" />
+      <VProgressCircular indeterminate color="primary" size="48" class="mb-6" />
       <p class="text-body-1 text-medium-emphasis">Setting up your account…</p>
     </template>
 
     <template v-else-if="authState === 'error'">
-      <v-card
+      <VCard
         class="w-100 w-sm-75 w-md-50 w-lg-33 pa-2 text-center"
         color="background"
         elevation="0"
       >
-        <v-icon icon="mdi-cloud-off-outline" size="72" color="primary" class="mb-6" />
+        <VIcon icon="mdi-cloud-off-outline" size="72" color="primary" class="mb-6" />
 
-        <v-card-title class="text-body-1 font-weight-bold text-wrap">
+        <VCardTitle class="text-body-1 font-weight-bold text-wrap">
           Couldn't load your data.
-        </v-card-title>
+        </VCardTitle>
 
-        <v-card-actions class="d-flex flex-column align-center justify-center gap-2">
-          <v-btn
+        <VCardActions class="d-flex flex-column align-center justify-center gap-2">
+          <VBtn
             color="primary"
             rounded="lg"
             size="large"
             flat
             class="text-none"
-            @click="runHydration"
             prepend-icon="mdi-reload"
+            @click="runHydration"
           >
             Retry
-          </v-btn>
-          <v-btn
+          </VBtn>
+          <VBtn
             variant="text"
             color="secondary"
             size="small"
@@ -160,13 +160,13 @@ onMounted(async () => {
           >
             <span class="text-medium-emphasis">Not {{ errorEmail }}?</span>
             <span class="ms-1 font-weight-bold text-primary">Switch account</span>
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+          </VBtn>
+        </VCardActions>
+      </VCard>
     </template>
 
     <template v-else>
-      <v-card
+      <VCard
         v-motion
         :initial="{ opacity: 0, y: 24 }"
         :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
@@ -185,10 +185,10 @@ onMounted(async () => {
           }"
           style="display: inline-block"
         >
-          <v-icon icon="custom:sac" size="160" />
+          <VIcon icon="custom:sac" size="160" />
         </div>
 
-        <v-card-title
+        <VCardTitle
           v-motion
           :initial="{ opacity: 0, y: 12 }"
           :enter="{
@@ -197,10 +197,10 @@ onMounted(async () => {
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 80 },
           }"
           class="text-primary text-headline-medium font-weight-bold"
-          >Compost</v-card-title
+          >Compost</VCardTitle
         >
 
-        <v-card-text
+        <VCardText
           v-motion
           :initial="{ opacity: 0, y: 10 }"
           :enter="{
@@ -212,14 +212,14 @@ onMounted(async () => {
           Find out what your daily habits actually cost the planet. Answer questions across
           transport, food, energy, and more. See where you stand and where small changes would
           matter most.
-        </v-card-text>
+        </VCardText>
 
         <p v-if="sessionExpiredMsg" class="text-body-2 text-error px-4 pb-2">
           {{ sessionExpiredMsg }}
         </p>
 
-        <v-card-actions class="d-flex flex-column align-center justify-center">
-          <v-btn
+        <VCardActions class="d-flex flex-column align-center justify-center">
+          <VBtn
             text="Continue with Google"
             class="text-none rounded-xl border border-thin border-opacity-100"
             hover
@@ -231,7 +231,7 @@ onMounted(async () => {
             @click="loginWithGoogle"
           >
             <template #prepend>
-              <v-icon>
+              <VIcon>
                 <svg
                   version="1.1"
                   xmlns="http://www.w3.org/2000/svg"
@@ -257,25 +257,25 @@ onMounted(async () => {
                   ></path>
                   <path fill="none" d="M0 0h48v48H0z"></path>
                 </svg>
-              </v-icon>
+              </VIcon>
             </template>
-          </v-btn>
-        </v-card-actions>
+          </VBtn>
+        </VCardActions>
 
-        <v-btn
+        <VBtn
           variant="text"
           color="secondary"
           size="small"
           class="mt-2 mx-auto d-block text-none"
           @click="isPrivacyDialogOpen = true"
-          >About your data</v-btn
+          >About your data</VBtn
         >
-      </v-card>
+      </VCard>
     </template>
 
-    <v-dialog v-model="isPrivacyDialogOpen" max-width="360">
-      <v-card rounded="xl">
-        <v-card-text class="text-body-2 text-medium-emphasis pt-5">
+    <VDialog v-model="isPrivacyDialogOpen" max-width="360">
+      <VCard rounded="xl">
+        <VCardText class="text-body-2 text-medium-emphasis pt-5">
           <p class="mb-2">
             Your answers and habit activity are stored on a remote server so your progress syncs
             across devices.
@@ -285,9 +285,9 @@ onMounted(async () => {
             responses.
           </p>
           <p>You can delete your data at any time from your profile.</p>
-        </v-card-text>
-        <v-card-actions class="px-4 pb-4">
-          <v-btn
+        </VCardText>
+        <VCardActions class="px-4 pb-4">
+          <VBtn
             variant="flat"
             color="primary"
             rounded="lg"
@@ -296,9 +296,9 @@ onMounted(async () => {
             @click="isPrivacyDialogOpen = false"
           >
             Done
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-sheet>
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+  </VSheet>
 </template>

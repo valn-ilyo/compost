@@ -1,15 +1,15 @@
 <!-- Component -- credits license section, MIT license text -->
 <template>
-  <v-row justify="center">
-    <v-col>
-      <v-card flat rounded="xl">
-        <v-list-item title="MIT License" prepend-icon="mdi-scale-balance" class="pt-4 pb-2">
+  <VRow justify="center">
+    <VCol>
+      <VCard flat rounded="xl">
+        <VListItem title="MIT License" prepend-icon="mdi-scale-balance" class="pt-4 pb-2">
           <template #subtitle>
             Copyright © 2026<br />Vivian Alexander L Nonglait
-          </template></v-list-item
+          </template></VListItem
         >
-        <v-divider />
-        <v-card-text>
+        <VDivider />
+        <VCardText>
           <p class="text-body-2 mb-3">
             Permission is hereby granted, free of charge, to any person obtaining a copy of this
             software and associated documentation files (the "Software"), to deal in the Software
@@ -30,8 +30,8 @@
             or otherwise, arising from, out of or in connection with the software or the use or
             other dealings in the software.
           </p>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+        </VCardText>
+      </VCard>
+    </VCol>
+  </VRow>
 </template>

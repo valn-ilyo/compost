@@ -46,19 +46,19 @@ const { width: cardWidth } = useElementSize(
 
 <template>
   <HomeAppBar />
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12" md="8" class="d-flex flex-column ga-3">
+  <VContainer>
+    <VRow justify="center">
+      <VCol cols="12" md="8" class="d-flex flex-column ga-3">
         <ClimateHeadlines />
 
         <template v-if="nextSection">
-          <v-tooltip
+          <VTooltip
             :text="nextSection.description"
             location="bottom"
             :content-props="{ style: `max-width: ${cardWidth}px; white-space: normal;` }"
           >
             <template #activator="{ props: tooltipProps }">
-              <v-card
+              <VCard
                 v-bind="tooltipProps"
                 ref="cardRef"
                 v-motion
@@ -86,12 +86,12 @@ const { width: cardWidth } = useElementSize(
                     </div>
                   </div>
                 </template>
-              </v-card>
+              </VCard>
             </template>
-          </v-tooltip>
+          </VTooltip>
         </template>
 
-        <v-card
+        <VCard
           v-if="showLogButton"
           v-motion
           :initial="{ opacity: 0, y: 28, scale: 0.96 }"
@@ -111,7 +111,7 @@ const { width: cardWidth } = useElementSize(
           <template #title>
             <div class="text-title-large">Log your habits</div>
           </template>
-        </v-card>
+        </VCard>
 
         <AllLoggedCard v-if="showAllDoneCard" />
 
@@ -126,7 +126,7 @@ const { width: cardWidth } = useElementSize(
           :show="showNotificationBanner && masteryStore.activeHabits.length > 0"
           @enable="requestPermission"
         />
-      </v-col>
-    </v-row>
-  </v-container>
+      </VCol>
+    </VRow>
+  </VContainer>
 </template>

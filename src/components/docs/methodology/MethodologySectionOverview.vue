@@ -15,8 +15,8 @@ const sectionRows = SECTIONS.map((s) => ({
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Overview</div>
-  <v-card flat rounded="xl" class="mb-8">
-    <v-card-text>
+  <VCard flat rounded="xl" class="mb-8">
+    <VCardText>
       <p class="text-body-2 mb-3">
         Compost estimates a user's personal environmental footprint across seven behavioural domains
         using a structured self-assessment. Responses are aggregated into a single normalised score
@@ -26,12 +26,12 @@ const sectionRows = SECTIONS.map((s) => ({
         This document describes the scoring model, the basis for section weighting, the habit
         tracking system, and the limitations of the approach.
       </p>
-    </v-card-text>
-  </v-card>
+    </VCardText>
+  </VCard>
 
   <div class="text-overline text-medium-emphasis px-1 mb-1">Assessment structure</div>
-  <v-card flat rounded="xl" class="mb-8">
-    <v-card-text class="pb-1">
+  <VCard flat rounded="xl" class="mb-8">
+    <VCardText class="pb-1">
       <p class="text-body-2 mb-3">
         The assessment comprises seven sections covering the principal domains of personal
         environmental impact: transport, food and diet, energy use, consumption, waste, water, and
@@ -42,11 +42,11 @@ const sectionRows = SECTIONS.map((s) => ({
         from 1 (highest impact) to 5 (lowest impact). Sections can be completed in any order. Each
         section is submitted once and cannot be edited after submission.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-table density="comfortable">
+    <VTable density="comfortable">
       <thead>
         <tr>
           <th class="text-left text-body-2">Section</th>
@@ -76,6 +76,6 @@ const sectionRows = SECTIONS.map((s) => ({
           <td class="text-body-2 text-medium-emphasis">100%</td>
         </tr>
       </tbody>
-    </v-table>
-  </v-card>
+    </VTable>
+  </VCard>
 </template>

@@ -12,8 +12,8 @@ defineProps<{
 </script>
 
 <template>
-  <v-row density="comfortable">
-    <v-col
+  <VRow density="comfortable">
+    <VCol
       v-for="(s, i) in sections"
       :key="s.id"
       v-motion
@@ -25,13 +25,13 @@ defineProps<{
       }"
       cols="6"
     >
-      <v-list-item density="compact" class="px-0 mb-1">
-        <v-list-item-title>
-          <v-icon :icon="s.icon" :color="s.color" />
+      <VListItem density="compact" class="px-0 mb-1">
+        <VListItemTitle>
+          <VIcon :icon="s.icon" :color="s.color" />
           {{ s.label }}
-        </v-list-item-title>
-      </v-list-item>
-      <v-progress-linear
+        </VListItemTitle>
+      </VListItem>
+      <VProgressLinear
         :model-value="s.barValue"
         :color="s.color"
         :bg-color="s.color"
@@ -39,6 +39,6 @@ defineProps<{
         rounded
         height="8"
       />
-    </v-col>
-  </v-row>
+    </VCol>
+  </VRow>
 </template>

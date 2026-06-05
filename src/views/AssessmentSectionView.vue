@@ -86,16 +86,16 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <v-container class="py-0">
-    <v-row justify="center">
-      <v-col cols="12" md="8">
-        <v-toolbar flat color="surface" style="position: sticky; top: 0; z-index: 10">
-          <v-btn icon variant="text" color="primary" @click="goBack">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
-          <v-toolbar-title>{{ meta?.label }}</v-toolbar-title>
+  <VContainer class="py-0">
+    <VRow justify="center">
+      <VCol cols="12" md="8">
+        <VToolbar flat color="surface" style="position: sticky; top: 0; z-index: 10">
+          <VBtn icon variant="text" color="primary" @click="goBack">
+            <VIcon>mdi-arrow-left</VIcon>
+          </VBtn>
+          <VToolbarTitle>{{ meta?.label }}</VToolbarTitle>
           <template #append>
-            <v-fade-transition v-if="isLastStep && lastAnswered">
+            <VFadeTransition v-if="isLastStep && lastAnswered">
               <div
                 v-motion
                 :initial="{ opacity: 0, scale: 0.5, y: -8 }"
@@ -106,34 +106,35 @@ async function submit(): Promise<void> {
                   transition: { type: 'spring', stiffness: 520, damping: 18 },
                 }"
               >
-                <v-btn
+                <VBtn
                   color="primary"
                   variant="flat"
                   :loading="isSubmitting"
-                  @click="submit"
                   append-icon="mdi-check"
-                  >Done</v-btn
+                  @click="submit"
+                  >Done</VBtn
                 >
               </div>
-            </v-fade-transition>
+            </VFadeTransition>
           </template>
           <template #extension>
-            <v-progress-linear :model-value="progress" color="primary" rounded />
+            <VProgressLinear :model-value="progress" color="primary" rounded />
           </template>
-        </v-toolbar>
-        <v-window
+        </VToolbar>
+        <VWindow
           v-model="step"
           transition="slide-x-transition"
           reverse-transition="slide-x-reverse-transition"
           style="overflow: hidden"
         >
-          <v-window-item
+          <VWindowItem
             v-for="(question, index) in questions"
             :key="question.id"
             :value="index + 1"
           >
             <div :key="step" class="pt-2">
-              <v-expansion-panels
+              <VExpansionPanels
+                v-model="expandedPanel"
                 v-motion
                 :initial="{ opacity: 0, y: -24, rotateX: 8 }"
                 :enter="{
@@ -142,23 +143,22 @@ async function submit(): Promise<void> {
                   rotateX: 0,
                   transition: { type: 'spring', stiffness: 280, damping: 22 },
                 }"
-                v-model="expandedPanel"
                 variant="accordion"
                 flat
                 style="transform-origin: top center; perspective: 800px"
               >
-                <v-expansion-panel>
-                  <v-expansion-panel-title class="text-title-large">
+                <VExpansionPanel>
+                  <VExpansionPanelTitle class="text-title-large">
                     {{ question.text }}
                     <template #actions="{ expanded }">
-                      <v-icon
+                      <VIcon
                         color="tertiary"
                         :icon="expanded ? 'mdi-lightbulb-on' : 'mdi-lightbulb-on-outline'"
                         :class="{ 'hint-pulse': isHintActive }"
                       />
                     </template>
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
+                  </VExpansionPanelTitle>
+                  <VExpansionPanelText>
                     <div
                       v-motion
                       :initial="{ opacity: 0, scale: 0.82, x: 12, y: -10 }"
@@ -171,7 +171,7 @@ async function submit(): Promise<void> {
                       }"
                       style="transform-origin: top right"
                     >
-                      <v-alert
+                      <VAlert
                         variant="tonal"
                         class="text-body-2"
                         rounded="xl"
@@ -179,21 +179,21 @@ async function submit(): Promise<void> {
                         style="border-top-right-radius: 0 !important"
                       >
                         {{ question.whyItMatters }}
-                      </v-alert>
+                      </VAlert>
                     </div>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+                  </VExpansionPanelText>
+                </VExpansionPanel>
+              </VExpansionPanels>
 
-              <v-list class="pa-0 mt-1">
-                <v-hover
+              <VList class="pa-0 mt-1">
+                <VHover
                   v-for="(option, i) in question.options"
                   :key="option.points"
                   v-slot="{ isHovering, props: hoverProps }"
                 >
-                  <v-list-item
-                    v-bind="hoverProps"
+                  <VListItem
                     v-motion
+                    v-bind="hoverProps"
                     :initial="{
                       opacity: 0,
                       x: navDirection === 'forward' ? -28 : 28,
@@ -222,15 +222,15 @@ async function submit(): Promise<void> {
                     @click="selectAndAdvance(question.id, option.points)"
                   >
                     {{ option.label }}
-                  </v-list-item>
-                </v-hover>
-              </v-list>
+                  </VListItem>
+                </VHover>
+              </VList>
             </div>
-          </v-window-item>
-        </v-window>
-      </v-col>
-    </v-row>
-  </v-container>
+          </VWindowItem>
+        </VWindow>
+      </VCol>
+    </VRow>
+  </VContainer>
 </template>
 
 <style scoped>

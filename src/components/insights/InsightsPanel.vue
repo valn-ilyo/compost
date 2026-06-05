@@ -8,9 +8,9 @@ defineProps<{
 </script>
 
 <template>
-  <v-card variant="flat" rounded class="overflow-hidden">
-    <v-list lines="two" bg-color="transparent" class="py-1">
-      <v-list-item
+  <VCard variant="flat" rounded class="overflow-hidden">
+    <VList lines="two" bg-color="transparent" class="py-1">
+      <VListItem
         v-for="(insight, i) in insights"
         :key="`${insight.sectionId}-${insight.questionId}`"
         v-motion
@@ -25,15 +25,15 @@ defineProps<{
         class="py-3"
       >
         <template #prepend>
-          <v-icon :icon="insight.icon" :color="insight.score >= 4 ? 'success' : undefined" />
+          <VIcon :icon="insight.icon" :color="insight.score >= 4 ? 'success' : undefined" />
         </template>
-        <v-list-item-title
+        <VListItemTitle
           class="text-body-2 text-wrap font-weight-medium mb-1"
           :class="{ 'text-success': insight.score >= 4 }"
         >
           {{ insight.text }}
-        </v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-card>
+        </VListItemTitle>
+      </VListItem>
+    </VList>
+  </VCard>
 </template>

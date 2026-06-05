@@ -6,8 +6,8 @@ import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
 <template>
   <section id="score-and-badges">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Score and badges</div>
-    <v-card flat rounded="xl" class="mb-8">
-      <v-card-text class="pb-1">
+    <VCard flat rounded="xl" class="mb-8">
+      <VCardText class="pb-1">
         <p class="text-body-2 mb-3">
           Your score runs from 0 to 100. It's calculated across all seven sections, each weighted by
           how much it contributes to your total footprint.
@@ -19,11 +19,11 @@ import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
         <p class="text-body-2 mb-4">
           Your badge reflects where your overall score lands. The label is a marker, not a judgment.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-table density="comfortable">
+      <VTable density="comfortable">
         <thead>
           <tr>
             <th class="text-left text-body-2">Badge</th>
@@ -38,7 +38,7 @@ import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
             </td>
           </tr>
         </tbody>
-      </v-table>
-    </v-card>
+      </VTable>
+    </VCard>
   </section>
 </template>

@@ -7,54 +7,54 @@ const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Limitations</div>
-  <v-card flat rounded="xl" class="mb-8">
-    <v-list-item title="Self-reported data" class="pt-4" />
-    <v-card-text class="pt-1 pb-3">
+  <VCard flat rounded="xl" class="mb-8">
+    <VListItem title="Self-reported data" class="pt-4" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2">
         The assessment relies entirely on user self-report. No behavioural data is collected
         passively. Response accuracy depends on the user's recall and willingness to answer
         honestly. The score is a relative indicator, not a precise carbon accounting figure.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Ordinal approximation" class="pt-2" />
-    <v-card-text class="pt-1 pb-3">
+    <VListItem title="Ordinal approximation" class="pt-2" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2">
         Converting behavioural frequency to a 1–5 ordinal scale loses information. Two users
         selecting the same option may have substantially different actual footprints. The five-point
         resolution is a deliberate trade-off of precision for usability.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Fixed weights" class="pt-2" />
-    <v-card-text class="pt-1 pb-3">
+    <VListItem title="Fixed weights" class="pt-2" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2">
         Section weights are fixed and derived from global and regional averages. Factors such as
         grid carbon intensity, local transport infrastructure, and climate affect the true relative
         importance of each domain. A user on a near-zero-carbon electricity grid is over-penalised
         in the Energy section relative to their actual impact.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Partial assessment scores" class="pt-2" />
-    <v-card-text class="pt-1 pb-4">
+    <VListItem title="Partial assessment scores" class="pt-2" />
+    <VCardText class="pt-1 pb-4">
       <p class="text-body-2">
         Because the normalised score always divides by the full {{ totalScaledMax }}-point maximum,
         a partial assessment produces a score that cannot be directly compared to a complete one. A
         partial score is not representative of a user's full profile.
       </p>
-    </v-card-text>
-  </v-card>
+    </VCardText>
+  </VCard>
 
   <div class="text-overline text-medium-emphasis px-1 mb-1">References</div>
-  <v-card flat rounded="xl" class="mb-8">
-    <v-card-text>
+  <VCard flat rounded="xl" class="mb-8">
+    <VCardText>
       <p class="text-body-2 mb-2">
         Ellen MacArthur Foundation. (2019).
         <em>Completing the picture: How the circular economy tackles climate change.</em>
@@ -78,6 +78,6 @@ const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
         Poore, J., &amp; Nemecek, T. (2018). Reducing food's environmental impacts through producers
         and consumers. <em>Science, 360</em>(6392), 987–992.
       </p>
-    </v-card-text>
-  </v-card>
+    </VCardText>
+  </VCard>
 </template>

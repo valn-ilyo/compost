@@ -6,14 +6,14 @@ const store = useAssessmentStore()
 </script>
 
 <template>
-  <v-app-bar color="surface" flat>
-    <v-row justify="center">
-      <v-col cols="12" md="6">
-        <v-tabs v-model="store.activeTab" grow slider-transition="fade">
-          <v-tab rounded="0" value="checkin">Check-In</v-tab>
-          <v-tab rounded="0" value="insights">Insights</v-tab>
-        </v-tabs>
-      </v-col>
-    </v-row>
-  </v-app-bar>
+  <VAppBar color="surface" flat>
+    <VRow justify="center">
+      <VCol cols="12" md="6">
+        <VTabs v-model="store.activeTab" grow slider-transition="fade">
+          <VTab rounded="0" value="checkin">Check-In</VTab>
+          <VTab rounded="0" value="insights">Insights</VTab>
+        </VTabs>
+      </VCol>
+    </VRow>
+  </VAppBar>
 </template>

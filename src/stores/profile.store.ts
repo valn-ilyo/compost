@@ -19,9 +19,9 @@ export const useProfileStore = defineStore(
     // Controls whether the router redirects to the onboarding flow.
     const isComplete = computed(() => {
       if (!profile.value) return false
-      const nameFilled = profile.value.name?.trim() !== ''
-      const rollFilled = profile.value.roll_no?.trim() !== ''
-      return nameFilled && rollFilled
+      const isNameFilled = profile.value.name?.trim() !== ''
+      const isRollFilled = profile.value.roll_no?.trim() !== ''
+      return isNameFilled && isRollFilled
     })
 
     // fetchProfile is a direct Supabase call (not queued) because it is a
@@ -36,7 +36,7 @@ export const useProfileStore = defineStore(
     //   forceRemote = true (reconnect): server wins -- overwrite local profile.
     //   forceRemote = false (cold start): local wins if a profile is already cached.
     //     This prevents a round-trip from discarding profile edits made offline.
-    async function fetchProfile(newUserId: string, email?: string, forceRemote = false) {
+    async function fetchProfile(newUserId: string, email?: string, shouldForceRemote = false) {
       userId.value = newUserId
       if (email) userEmail.value = email
 
@@ -54,7 +54,7 @@ export const useProfileStore = defineStore(
         throw error
       }
 
-      if (forceRemote || !profile.value) {
+      if (shouldForceRemote || !profile.value) {
         profile.value = data as ProfileRow
       }
     }

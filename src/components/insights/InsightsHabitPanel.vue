@@ -70,7 +70,7 @@ function goToMastery(): void {
 </script>
 
 <template>
-  <v-card
+  <VCard
     v-motion
     :initial="{ opacity: 0, y: 16, scale: 0.98 }"
     :enter="{
@@ -84,10 +84,10 @@ function goToMastery(): void {
     color="surface-light"
     class="overflow-hidden"
   >
-    <v-list bg-color="transparent" class="py-2">
+    <VList bg-color="transparent" class="py-2">
       <template v-for="(item, i) in items" :key="item.key">
-        <v-divider v-if="i > 0" />
-        <v-list-item
+        <VDivider v-if="i > 0" />
+        <VListItem
           v-motion
           :initial="{ opacity: 0 }"
           :enter="{ opacity: 1, transition: { duration: 200, delay: 60 + i * 50 } }"
@@ -96,11 +96,11 @@ function goToMastery(): void {
           :ripple="false"
         >
           <template #prepend>
-            <v-icon :icon="item.icon" :color="item.iconColor" class="opacity-100" />
+            <VIcon :icon="item.icon" :color="item.iconColor" class="opacity-100" />
           </template>
-          <v-list-item-title class="text-body-2 text-wrap">{{ item.name }}</v-list-item-title>
+          <VListItemTitle class="text-body-2 text-wrap">{{ item.name }}</VListItemTitle>
           <template v-if="item.chip" #append>
-            <v-chip
+            <VChip
               v-motion
               :initial="{ opacity: 0 }"
               :enter="{ opacity: 1, transition: { duration: 200, delay: 140 + i * 50 } }"
@@ -110,14 +110,14 @@ function goToMastery(): void {
               label
             >
               {{ item.chip.label }}
-            </v-chip>
+            </VChip>
           </template>
-        </v-list-item>
+        </VListItem>
       </template>
-    </v-list>
+    </VList>
 
-    <v-card-actions class="justify-end">
-      <v-btn
+    <VCardActions class="justify-end">
+      <VBtn
         v-motion
         :initial="{ opacity: 0, y: 8 }"
         :enter="{
@@ -137,7 +137,7 @@ function goToMastery(): void {
         @click="goToMastery"
       >
         {{ btnLabel }}
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      </VBtn>
+    </VCardActions>
+  </VCard>
 </template>

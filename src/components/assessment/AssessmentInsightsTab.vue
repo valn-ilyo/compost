@@ -103,10 +103,10 @@ const chips = computed(() => {
 </script>
 
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12" md="8">
-        <v-empty-state
+  <VContainer>
+    <VRow justify="center">
+      <VCol cols="12" md="8">
+        <VEmptyState
           v-if="store.sectionResults.length === 0"
           v-motion
           :initial="{ opacity: 0, scale: 0.92, y: 24 }"
@@ -123,7 +123,7 @@ const chips = computed(() => {
           text="Answer a few questions to see where you stand."
         >
           <template #actions>
-            <v-btn
+            <VBtn
               variant="flat"
               color="secondary"
               rounded="lg"
@@ -131,13 +131,13 @@ const chips = computed(() => {
               @click="store.activeTab = 'checkin'"
             >
               Check-In
-            </v-btn>
+            </VBtn>
           </template>
-        </v-empty-state>
+        </VEmptyState>
 
         <template v-else>
-          <v-row density="compact">
-            <v-col
+          <VRow density="compact">
+            <VCol
               v-for="item in [
                 { color: 'success', label: 'Good' },
                 { color: 'info', label: 'Okay' },
@@ -147,7 +147,7 @@ const chips = computed(() => {
               :key="item.label"
               class="d-flex justify-center mt-1"
             >
-              <v-chip
+              <VChip
                 variant="text"
                 label
                 density="compact"
@@ -155,18 +155,18 @@ const chips = computed(() => {
                 class="text-mono"
               >
                 <template #prepend>
-                  <v-icon icon="mdi-square" :color="item.color" class="me-1" />
+                  <VIcon icon="mdi-square" :color="item.color" class="me-1" />
                 </template>
                 {{ item.label }}
-              </v-chip>
-            </v-col>
-          </v-row>
+              </VChip>
+            </VCol>
+          </VRow>
 
           <InsightsScoreHero v-bind="heroProps" />
 
           <InsightsBreakdownBars :sections="sections" />
 
-          <v-divider
+          <VDivider
             v-motion
             :initial="{ opacity: 0 }"
             :enter="{ opacity: 1, transition: { duration: 500, delay: 200 } }"
@@ -193,17 +193,17 @@ const chips = computed(() => {
               >
                 Reflections
               </p>
-              <v-icon
+              <VIcon
                 :icon="isInsightsOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                 color="medium-emphasis"
                 size="18"
               />
             </div>
-            <v-expand-transition>
+            <VExpandTransition>
               <div v-show="isInsightsOpen" class="overflow-hidden">
                 <InsightsPanel :insights="insights" />
               </div>
-            </v-expand-transition>
+            </VExpandTransition>
           </template>
 
           <template v-if="isComplete">
@@ -224,20 +224,20 @@ const chips = computed(() => {
               >
                 {{ habitsLabel }}
               </p>
-              <v-icon
+              <VIcon
                 :icon="isHabitsOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                 color="medium-emphasis"
                 size="18"
               />
             </div>
-            <v-expand-transition>
+            <VExpandTransition>
               <div v-show="isHabitsOpen" class="overflow-hidden">
                 <InsightsHabitPanel
                   :templates="linkedHabits"
                   :has-paused-recs="pausedRecommendedIds.length > 0"
                 />
               </div>
-            </v-expand-transition>
+            </VExpandTransition>
           </template>
 
           <template v-if="isComplete">
@@ -267,20 +267,20 @@ const chips = computed(() => {
                   >sdgs.un.org</a
                 >
               </p>
-              <v-icon
+              <VIcon
                 :icon="isSdgOpen ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                 color="medium-emphasis"
                 size="18"
               />
             </div>
-            <v-expand-transition>
+            <VExpandTransition>
               <div v-show="isSdgOpen" class="pb-4">
                 <InsightsSdgChips :chips="chips" />
               </div>
-            </v-expand-transition>
+            </VExpandTransition>
           </template>
         </template>
-      </v-col>
-    </v-row>
-  </v-container>
+      </VCol>
+    </VRow>
+  </VContainer>
 </template>

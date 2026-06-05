@@ -27,7 +27,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <v-list-item
+  <VListItem
     v-motion
     :initial="{ opacity: 0 }"
     :enter="{
@@ -38,7 +38,7 @@ const emit = defineEmits<{
     :class="borderClass"
   >
     <template #prepend>
-      <v-icon
+      <VIcon
         :icon="outlined ? habit.iconOutline : habit.icon"
         :color="iconColor"
         size="small"
@@ -56,14 +56,14 @@ const emit = defineEmits<{
 
     <template #append>
       <div class="d-flex align-center">
-        <v-icon
+        <VIcon
           :icon="isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
           size="small"
           color="info"
           class="align-self-center"
           @click.stop="emit('toggle')"
         />
-        <v-btn
+        <VBtn
           :icon="actionIcon"
           :color="actionColor"
           variant="text"
@@ -72,10 +72,10 @@ const emit = defineEmits<{
         />
       </div>
     </template>
-  </v-list-item>
+  </VListItem>
 
-  <v-expand-transition>
-    <v-card
+  <VExpandTransition>
+    <VCard
       v-if="isExpanded"
       v-motion
       :initial="{ opacity: 0 }"
@@ -89,18 +89,18 @@ const emit = defineEmits<{
       class="mx-3 mb-3"
       style="transform-origin: top center"
     >
-      <v-list density="compact" bg-color="transparent">
-        <v-list-item>
-          <v-list-item-title class="text-wrap">
+      <VList density="compact" bg-color="transparent">
+        <VListItem>
+          <VListItemTitle class="text-wrap">
             <span class="font-weight-bold">When: </span>{{ habit.when }}
-          </v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title class="text-wrap">
+          </VListItemTitle>
+        </VListItem>
+        <VListItem>
+          <VListItemTitle class="text-wrap">
             <span class="font-weight-bold">Tip: </span>{{ habit.instruction }}
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-card>
-  </v-expand-transition>
+          </VListItemTitle>
+        </VListItem>
+      </VList>
+    </VCard>
+  </VExpandTransition>
 </template>

@@ -10,7 +10,7 @@ defineEmits<{
 </script>
 
 <template>
-  <v-card
+  <VCard
     v-if="show"
     v-motion
     :initial="{ opacity: 0, y: 16, scale: 0.97 }"
@@ -25,22 +25,22 @@ defineEmits<{
     rounded
     density="compact"
   >
-    <v-card-item>
+    <VCardItem>
       <template #prepend>
-        <v-icon icon="mdi-bell-outline" color="secondary" />
+        <VIcon icon="mdi-bell-outline" color="secondary" />
       </template>
-      <v-card-title class="text-title-large">Daily reminder</v-card-title>
-    </v-card-item>
+      <VCardTitle class="text-title-large">Daily reminder</VCardTitle>
+    </VCardItem>
 
-    <v-card-text class="py-0 my-0 text-body-medium text-on-secondary-container">
+    <VCardText class="py-0 my-0 text-body-medium text-on-secondary-container">
       A nudge at 6:30 PM if you haven't logged for the day.
-    </v-card-text>
+    </VCardText>
 
-    <v-card-actions>
-      <v-spacer />
-      <v-btn variant="flat" rounded="lg" color="secondary" @click="$emit('enable')">
+    <VCardActions>
+      <VSpacer />
+      <VBtn variant="flat" rounded="lg" color="secondary" @click="$emit('enable')">
         Turn on
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      </VBtn>
+    </VCardActions>
+  </VCard>
 </template>

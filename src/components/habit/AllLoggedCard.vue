@@ -1,6 +1,6 @@
 <!-- Component -- confirmation card shown when all habits are logged for the day -->
 <template>
-  <v-card
+  <VCard
     v-motion
     :initial="{ opacity: 0, y: 28, scale: 0.96 }"
     :enter="{
@@ -17,5 +17,5 @@
     <template #title>
       <div class="text-title-large">All logged for today</div>
     </template>
-  </v-card>
+  </VCard>
 </template>

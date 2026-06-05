@@ -7,22 +7,22 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
 </script>
 
 <template>
-  <v-row no-gutters>
+  <VRow no-gutters>
     <!-- ─── Deadline ──────────────────────────────────────────────────────────── -->
-    <v-col cols="12" md="6">
-      <v-sheet color="error">
-        <v-sheet color="error-container" class="d-flex align-center">
-          <v-chip
+    <VCol cols="12" md="6">
+      <VSheet color="error">
+        <VSheet color="error-container" class="d-flex align-center">
+          <VChip
             v-if="$vuetify.display.mdAndUp"
             rounded="0"
             color="error"
             variant="flat"
             label
             class="text-mono font-weight-black"
-            >DEADLINE</v-chip
+            >DEADLINE</VChip
           >
 
-          <v-skeleton-loader
+          <VSkeletonLoader
             v-if="loading"
             type="text"
             color="error-container"
@@ -39,9 +39,9 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
               {{ deadlineLabel }}
             </span>
           </Transition>
-        </v-sheet>
+        </VSheet>
 
-        <v-skeleton-loader
+        <VSkeletonLoader
           v-if="loading"
           type="text"
           color="error"
@@ -124,24 +124,24 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
             >{{ cd.secs }}</span
           >
         </div>
-      </v-sheet>
-    </v-col>
+      </VSheet>
+    </VCol>
 
     <!-- ─── Lifeline ──────────────────────────────────────────────────────────── -->
-    <v-col cols="12" md="6">
-      <v-sheet color="tertiary">
-        <v-sheet color="tertiary-container" class="d-flex align-center">
-          <v-chip
+    <VCol cols="12" md="6">
+      <VSheet color="tertiary">
+        <VSheet color="tertiary-container" class="d-flex align-center">
+          <VChip
             v-if="$vuetify.display.mdAndUp"
             rounded="0"
             color="tertiary"
             variant="flat"
             label
             class="text-mono font-weight-black"
-            >LIFELINE</v-chip
+            >LIFELINE</VChip
           >
 
-          <v-skeleton-loader
+          <VSkeletonLoader
             v-if="loading"
             type="text"
             color="tertiary-container"
@@ -164,9 +164,9 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
               {{ currentLifeline?.label }}
             </span>
           </Transition>
-        </v-sheet>
+        </VSheet>
 
-        <v-skeleton-loader
+        <VSkeletonLoader
           v-if="loading"
           type="text"
           color="tertiary"
@@ -198,9 +198,9 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
             </span>
           </Transition>
         </div>
-      </v-sheet>
-    </v-col>
-  </v-row>
+      </VSheet>
+    </VCol>
+  </VRow>
 </template>
 
 <style scoped>

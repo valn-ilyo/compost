@@ -48,10 +48,10 @@ interface AdminAnalytics {
 const router = useRouter()
 const profileStore = useProfileStore()
 
-const cameFromApp = !!window.history.state?.back
+const didComeFromApp = !!window.history.state?.back
 
 function goBack() {
-  router.push(cameFromApp ? { path: '/profile' } : { path: '/' })
+  router.push(didComeFromApp ? { path: '/profile' } : { path: '/' })
 }
 
 const analytics = ref<AdminAnalytics | null>(null)
@@ -165,22 +165,22 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
 </script>
 
 <template>
-  <v-app-bar color="primary" flat class="border border-b">
+  <VAppBar color="primary" flat class="border border-b">
     <template #prepend>
-      <v-btn
-        :icon="cameFromApp ? 'mdi-account-arrow-left-outline' : 'mdi-home-outline'"
+      <VBtn
+        :icon="didComeFromApp ? 'mdi-account-arrow-left-outline' : 'mdi-home-outline'"
         @click="goBack"
       />
     </template>
-    <v-app-bar-title>
+    <VAppBarTitle>
       <span class="font-condensed">Admin</span>
-    </v-app-bar-title>
-  </v-app-bar>
+    </VAppBarTitle>
+  </VAppBar>
 
-  <v-main>
-    <v-container class="pt-4" fluid>
-      <v-row justify="center">
-        <v-col cols="12" sm="10" md="8" lg="6" xl="4">
+  <VMain>
+    <VContainer class="pt-4" fluid>
+      <VRow justify="center">
+        <VCol cols="12" sm="10" md="8" lg="6" xl="4">
           <div
             v-motion
             :initial="{ opacity: 0, y: 24 }"
@@ -190,17 +190,17 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
               transition: { type: 'spring', stiffness: 260, damping: 22 },
             }"
           >
-            <v-card flat class="mb-4 text-center">
-              <v-list-item
+            <VCard flat class="mb-4 text-center">
+              <VListItem
                 :title="profileStore.profile?.name || 'Admin'"
                 :subtitle="profileStore.userEmail || ''"
               />
-            </v-card>
+            </VCard>
 
             <div class="text-overline text-medium-emphasis px-1 mb-4">Filters</div>
-            <v-row density="compact" class="mb-4">
-              <v-col cols="6">
-                <v-select
+            <VRow density="compact" class="mb-4">
+              <VCol cols="6">
+                <VSelect
                   v-model="selectedYear"
                   label="Batch year"
                   :items="yearItems"
@@ -209,9 +209,9 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                   variant="outlined"
                   hide-details
                 />
-              </v-col>
-              <v-col cols="6">
-                <v-select
+              </VCol>
+              <VCol cols="6">
+                <VSelect
                   v-model="selectedGender"
                   label="Gender"
                   :items="genderItems"
@@ -221,22 +221,22 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                   hide-details
                   class="text-capitalize"
                 />
-              </v-col>
-            </v-row>
+              </VCol>
+            </VRow>
 
             <template v-if="isLoading">
-              <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
-              <v-skeleton-loader type="card" class="mb-4 rounded-xl" />
-              <v-skeleton-loader type="card" class="rounded-xl" />
+              <VSkeletonLoader type="card" class="mb-4 rounded-xl" />
+              <VSkeletonLoader type="card" class="mb-4 rounded-xl" />
+              <VSkeletonLoader type="card" class="rounded-xl" />
             </template>
 
-            <v-alert v-else-if="error" type="error" rounded="xl" class="mb-4">
+            <VAlert v-else-if="error" type="error" rounded="xl" class="mb-4">
               {{ error }}
-            </v-alert>
+            </VAlert>
 
-            <v-card v-else-if="isEmpty" rounded="xl" border flat class="mb-4">
-              <v-card-text class="text-center pa-8">
-                <v-icon
+            <VCard v-else-if="isEmpty" rounded="xl" border flat class="mb-4">
+              <VCardText class="text-center pa-8">
+                <VIcon
                   icon="mdi-filter-off-outline"
                   size="40"
                   color="medium-emphasis"
@@ -248,7 +248,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                 <div class="text-body-2 text-medium-emphasis mb-4">
                   Try adjusting the batch year or gender filter.
                 </div>
-                <v-btn
+                <VBtn
                   variant="tonal"
                   size="small"
                   rounded="xl"
@@ -258,60 +258,60 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                   "
                 >
                   Clear filters
-                </v-btn>
-              </v-card-text>
-            </v-card>
+                </VBtn>
+              </VCardText>
+            </VCard>
 
             <template v-else-if="analytics">
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Overview</div>
-              <v-row density="compact" class="mb-4">
-                <v-col cols="6">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-4">
+              <VRow density="compact" class="mb-4">
+                <VCol cols="6">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-4">
                       <div class="text-h4 font-weight-bold text-primary">
                         {{ analytics.totals.registered }}
                       </div>
                       <div class="text-caption text-medium-emphasis mt-1">Registered</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="6">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-4">
+                    </VCardText>
+                  </VCard>
+                </VCol>
+                <VCol cols="6">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-4">
                       <div class="text-h4 font-weight-bold text-primary">
                         {{ analytics.totals.assessment_started }}
                       </div>
                       <div class="text-caption text-medium-emphasis mt-1">Assessed</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="6">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-4">
+                    </VCardText>
+                  </VCard>
+                </VCol>
+                <VCol cols="6">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-4">
                       <div class="text-h4 font-weight-bold text-primary">
                         {{ analytics.totals.assessment_complete }}
                       </div>
                       <div class="text-caption text-medium-emphasis mt-1">Fully complete</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="6">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-4">
+                    </VCardText>
+                  </VCard>
+                </VCol>
+                <VCol cols="6">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-4">
                       <div class="text-h4 font-weight-bold text-primary">
                         {{ analytics.totals.with_active_habits }}
                       </div>
                       <div class="text-caption text-medium-emphasis mt-1">Active habits</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
+                    </VCardText>
+                  </VCard>
+                </VCol>
+              </VRow>
 
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">
                 Eco band distribution
               </div>
-              <v-card rounded="xl" border flat class="mb-4">
-                <v-card-text class="pa-4">
+              <VCard rounded="xl" border flat class="mb-4">
+                <VCardText class="pa-4">
                   <div class="d-flex justify-center">
                     <VPie
                       :items="bandPieItems"
@@ -325,7 +325,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                     />
                   </div>
 
-                  <v-table density="compact" class="mt-3">
+                  <VTable density="compact" class="mt-3">
                     <tbody>
                       <tr v-for="band in analytics.band_distribution" :key="band.id">
                         <td style="padding-right: 0">
@@ -342,13 +342,13 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                         </td>
                       </tr>
                     </tbody>
-                  </v-table>
-                </v-card-text>
-              </v-card>
+                  </VTable>
+                </VCardText>
+              </VCard>
 
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Section averages</div>
-              <v-card rounded="xl" border flat class="mb-4">
-                <v-table density="comfortable">
+              <VCard rounded="xl" border flat class="mb-4">
+                <VTable density="comfortable">
                   <thead>
                     <tr>
                       <th colspan="2" class="text-left text-caption text-medium-emphasis">
@@ -366,7 +366,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                   <tbody>
                     <tr v-for="section in analytics.section_averages" :key="section.section_id">
                       <td style="padding-right: 0">
-                        <v-icon
+                        <VIcon
                           :icon="SECTION_CONFIG[section.section_id]?.icon"
                           size="18"
                           color="medium-emphasis"
@@ -377,7 +377,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                       </td>
                       <td style="width: 100%">
                         <div class="d-flex align-center gap-4">
-                          <v-progress-linear
+                          <VProgressLinear
                             :model-value="section.avg_pct"
                             :color="sectionColor(section.avg_pct)"
                             :bg-color="sectionColor(section.avg_pct)"
@@ -385,14 +385,14 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                             height="10"
                             class="flex-grow-1 mr-2"
                           />
-                          <v-chip
+                          <VChip
                             :color="sectionColor(section.avg_pct)"
                             size="x-small"
                             variant="tonal"
                             style="justify-content: center"
                           >
                             {{ section.avg_pct }}%
-                          </v-chip>
+                          </VChip>
                         </div>
                       </td>
                       <td
@@ -403,46 +403,46 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                       </td>
                     </tr>
                   </tbody>
-                </v-table>
-              </v-card>
+                </VTable>
+              </VCard>
 
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habit states</div>
-              <v-row dense class="mb-4">
-                <v-col cols="4">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-3">
+              <VRow dense class="mb-4">
+                <VCol cols="4">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-3">
                       <div class="text-h5 font-weight-bold text-primary">
                         {{ analytics.habit_states.active }}
                       </div>
                       <div class="text-caption text-medium-emphasis">Active</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="4">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-3">
+                    </VCardText>
+                  </VCard>
+                </VCol>
+                <VCol cols="4">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-3">
                       <div class="text-h5 font-weight-bold text-warning">
                         {{ analytics.habit_states.paused }}
                       </div>
                       <div class="text-caption text-medium-emphasis">Paused</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="4">
-                  <v-card rounded="xl" border flat>
-                    <v-card-text class="text-center pa-3">
+                    </VCardText>
+                  </VCard>
+                </VCol>
+                <VCol cols="4">
+                  <VCard rounded="xl" border flat>
+                    <VCardText class="text-center pa-3">
                       <div class="text-h5 font-weight-bold text-secondary">
                         {{ analytics.habit_states.mastered }}
                       </div>
                       <div class="text-caption text-medium-emphasis">Mastered</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
+                    </VCardText>
+                  </VCard>
+                </VCol>
+              </VRow>
 
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Habits</div>
-              <v-card rounded="xl" border flat class="mb-4">
-                <v-data-table
+              <VCard rounded="xl" border flat class="mb-4">
+                <VDataTable
                   :headers="[
                     { title: 'Habit', key: 'template_id', sortable: true },
                     { title: 'Total', key: 'total', sortable: true, align: 'center' },
@@ -468,12 +468,12 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                   <template #[`item.mastered`]="{ item }">
                     <span class="text-secondary font-weight-medium">{{ item.mastered }}</span>
                   </template>
-                </v-data-table>
-              </v-card>
+                </VDataTable>
+              </VCard>
 
               <div class="text-overline text-medium-emphasis px-1 mt-2 mb-2">Gender breakdown</div>
-              <v-card rounded="xl" border flat class="mb-6">
-                <v-card-text class="pa-4">
+              <VCard rounded="xl" border flat class="mb-6">
+                <VCardText class="pa-4">
                   <div
                     style="
                       display: grid;
@@ -486,7 +486,7 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                     <template v-for="g in genderBreakdown" :key="g.gender">
                       <span class="text-body-2">{{ g.gender }}</span>
                       <div class="d-flex align-center gap-4">
-                        <v-progress-linear
+                        <VProgressLinear
                           :model-value="totalGender > 0 ? (g.count / totalGender) * 100 : 0"
                           :color="GENDER_COLORS[g.gender] ?? 'primary'"
                           :bg-color="GENDER_COLORS[g.gender] ?? 'primary'"
@@ -494,24 +494,24 @@ const totalGender = computed(() => genderBreakdown.value.reduce((s, g) => s + g.
                           height="8"
                           class="flex-grow-1 mr-2"
                         />
-                        <v-chip
+                        <VChip
                           :color="GENDER_COLORS[g.gender] ?? 'primary'"
                           size="x-small"
                           variant="tonal"
                           style="justify-content: center"
                         >
                           {{ totalGender > 0 ? Math.round((g.count / totalGender) * 100) : 0 }}%
-                        </v-chip>
+                        </VChip>
                       </div>
                       <span class="text-body-2 font-weight-medium">{{ g.count }}</span>
                     </template>
                   </div>
-                </v-card-text>
-              </v-card>
+                </VCardText>
+              </VCard>
             </template>
           </div>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-main>
+        </VCol>
+      </VRow>
+    </VContainer>
+  </VMain>
 </template>

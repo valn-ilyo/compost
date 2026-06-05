@@ -26,19 +26,19 @@ function close(): void {
 </script>
 
 <template>
-  <v-bottom-sheet
+  <VBottomSheet
     :model-value="modelValue"
     :max-width="mdAndUp ? '50%' : undefined"
     @update:model-value="close"
   >
-    <v-card
+    <VCard
       v-if="habit"
       v-motion
       :initial="{ opacity: 0, y: 20 }"
       :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
       rounded="t-xl"
     >
-      <v-card-item
+      <VCardItem
         v-motion
         :initial="{ opacity: 0, y: 8 }"
         :enter="{
@@ -49,21 +49,21 @@ function close(): void {
         class="pt-5 px-4 pb-1"
       >
         <template #prepend>
-          <v-avatar color="primary" variant="tonal" size="x-large" rounded="lg">
-            <v-icon :icon="habit.icon" size="x-large" />
-          </v-avatar>
+          <VAvatar color="primary" variant="tonal" size="x-large" rounded="lg">
+            <VIcon :icon="habit.icon" size="x-large" />
+          </VAvatar>
         </template>
 
-        <v-card-title class="text-body-1 font-weight-bold">
+        <VCardTitle class="text-body-1 font-weight-bold">
           {{ habit.name }}
-        </v-card-title>
+        </VCardTitle>
 
-        <v-card-subtitle>
+        <VCardSubtitle>
           {{ habit.streak }}-day streak, mastered. Time to move on.
-        </v-card-subtitle>
-      </v-card-item>
+        </VCardSubtitle>
+      </VCardItem>
 
-      <v-card-actions
+      <VCardActions
         v-motion
         :initial="{ opacity: 0, y: 12, scale: 0.95 }"
         :enter="{
@@ -74,18 +74,18 @@ function close(): void {
         }"
         class="pa-4 pt-3"
       >
-        <v-btn
+        <VBtn
           block
           size="large"
           color="success"
           variant="tonal"
           rounded="lg"
-          @click="confirmRetire(habit.templateId)"
           append-icon="mdi-star-shooting"
+          @click="confirmRetire(habit.templateId)"
         >
           Retire
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-bottom-sheet>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VBottomSheet>
 </template>

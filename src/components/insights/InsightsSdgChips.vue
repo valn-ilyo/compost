@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <div class="d-flex flex-wrap ga-2">
-    <v-chip
+    <VChip
       v-for="(c, i) in chips"
       :key="c.sdg.id"
       v-motion
@@ -32,6 +32,6 @@ defineProps<{
       rounded="pill"
     >
       <span class="text-medium-emphasis me-1">{{ c.sdg.number }} :</span>{{ c.sdg.name }}
-    </v-chip>
+    </VChip>
   </div>
 </template>

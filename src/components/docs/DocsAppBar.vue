@@ -11,6 +11,10 @@ interface SearchEntry {
   text: string
 }
 
+const emit = defineEmits<{
+  navigate: [payload: { tab: 'guide' | 'methodology' | 'credits'; section: string }]
+}>()
+
 const TAB_LABELS: Record<string, string> = {
   guide: 'Guide',
   methodology: 'Methodology',
@@ -167,10 +171,6 @@ const INDEX: SearchEntry[] = [
 
 const router = useRouter()
 
-const emit = defineEmits<{
-  navigate: [payload: { tab: 'guide' | 'methodology' | 'credits'; section: string }]
-}>()
-
 const isSearchMode = ref(false)
 const searchQuery = ref('')
 
@@ -235,30 +235,30 @@ function navigate(id: string | null) {
   emit('navigate', { tab: entry.tab, section: entry.anchor })
 }
 
-const cameFromApp = !!window.history.state?.back
+const didComeFromApp = !!window.history.state?.back
 
 function goHome() {
-  router.push(cameFromApp ? { path: '/profile' } : { path: '/' })
+  router.push(didComeFromApp ? { path: '/profile' } : { path: '/' })
 }
 </script>
 
 <template>
-  <v-app-bar color="primary" flat class="border border-b">
+  <VAppBar color="primary" flat class="border border-b">
     <template #prepend>
-      <v-btn
-        :icon="cameFromApp ? 'mdi-account-arrow-left-outline' : 'mdi-home-outline'"
+      <VBtn
+        :icon="didComeFromApp ? 'mdi-account-arrow-left-outline' : 'mdi-home-outline'"
         @click="goHome"
       />
     </template>
 
-    <v-app-bar-title v-if="!isSearchMode">
+    <VAppBarTitle v-if="!isSearchMode">
       <span class="font-condensed">Documentation</span>
-    </v-app-bar-title>
+    </VAppBarTitle>
 
-    <v-autocomplete
+    <VAutocomplete
+      v-if="isSearchMode"
       variant="solo"
       flat
-      v-if="isSearchMode"
       :items="searchQuery.trim().length >= 2 ? INDEX : []"
       :custom-filter="customFilter"
       :item-props="getItemProps"
@@ -270,28 +270,30 @@ function goHome() {
       auto-select-first
       placeholder="Search the docs…"
       no-data-text="Nothing found"
+      :hide-no-data="searchQuery.trim().length >= 2 ? false : true"
       @update:search="onSearchUpdate"
       @update:model-value="navigate"
-      :hide-no-data="searchQuery.trim().length >= 2 ? false : true"
     >
       <template #item="{ props: itemProps }">
-        <v-list-item v-bind="itemProps" lines="two" rounded="lg">
+        <VListItem v-bind="itemProps" lines="two" rounded="lg">
           <template #title>
+            <!-- eslint-disable-next-line vue/no-v-html -->
             <span v-html="highlight(itemProps.title as string, searchQuery)" />
           </template>
           <template #subtitle>
+            <!-- eslint-disable-next-line vue/no-v-html -->
             <span v-html="highlight(itemProps.subtitle as string, searchQuery)" />
           </template>
-        </v-list-item>
+        </VListItem>
       </template>
-    </v-autocomplete>
+    </VAutocomplete>
 
     <template #append>
-      <v-btn :icon="isSearchMode ? 'mdi-close' : 'mdi-magnify'" @click="toggleSearch" />
+      <VBtn :icon="isSearchMode ? 'mdi-close' : 'mdi-magnify'" @click="toggleSearch" />
     </template>
 
     <template #extension>
       <slot name="tabs" />
     </template>
-  </v-app-bar>
+  </VAppBar>
 </template>

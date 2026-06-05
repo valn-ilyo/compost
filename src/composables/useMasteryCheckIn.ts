@@ -58,8 +58,8 @@ export function useMasteryCheckIn() {
   // the "streak lost" notices don't persist into the next session.
   watch(
     () => store.allLoggedToday,
-    (allDone) => {
-      if (allDone) store.clearReconcileEvents()
+    (isAllDone) => {
+      if (isAllDone) store.clearReconcileEvents()
     },
   )
 

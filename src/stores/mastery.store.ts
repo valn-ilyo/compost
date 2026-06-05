@@ -40,7 +40,7 @@ function buildUserHabit(
   template: HabitTemplate,
   streakVal: number,
   isMasteredVal: boolean,
-  freezeUsedVal: boolean,
+  wasFreezeUsed: boolean,
 ): UserHabit {
   return {
     id: template.id,
@@ -55,7 +55,7 @@ function buildUserHabit(
     streak: streakVal,
     lastLoggedDate: null,
     isPaused: false,
-    freezeUsed: freezeUsedVal,
+    freezeUsed: wasFreezeUsed,
     isMastered: isMasteredVal,
   }
 }
@@ -193,10 +193,10 @@ export const useMasteryStore = defineStore(
     const freezeCount = computed((): number => {
       const raw = freezeLedger.value.reduce((sum, row) => {
         if (row.reason !== 'spent') return sum + row.delta
-        const logArrived = habitLogs.value.some(
+        const hasLogArrived = habitLogs.value.some(
           (l) => l.template_id === row.template_id && l.date === row.date,
         )
-        return logArrived ? sum : sum + row.delta
+        return hasLogArrived ? sum : sum + row.delta
       }, 0)
       return Math.max(raw, DEBT_FLOOR)
     })
@@ -578,6 +578,7 @@ export const useMasteryStore = defineStore(
     //
     // Called by AuthView on cold start and by App.vue on reconnect.
 
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     async function hydrateFromSupabase(newUserId: string, _forceRemote = false): Promise<void> {
       userId.value = newUserId
 
@@ -654,22 +655,22 @@ export const useMasteryStore = defineStore(
     }
 
     function mergeHabitLog(row: HabitLog): void {
-      const exists = habitLogs.value.some(
+      const isPresent = habitLogs.value.some(
         (l) => l.template_id === row.template_id && l.date === row.date,
       )
-      if (!exists) habitLogs.value.push(row)
+      if (!isPresent) habitLogs.value.push(row)
     }
 
     function mergeFreezeLedgerRow(row: FreezeLedgerRow): void {
-      const exists = freezeLedger.value.some(
+      const isPresent = freezeLedger.value.some(
         (r) => r.template_id === row.template_id && r.date === row.date && r.reason === row.reason,
       )
-      if (!exists) freezeLedger.value.push(row)
+      if (!isPresent) freezeLedger.value.push(row)
     }
 
     function mergeMasteredArchiveRow(row: MasteredEntry): void {
-      const exists = masteredArchive.value.some((m) => m.template_id === row.template_id)
-      if (!exists) masteredArchive.value.push(row)
+      const isPresent = masteredArchive.value.some((m) => m.template_id === row.template_id)
+      if (!isPresent) masteredArchive.value.push(row)
     }
 
     return {

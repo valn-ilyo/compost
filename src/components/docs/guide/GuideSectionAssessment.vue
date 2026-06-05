@@ -17,8 +17,8 @@ const sectionRows = computed(() =>
 <template>
   <section id="assessment">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Assessment</div>
-    <v-card flat rounded="xl" class="mb-8">
-      <v-card-text class="pb-1">
+    <VCard flat rounded="xl" class="mb-8">
+      <VCardText class="pb-1">
         <p class="text-body-2 mb-3">
           The assessment has seven sections. You can complete them in any order and return to finish
           them whenever you want.
@@ -36,11 +36,11 @@ const sectionRows = computed(() =>
           You can't edit a section once it's submitted. Resetting your answers starts over
           completely.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-table density="comfortable">
+      <VTable density="comfortable">
         <thead>
           <tr>
             <th class="text-left text-body-2">Section</th>
@@ -55,7 +55,7 @@ const sectionRows = computed(() =>
             <td class="text-body-2 text-medium-emphasis">{{ row.weight }}%</td>
           </tr>
         </tbody>
-      </v-table>
-    </v-card>
+      </VTable>
+    </VCard>
   </section>
 </template>

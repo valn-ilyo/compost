@@ -61,18 +61,18 @@ async function deleteAccount() {
 </script>
 
 <template>
-  <v-app-bar color="surface" flat>
-    <v-app-bar-title>
+  <VAppBar color="surface" flat>
+    <VAppBarTitle>
       <span class="font-condensed">{{ profileStore.userEmail || 'Profile' }}</span>
-    </v-app-bar-title>
+    </VAppBarTitle>
 
     <template #append>
-      <v-menu>
+      <VMenu>
         <template #activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-cog-outline" />
+          <VBtn v-bind="props" icon="mdi-cog-outline" />
         </template>
-        <v-list elevation="1" density="compact" rounded="lg" bg-color="surface-light">
-          <v-list-item
+        <VList elevation="1" density="compact" rounded="lg" bg-color="surface-light">
+          <VListItem
             :prepend-icon="
               themeStore.currentTheme === 'light'
                 ? 'mdi-moon-waning-crescent'
@@ -81,12 +81,12 @@ async function deleteAccount() {
             :title="themeStore.currentTheme === 'light' ? 'Dark mode' : 'Light mode'"
             @click="themeStore.toggleTheme()"
           />
-          <v-list-item
+          <VListItem
             :prepend-icon="themeStore.contrastIcon"
             :title="themeStore.contrastLabel"
             @click="themeStore.cycleContrast()"
           />
-          <v-list-item
+          <VListItem
             prepend-icon="mdi-delete-sweep-outline"
             :title="
               syncStore.status !== 'offline' ? 'Reset assessments' : 'Reset requires connection'
@@ -95,31 +95,31 @@ async function deleteAccount() {
             :disabled="syncStore.status === 'offline'"
             @click="showConfirmDialog = true"
           />
-          <v-divider class="my-1" />
-          <v-list-item
+          <VDivider class="my-1" />
+          <VListItem
             prepend-icon="mdi-account-remove-outline"
             title="Delete account"
             base-color="error"
             @click="showDeleteDialog = true"
           />
-        </v-list>
-      </v-menu>
+        </VList>
+      </VMenu>
 
-      <v-btn icon="mdi-information-variant" to="/docs" />
+      <VBtn icon="mdi-information-variant" to="/docs" />
     </template>
-  </v-app-bar>
+  </VAppBar>
 
   <!-- ─── Reset assessments dialog ───────────────────────────────────────── -->
-  <v-dialog v-model="showConfirmDialog" width="auto" :persistent="isResetting">
-    <v-card rounded="lg">
-      <v-card-title class="pt-6 px-6">Clear all assessments?</v-card-title>
-      <v-card-text class="px-6 text-medium-emphasis">
+  <VDialog v-model="showConfirmDialog" width="auto" :persistent="isResetting">
+    <VCard rounded="lg">
+      <VCardTitle class="pt-6 px-6">Clear all assessments?</VCardTitle>
+      <VCardText class="px-6 text-medium-emphasis">
         All your answers will be deleted. This can't be undone.
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="error" variant="text" :loading="isResetting" @click="clearAll"> Reset </v-btn>
-        <v-btn
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn color="error" variant="text" :loading="isResetting" @click="clearAll"> Reset </VBtn>
+        <VBtn
           color="primary"
           variant="flat"
           rounded="lg"
@@ -127,24 +127,24 @@ async function deleteAccount() {
           @click="showConfirmDialog = false"
         >
           Keep it
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 
   <!-- ─── Delete account dialog ──────────────────────────────────────────── -->
-  <v-dialog v-model="showDeleteDialog" width="auto" :persistent="isDeleting">
-    <v-card rounded="lg">
-      <v-card-title class="pt-6 px-6">Delete your account?</v-card-title>
-      <v-card-text class="px-6 text-medium-emphasis">
+  <VDialog v-model="showDeleteDialog" width="auto" :persistent="isDeleting">
+    <VCard rounded="lg">
+      <VCardTitle class="pt-6 px-6">Delete your account?</VCardTitle>
+      <VCardText class="px-6 text-medium-emphasis">
         This deletes your profile, answers, and habit data for good. It can't be undone.
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="error" variant="text" :loading="isDeleting" @click="deleteAccount">
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn color="error" variant="text" :loading="isDeleting" @click="deleteAccount">
           Delete
-        </v-btn>
-        <v-btn
+        </VBtn>
+        <VBtn
           color="primary"
           variant="flat"
           rounded="lg"
@@ -152,8 +152,8 @@ async function deleteAccount() {
           @click="showDeleteDialog = false"
         >
           Keep it
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>

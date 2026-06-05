@@ -20,14 +20,14 @@ onMounted(() => {
 
 <template>
   <AssessmentAppBar />
-  <v-container fluid class="pa-0">
-    <v-tabs-window v-model="store.activeTab">
-      <v-tabs-window-item value="checkin">
+  <VContainer fluid class="pa-0">
+    <VTabsWindow v-model="store.activeTab">
+      <VTabsWindowItem value="checkin">
         <CheckInTab />
-      </v-tabs-window-item>
-      <v-tabs-window-item value="insights">
+      </VTabsWindowItem>
+      <VTabsWindowItem value="insights">
         <InsightsTab />
-      </v-tabs-window-item>
-    </v-tabs-window>
-  </v-container>
+      </VTabsWindowItem>
+    </VTabsWindow>
+  </VContainer>
 </template>

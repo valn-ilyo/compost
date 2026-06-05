@@ -59,7 +59,7 @@ function handleRemoveClick(): void {
 </script>
 
 <template>
-  <v-list-item
+  <VListItem
     density="compact"
     min-height="0"
     class="py-3"
@@ -71,7 +71,7 @@ function handleRemoveClick(): void {
     "
   >
     <template #prepend>
-      <v-icon
+      <VIcon
         v-motion
         :initial="{ opacity: 0, x: -10 }"
         :enter="{
@@ -100,7 +100,7 @@ function handleRemoveClick(): void {
     </template>
 
     <template v-if="streakChip" #subtitle>
-      <v-chip
+      <VChip
         v-motion
         :initial="{ opacity: 0, y: 6 }"
         :enter="{
@@ -114,14 +114,14 @@ function handleRemoveClick(): void {
         class="text-wrap"
       >
         {{ streakChip.label }}
-      </v-chip>
+      </VChip>
     </template>
 
     <!-- No menu for mastered habits - tap the card instead -->
     <template v-if="!habit.isMastered" #append>
-      <v-menu location="bottom end">
+      <VMenu location="bottom end">
         <template #activator="{ props: menuProps }">
-          <v-btn
+          <VBtn
             v-bind="menuProps"
             icon="mdi-dots-vertical"
             variant="text"
@@ -131,8 +131,8 @@ function handleRemoveClick(): void {
             @click.stop
           />
         </template>
-        <v-list density="compact" rounded="lg">
-          <v-list-item
+        <VList density="compact" rounded="lg">
+          <VListItem
             v-if="habit.streak > 0"
             title="Pause"
             prepend-icon="mdi-pause"
@@ -140,39 +140,39 @@ function handleRemoveClick(): void {
             base-color="warning"
             @click="emit('pause', habit.templateId)"
           />
-          <v-list-item
+          <VListItem
             title="Remove"
             prepend-icon="mdi-close"
             rounded="lg"
             base-color="error"
             @click="handleRemoveClick"
           />
-        </v-list>
-      </v-menu>
+        </VList>
+      </VMenu>
     </template>
-  </v-list-item>
+  </VListItem>
 
   <!-- Retirement bottom sheet - mastered habits only -->
   <MasteryRetireSheet v-model="isRetireSheetOpen" :habit="habit" @retire="emit('retire', $event)" />
 
   <!-- Confirmation dialog - only reachable when habit.streak > 0 -->
-  <v-dialog v-model="isConfirmRemoveOpen" max-width="320">
-    <v-card rounded="xl">
-      <v-card-item class="pt-5 pb-1">
+  <VDialog v-model="isConfirmRemoveOpen" max-width="320">
+    <VCard rounded="xl">
+      <VCardItem class="pt-5 pb-1">
         <template #prepend>
-          <v-icon icon="mdi-fire" color="error" />
+          <VIcon icon="mdi-fire" color="error" />
         </template>
-        <v-card-title class="text-body-1 font-weight-bold">
+        <VCardTitle class="text-body-1 font-weight-bold">
           Drop your {{ habit.streak }}-day streak?
-        </v-card-title>
-      </v-card-item>
+        </VCardTitle>
+      </VCardItem>
 
-      <v-card-text class="text-body-2 text-medium-emphasis">
+      <VCardText class="text-body-2 text-medium-emphasis">
         This deletes the streak for good. Pause it instead if you might come back.
-      </v-card-text>
+      </VCardText>
 
-      <v-card-actions class="px-4 pb-4 gap-2">
-        <v-btn
+      <VCardActions class="px-4 pb-4 gap-2">
+        <VBtn
           variant="text"
           color="error"
           rounded="lg"
@@ -183,8 +183,8 @@ function handleRemoveClick(): void {
           "
         >
           Remove
-        </v-btn>
-        <v-btn
+        </VBtn>
+        <VBtn
           variant="flat"
           color="primary"
           rounded="lg"
@@ -192,10 +192,10 @@ function handleRemoveClick(): void {
           @click="isConfirmRemoveOpen = false"
         >
           Keep it
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <style scoped>

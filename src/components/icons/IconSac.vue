@@ -8,11 +8,8 @@ const dim = computed(() => `${props.size ?? 24}px`)
 </script>
 
 <template>
-  <span
-    v-html="sacSvg"
-    :style="{ width: dim, height: dim, display: 'inline-flex', flexShrink: 0 }"
-    class="sac-icon"
-  />
+  <!-- eslint-disable-next-line vue/no-v-html -->
+  <span :style="{ width: dim, height: dim, display: 'inline-flex', flexShrink: 0 }" class="sac-icon" v-html="sacSvg" />
 </template>
 
 <style scoped>

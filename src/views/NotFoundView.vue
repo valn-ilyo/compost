@@ -5,13 +5,13 @@ const router = useRouter()
 </script>
 
 <template>
-  <v-sheet
+  <VSheet
     color="background"
     class="d-flex flex-column align-center justify-center w-100 px-2"
     style="min-height: 100dvh"
   >
-    <v-card class="w-100 w-sm-75 w-md-50 w-lg-33 pa-2 text-center" color="background" elevation="0">
-      <v-icon
+    <VCard class="w-100 w-sm-75 w-md-50 w-lg-33 pa-2 text-center" color="background" elevation="0">
+      <VIcon
         v-motion
         :initial="{ opacity: 0, scale: 0.7 }"
         :enter="{
@@ -25,7 +25,7 @@ const router = useRouter()
         class="mb-6"
       />
 
-      <v-card-title
+      <VCardTitle
         v-motion
         :initial="{ opacity: 0, y: 12 }"
         :enter="{
@@ -36,9 +36,9 @@ const router = useRouter()
         class="text-body-1 font-weight-bold text-wrap"
       >
         Page not found
-      </v-card-title>
+      </VCardTitle>
 
-      <v-card-text
+      <VCardText
         v-motion
         :initial="{ opacity: 0, y: 12 }"
         :enter="{
@@ -49,9 +49,9 @@ const router = useRouter()
         class="text-medium-emphasis"
       >
         This page doesn't exist. Head back and keep going.
-      </v-card-text>
+      </VCardText>
 
-      <v-card-actions
+      <VCardActions
         v-motion
         :initial="{ opacity: 0, y: 12 }"
         :enter="{
@@ -61,18 +61,18 @@ const router = useRouter()
         }"
         class="d-flex flex-column align-center justify-center"
       >
-        <v-btn
+        <VBtn
           color="primary"
           rounded="lg"
           size="large"
           flat
           class="text-none"
-          @click="router.push('/')"
           prepend-icon="mdi-home-outline"
+          @click="router.push('/')"
         >
           Go home
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-sheet>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VSheet>
 </template>

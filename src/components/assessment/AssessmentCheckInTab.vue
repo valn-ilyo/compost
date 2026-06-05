@@ -42,7 +42,7 @@ function timeHint(sectionId: string): string {
 </script>
 
 <template>
-  <v-container>
+  <VContainer>
     <div>
       <div class="text-center">
         <h1
@@ -82,9 +82,9 @@ function timeHint(sectionId: string): string {
         </p>
       </div>
 
-      <v-row>
-        <v-col v-for="(section, index) in sortedSections" :key="section.id" cols="12" sm="4">
-          <v-card
+      <VRow>
+        <VCol v-for="(section, index) in sortedSections" :key="section.id" cols="12" sm="4">
+          <VCard
             v-motion
             :initial="{ opacity: 0, y: 32, scale: 0.97 }"
             :enter="{
@@ -102,14 +102,14 @@ function timeHint(sectionId: string): string {
             color="tertiary-container"
           >
             <template #prepend>
-              <v-icon size="48" :icon="section.icon" color="tertiary" />
+              <VIcon size="48" :icon="section.icon" color="tertiary" />
             </template>
             <template #title>
               {{ section.label }}
             </template>
-            <v-card-text>{{ section.description }}</v-card-text>
-            <v-card-actions>
-              <v-btn
+            <VCardText>{{ section.description }}</VCardText>
+            <VCardActions>
+              <VBtn
                 :hovered="{ scale: 1.03, transition: { duration: 150 } }"
                 :tapped="{ scale: 0.95, transition: { duration: 80 } }"
                 :to="`/assessment/${section.id}`"
@@ -120,11 +120,11 @@ function timeHint(sectionId: string): string {
                 :append-icon="store.isCompleted(section.id) ? 'mdi-refresh' : 'mdi-arrow-right'"
               >
                 {{ store.isCompleted(section.id) ? 'Retake' : 'Start' }}
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
+              </VBtn>
+            </VCardActions>
+          </VCard>
+        </VCol>
+      </VRow>
     </div>
-  </v-container>
+  </VContainer>
 </template>

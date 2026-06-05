@@ -28,11 +28,11 @@ function handleBeforeInstallPrompt(e: Event): void {
   }
 }
 
-let initialized = false
+let isInitialized = false
 
 function init(): void {
-  if (initialized) return
-  initialized = true
+  if (isInitialized) return
+  isInitialized = true
 
   isPwa.value = isInStandaloneMode()
 

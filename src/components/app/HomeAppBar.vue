@@ -34,19 +34,19 @@ const cloudTooltip = computed(() => {
 </script>
 
 <template>
-  <v-app-bar color="surface" flat>
+  <VAppBar color="surface" flat>
     <template #prepend>
-      <v-app-bar-nav-icon :ripple="false" style="cursor: default; pointer-events: none">
-        <v-icon icon="custom:sac" size="48" />
-      </v-app-bar-nav-icon>
+      <VAppBarNavIcon :ripple="false" style="cursor: default; pointer-events: none">
+        <VIcon icon="custom:sac" size="48" />
+      </VAppBarNavIcon>
     </template>
 
-    <v-app-bar-title>Compost</v-app-bar-title>
+    <VAppBarTitle>Compost</VAppBarTitle>
 
     <template #append>
-      <v-tooltip :text="cloudTooltip" location="bottom">
+      <VTooltip :text="cloudTooltip" location="bottom">
         <template #activator="{ props }">
-          <v-btn
+          <VBtn
             v-bind="props"
             :icon="cloudIcon"
             :color="cloudColor"
@@ -57,16 +57,16 @@ const cloudTooltip = computed(() => {
             style="cursor: default"
           />
         </template>
-      </v-tooltip>
+      </VTooltip>
 
-      <v-btn
+      <VBtn
         :icon="
           clockVisibleStore.clockVisible ? 'mdi-clock-minus-outline' : 'mdi-clock-plus-outline'
         "
         @click="clockVisibleStore.toggleClock()"
       />
     </template>
-  </v-app-bar>
+  </VAppBar>
 </template>
 
 <style scoped>

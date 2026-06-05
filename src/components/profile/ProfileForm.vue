@@ -106,8 +106,8 @@ function onDateSelect(val: Date | null) {
 </script>
 
 <template>
-  <v-form ref="form" v-model="isValid" validate-on="submit" @submit.prevent="handleSubmit">
-    <v-text-field
+  <VForm ref="form" v-model="isValid" validate-on="submit" @submit.prevent="handleSubmit">
+    <VTextField
       ref="nameField"
       v-model="formData.name"
       :rules="[rules.required]"
@@ -120,7 +120,7 @@ function onDateSelect(val: Date | null) {
       @keydown.enter.prevent="rollField?.focus()"
     />
 
-    <v-text-field
+    <VTextField
       ref="rollField"
       v-model="formData.rollNo"
       :rules="[rules.required, rules.rollNo]"
@@ -143,7 +143,7 @@ function onDateSelect(val: Date | null) {
       "
     />
 
-    <v-select
+    <VSelect
       ref="genderField"
       v-model="formData.gender"
       v-model:menu="isGenderMenuOpen"
@@ -160,9 +160,9 @@ function onDateSelect(val: Date | null) {
       "
     />
 
-    <v-menu v-model="isDobMenuOpen" :close-on-content-click="false">
+    <VMenu v-model="isDobMenuOpen" :close-on-content-click="false">
       <template #activator="{ props: activatorProps }">
-        <v-text-field
+        <VTextField
           ref="dobField"
           v-bind="activatorProps"
           :model-value="formData.dob"
@@ -180,25 +180,25 @@ function onDateSelect(val: Date | null) {
           "
         />
       </template>
-      <v-date-picker
+      <VDatePicker
         :model-value="dobRaw"
         :max="maxDob"
         color="primary"
         @update:model-value="onDateSelect"
       />
-    </v-menu>
+    </VMenu>
 
-    <v-card-actions v-if="editMode" class="px-0 pt-2 justify-end">
-      <v-btn
+    <VCardActions v-if="editMode" class="px-0 pt-2 justify-end">
+      <VBtn
         variant="text"
         color="secondary"
         class="text-none"
         :disabled="isLoading"
         @click="$emit('cancel')"
-        >Cancel</v-btn
+        >Cancel</VBtn
       >
-      <v-btn
-        :isLoading="isLoading"
+      <VBtn
+        :is-loading="isLoading"
         :disabled="disabled || isLoading"
         type="submit"
         color="primary"
@@ -206,13 +206,13 @@ function onDateSelect(val: Date | null) {
         rounded="lg"
         class="text-none font-weight-bold"
         append-icon="mdi-check"
-        >Save</v-btn
+        >Save</VBtn
       >
-    </v-card-actions>
+    </VCardActions>
 
-    <v-card-actions v-else class="px-0 pt-2 justify-end">
-      <v-btn
-        :isLoading="isLoading"
+    <VCardActions v-else class="px-0 pt-2 justify-end">
+      <VBtn
+        :is-loading="isLoading"
         :disabled="disabled || isLoading"
         type="submit"
         color="primary"
@@ -220,8 +220,8 @@ function onDateSelect(val: Date | null) {
         rounded="lg"
         class="text-none font-weight-bold"
         append-icon="mdi-arrow-right"
-        >Continue</v-btn
+        >Continue</VBtn
       >
-    </v-card-actions>
-  </v-form>
+    </VCardActions>
+  </VForm>
 </template>

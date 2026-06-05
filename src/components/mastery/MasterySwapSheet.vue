@@ -67,18 +67,18 @@ function close(): void {
 </script>
 
 <template>
-  <v-bottom-sheet
+  <VBottomSheet
     :model-value="modelValue"
     :max-width="mdAndUp ? '50%' : undefined"
     @update:model-value="close"
   >
-    <v-card
+    <VCard
       v-motion
       :initial="{ opacity: 0, y: 20 }"
       :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
       rounded="t-xl"
     >
-      <v-card-title
+      <VCardTitle
         v-motion
         :initial="{ opacity: 0, y: 8 }"
         :enter="{
@@ -89,20 +89,20 @@ function close(): void {
         class="pt-5 px-4"
       >
         Swap a habit
-      </v-card-title>
+      </VCardTitle>
 
-      <v-card-subtitle
+      <VCardSubtitle
         v-motion
         :initial="{ opacity: 0 }"
         :enter="{ opacity: 1, transition: { duration: 200, delay: 100 } }"
         class="px-4 pb-4 text-wrap"
       >
         {{ subtitleCopy }}
-      </v-card-subtitle>
+      </VCardSubtitle>
 
-      <v-divider />
+      <VDivider />
 
-      <v-list-item
+      <VListItem
         v-for="(habit, i) in store.activeHabits"
         :key="habit.id"
         v-motion
@@ -112,7 +112,7 @@ function close(): void {
         @click="confirmSwap(habit.templateId)"
       >
         <template #prepend>
-          <v-icon
+          <VIcon
             :icon="habit.streak > 0 ? 'mdi-fire' : 'mdi-sprout'"
             :color="habit.streak > 0 ? 'error' : 'success'"
             class="opacity-100"
@@ -123,15 +123,15 @@ function close(): void {
         </template>
         <template #append>
           <div class="d-flex align-center gap-2">
-            <v-chip v-if="habit.streak > 0" size="small" color="error" variant="tonal" class="ma-1">
+            <VChip v-if="habit.streak > 0" size="small" color="error" variant="tonal" class="ma-1">
               {{ habit.streak }}d
-            </v-chip>
-            <v-icon icon="mdi-swap-horizontal" color="info" />
+            </VChip>
+            <VIcon icon="mdi-swap-horizontal" color="info" />
           </div>
         </template>
-      </v-list-item>
+      </VListItem>
 
-      <v-card-actions
+      <VCardActions
         v-motion
         :initial="{ opacity: 0 }"
         :enter="{
@@ -140,10 +140,10 @@ function close(): void {
         }"
         class="pa-4 pt-2"
       >
-        <v-btn block variant="tonal" rounded="lg" @click="close">
+        <VBtn block variant="tonal" rounded="lg" @click="close">
           {{ closeBtnLabel }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-bottom-sheet>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VBottomSheet>
 </template>

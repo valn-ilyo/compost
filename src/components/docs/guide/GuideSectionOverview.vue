@@ -2,8 +2,8 @@
 <template>
   <section id="overview">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Overview</div>
-    <v-card flat rounded="xl" class="mb-8">
-      <v-card-text>
+    <VCard flat rounded="xl" class="mb-8">
+      <VCardText>
         <p class="text-body-2 mb-3">
           Find out what your daily habits actually cost the planet. Answer questions across
           transport, food, energy, consumption, water, waste, and digital use. See where you stand
@@ -17,7 +17,7 @@
           The app works offline. Anything you do without a connection syncs automatically when
           you're back online.
         </p>
-      </v-card-text>
-    </v-card>
+      </VCardText>
+    </VCard>
   </section>
 </template>

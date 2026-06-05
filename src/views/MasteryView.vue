@@ -60,24 +60,24 @@ watch(
 </script>
 
 <template>
-  <v-container class="pt-0 overflow-hidden">
-    <v-row justify="center">
-      <v-col cols="12" md="8">
+  <VContainer class="pt-0 overflow-hidden">
+    <VRow justify="center">
+      <VCol cols="12" md="8">
         <div
           v-motion
           :initial="{ opacity: 0, y: -12 }"
           :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
         >
-          <v-toolbar flat color="transparent">
-            <v-toolbar-title class="d-flex align-center">
+          <VToolbar flat color="transparent">
+            <VToolbarTitle class="d-flex align-center">
               Mastery
-              <v-chip variant="text" color="secondary" class="font-weight-bold count-chip">
+              <VChip variant="text" color="secondary" class="font-weight-bold count-chip">
                 <Transition name="count-swap" mode="out-in">
                   <span :key="store.usedSlots">{{ store.usedSlots }}</span>
                 </Transition>
                 <span>&nbsp;/ 3</span>
-              </v-chip>
-            </v-toolbar-title>
+              </VChip>
+            </VToolbarTitle>
             <template #append>
               <div class="d-flex align-center">
                 <MasteryFreezeInfo
@@ -91,7 +91,7 @@ watch(
                 />
               </div>
             </template>
-          </v-toolbar>
+          </VToolbar>
         </div>
 
         <Transition name="mastery-section" mode="out-in">
@@ -99,7 +99,7 @@ watch(
             v-if="store.activeHabits.length === 0 && store.masteredHabits.length === 0"
             key="empty"
           >
-            <v-alert
+            <VAlert
               type="success"
               variant="text"
               icon="mdi-sprout"
@@ -110,7 +110,7 @@ watch(
           </div>
 
           <div v-else key="habits">
-            <v-card variant="outlined" rounded="lg" class="mb-4 overflow-hidden">
+            <VCard variant="outlined" rounded="lg" class="mb-4 overflow-hidden">
               <TransitionGroup name="habit" tag="div" class="habit-list">
                 <div v-for="habit in store.masteredHabits" :key="habit.id" class="habit-row">
                   <HabitCard
@@ -134,11 +134,11 @@ watch(
                   />
                 </div>
               </TransitionGroup>
-            </v-card>
+            </VCard>
 
-            <v-expand-transition>
+            <VExpandTransition>
               <div v-if="!showAllLogged && store.activeHabits.length > 0">
-                <v-btn
+                <VBtn
                   block
                   size="large"
                   color="primary"
@@ -150,19 +150,19 @@ watch(
                   <Transition name="label-swap" mode="out-in">
                     <span :key="logLabel" class="label-text">{{ logLabel }}</span>
                   </Transition>
-                </v-btn>
+                </VBtn>
               </div>
-            </v-expand-transition>
+            </VExpandTransition>
 
-            <v-expand-transition>
+            <VExpandTransition>
               <div v-if="showAllLogged">
                 <AllLoggedCard class="mb-6" />
               </div>
-            </v-expand-transition>
+            </VExpandTransition>
           </div>
         </Transition>
 
-        <v-divider class="mb-6" />
+        <VDivider class="mb-6" />
 
         <div
           v-motion
@@ -180,9 +180,9 @@ watch(
         >
           <HabitLibrary :recommended-ids="recommendedIds" @add="handleAdd" @resume="handleResume" />
         </div>
-      </v-col>
-    </v-row>
-  </v-container>
+      </VCol>
+    </VRow>
+  </VContainer>
 
   <MasteryCheckinSheet v-model="checkinOpen" :habit-id="checkinHabitId" @done="handleCheckinDone" />
   <MasterySwapSheet

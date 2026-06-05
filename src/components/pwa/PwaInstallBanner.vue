@@ -12,7 +12,7 @@ defineEmits<{
 </script>
 
 <template>
-  <v-card
+  <VCard
     v-if="show"
     v-motion
     :initial="{ opacity: 0, y: 16, scale: 0.97 }"
@@ -29,65 +29,65 @@ defineEmits<{
   >
     <!-- Android: native prompt -->
     <template v-if="hasInstallPrompt">
-      <v-card-item>
+      <VCardItem>
         <template #prepend>
-          <v-icon icon="mdi-cellphone-arrow-down" color="secondary" />
+          <VIcon icon="mdi-cellphone-arrow-down" color="secondary" />
         </template>
-        <v-card-title>
+        <VCardTitle>
           <div class="text-label-small text-uppercase">Get the app</div>
           <div class="text-title-large">Install Compost</div>
-        </v-card-title>
-      </v-card-item>
+        </VCardTitle>
+      </VCardItem>
     </template>
 
     <!-- iOS: manual Add to Home Screen -->
     <template v-else-if="isIos">
-      <v-card-item class="pb-0">
+      <VCardItem class="pb-0">
         <template #prepend>
-          <v-icon icon="mdi-apple" color="secondary" />
+          <VIcon icon="mdi-apple" color="secondary" />
         </template>
-        <v-card-title>
+        <VCardTitle>
           <div class="text-label-small text-uppercase">Get the app</div>
           <div class="text-title-large">Add to Home Screen</div>
-        </v-card-title>
-      </v-card-item>
+        </VCardTitle>
+      </VCardItem>
     </template>
 
-    <v-card-text v-if="isIos && !hasInstallPrompt" class="pt-0">
+    <VCardText v-if="isIos && !hasInstallPrompt" class="pt-0">
       <!-- iOS steps -->
-      <v-list density="compact" bg-color="transparent" class="pa-0 mt-2">
-        <v-list-item class="px-0" min-height="28">
+      <VList density="compact" bg-color="transparent" class="pa-0 mt-2">
+        <VListItem class="px-0" min-height="28">
           <template #prepend>
             <span class="text-body-medium text-on-secondary-container mr-3">1.</span>
           </template>
-          <v-list-item-title class="text-body-medium text-on-secondary-container text-wrap">
-            Tap <v-icon size="14" icon="mdi-export-variant" /> <strong>Share</strong> in Safari
-          </v-list-item-title>
-        </v-list-item>
-        <v-list-item class="px-0" min-height="28">
+          <VListItemTitle class="text-body-medium text-on-secondary-container text-wrap">
+            Tap <VIcon size="14" icon="mdi-export-variant" /> <strong>Share</strong> in Safari
+          </VListItemTitle>
+        </VListItem>
+        <VListItem class="px-0" min-height="28">
           <template #prepend>
             <span class="text-body-medium text-on-secondary-container mr-3">2.</span>
           </template>
-          <v-list-item-title class="text-body-medium text-on-secondary-container text-wrap">
+          <VListItemTitle class="text-body-medium text-on-secondary-container text-wrap">
             Tap <strong>Add to Home Screen</strong>
-          </v-list-item-title>
-        </v-list-item>
-        <v-list-item class="px-0" min-height="28">
+          </VListItemTitle>
+        </VListItem>
+        <VListItem class="px-0" min-height="28">
           <template #prepend>
             <span class="text-body-medium text-on-secondary-container mr-3">3.</span>
           </template>
-          <v-list-item-title class="text-body-medium text-on-secondary-container text-wrap">
+          <VListItemTitle class="text-body-medium text-on-secondary-container text-wrap">
             Tap <strong>Add</strong>
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-card-text>
+          </VListItemTitle>
+        </VListItem>
+      </VList>
+    </VCardText>
 
-    <v-card-actions v-if="hasInstallPrompt">
-      <v-spacer />
-      <v-btn variant="flat" rounded="lg" color="secondary" @click="$emit('install')">
+    <VCardActions v-if="hasInstallPrompt">
+      <VSpacer />
+      <VBtn variant="flat" rounded="lg" color="secondary" @click="$emit('install')">
         Install
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      </VBtn>
+    </VCardActions>
+  </VCard>
 </template>

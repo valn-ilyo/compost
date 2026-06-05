@@ -23,9 +23,9 @@ function handleLogoutClick() {
 
 <template>
   <ProfileAppBar />
-  <v-container class="pt-0">
-    <v-row justify="center">
-      <v-col cols="12" sm="10" md="8" lg="6" xl="4">
+  <VContainer class="pt-0">
+    <VRow justify="center">
+      <VCol cols="12" sm="10" md="8" lg="6" xl="4">
         <h1
           v-motion
           :initial="{ opacity: 0, y: 24 }"
@@ -42,7 +42,7 @@ function handleLogoutClick() {
         >
           Details
         </div>
-        <v-card
+        <VCard
           v-motion
           :initial="{ opacity: 0, y: 16 }"
           :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
@@ -50,26 +50,26 @@ function handleLogoutClick() {
           border
           flat
         >
-          <v-list lines="two">
-            <v-list-item
+          <VList lines="two">
+            <VListItem
               prepend-icon="mdi-identifier"
               title="Roll Number"
               :subtitle="store.profile?.roll_no || 'Not set'"
             />
-            <v-divider />
-            <v-list-item
+            <VDivider />
+            <VListItem
               prepend-icon="mdi-gender-male-female"
               title="Gender"
               :subtitle="store.profile?.gender || 'Not set'"
             />
-            <v-divider />
-            <v-list-item
+            <VDivider />
+            <VListItem
               prepend-icon="mdi-calendar-outline"
               title="Date of Birth"
               :subtitle="store.profile?.dob || 'Not set'"
             />
-          </v-list>
-        </v-card>
+          </VList>
+        </VCard>
         <div
           v-motion
           :initial="{ opacity: 0 }"
@@ -78,7 +78,7 @@ function handleLogoutClick() {
         >
           Actions
         </div>
-        <v-card
+        <VCard
           v-motion
           :initial="{ opacity: 0, y: 16 }"
           :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }"
@@ -86,7 +86,7 @@ function handleLogoutClick() {
           rounded="xl pa-0"
           border
         >
-          <v-list-item
+          <VListItem
             prepend-icon="mdi-pencil-outline"
             title="Edit profile"
             link
@@ -95,8 +95,8 @@ function handleLogoutClick() {
             size="large"
           />
           <template v-if="store.profile?.is_admin">
-            <v-divider />
-            <v-list-item
+            <VDivider />
+            <VListItem
               prepend-icon="mdi-shield-outline"
               title="Admin"
               link
@@ -104,16 +104,16 @@ function handleLogoutClick() {
               size="large"
             />
           </template>
-          <v-divider />
-          <v-list-item
+          <VDivider />
+          <VListItem
             prepend-icon="mdi-comment-alert-outline"
             title="Feedback & support"
             size="large"
             link
             @click="openFeedbackForm"
           />
-          <v-divider />
-          <v-list-item
+          <VDivider />
+          <VListItem
             prepend-icon="mdi-logout"
             base-color="error"
             link
@@ -122,24 +122,24 @@ function handleLogoutClick() {
             :disabled="loggingOut"
             @click="handleLogoutClick"
           >
-            <v-list-item-title :class="{ 'text-flashing': loggingOut }">
+            <VListItemTitle :class="{ 'text-flashing': loggingOut }">
               {{ loggingOut ? 'Logging out…' : 'Logout' }}
-            </v-list-item-title>
-          </v-list-item>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+            </VListItemTitle>
+          </VListItem>
+        </VCard>
+      </VCol>
+    </VRow>
+  </VContainer>
 
-  <v-dialog v-model="showLogoutWarning" max-width="360">
-    <v-card rounded="xl">
-      <v-card-title class="text-body-1 font-weight-bold pt-5 px-5"> Unsynced changes </v-card-title>
-      <v-card-text class="px-5 text-body-2 text-medium-emphasis">
+  <VDialog v-model="showLogoutWarning" max-width="360">
+    <VCard rounded="xl">
+      <VCardTitle class="text-body-1 font-weight-bold pt-5 px-5"> Unsynced changes </VCardTitle>
+      <VCardText class="px-5 text-body-2 text-medium-emphasis">
         You're offline or your data hasn't finished saving. Log out now and these changes won't be
         backed up to your account.
-      </v-card-text>
-      <v-card-actions class="px-5 pb-5 gap-2">
-        <v-btn
+      </VCardText>
+      <VCardActions class="px-5 pb-5 gap-2">
+        <VBtn
           color="error"
           variant="tonal"
           :loading="loggingOut"
@@ -151,12 +151,12 @@ function handleLogoutClick() {
           "
         >
           Log out anyway
-        </v-btn>
-        <v-spacer />
-        <v-btn variant="text" @click="showLogoutWarning = false">Keep syncing</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        </VBtn>
+        <VSpacer />
+        <VBtn variant="text" @click="showLogoutWarning = false">Keep syncing</VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <style scoped>

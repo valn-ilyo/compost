@@ -7,12 +7,12 @@ const router = useRouter()
 </script>
 
 <template>
-  <v-sheet
+  <VSheet
     color="background"
     class="d-flex flex-column align-center justify-center w-100"
     style="min-height: 100dvh"
   >
-    <v-card
+    <VCard
       v-motion
       :initial="{ opacity: 0, y: 24, scale: 0.97 }"
       :enter="{
@@ -26,8 +26,8 @@ const router = useRouter()
       elevation="0"
       style="opacity: 0"
     >
-      <v-card-item class="pa-6 pb-0">
-        <v-card-title
+      <VCardItem class="pa-6 pb-0">
+        <VCardTitle
           v-motion
           :initial="{ opacity: 0, y: 8 }"
           :enter="{
@@ -37,9 +37,9 @@ const router = useRouter()
           }"
           class="font-weight-bold text-onSecondaryContainer"
           style="opacity: 0"
-          >Edit Profile</v-card-title
+          >Edit Profile</VCardTitle
         >
-        <v-card-subtitle
+        <VCardSubtitle
           v-motion
           :initial="{ opacity: 0 }"
           :enter="{ opacity: 1, transition: { duration: 200, delay: 140 } }"
@@ -47,10 +47,10 @@ const router = useRouter()
           style="opacity: 0"
         >
           Change anything you need.
-        </v-card-subtitle>
-      </v-card-item>
+        </VCardSubtitle>
+      </VCardItem>
 
-      <v-card-text
+      <VCardText
         v-motion
         :initial="{ opacity: 0, y: 12 }"
         :enter="{
@@ -62,7 +62,7 @@ const router = useRouter()
         style="opacity: 0"
       >
         <ProfileForm :edit-mode="true" @cancel="router.push('/profile')" />
-      </v-card-text>
-    </v-card>
-  </v-sheet>
+      </VCardText>
+    </VCard>
+  </VSheet>
 </template>

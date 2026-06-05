@@ -31,8 +31,8 @@ function onItemClick(item: NavItem) {
 </script>
 
 <template>
-  <v-list nav density="compact" class="py-2 px-2">
-    <v-list-item
+  <VList nav density="compact" class="py-2 px-2">
+    <VListItem
       v-for="item in navItems"
       :key="item.id"
       :prepend-icon="item.icon"
@@ -42,5 +42,5 @@ function onItemClick(item: NavItem) {
       rounded="lg"
       @click="onItemClick(item)"
     />
-  </v-list>
+  </VList>
 </template>

@@ -9,6 +9,10 @@ const props = defineProps<{
   recommendedIds?: string[]
 }>()
 
+const emit = defineEmits<{
+  add: [templateId: string]
+  resume: [habitId: string]
+}>()
 const store = useMasteryStore()
 const showAll = ref(false)
 const expandedId = ref<string | null>(null)
@@ -46,11 +50,6 @@ const grouped = computed(() => ({
   active: templates.value.filter((t) => t.isActive),
 }))
 
-const emit = defineEmits<{
-  add: [templateId: string]
-  resume: [habitId: string]
-}>()
-
 function formatStreak(days: number): string {
   if (days < 7) return `${days}-day`
   if (days < 30) return `${Math.floor(days / 7)}-week`
@@ -60,7 +59,7 @@ function formatStreak(days: number): string {
 </script>
 
 <template>
-  <v-card
+  <VCard
     v-motion
     :initial="{ opacity: 0, scale: 0.97, y: 20 }"
     :enter="{
@@ -74,7 +73,7 @@ function formatStreak(days: number): string {
     flat
     class="overflow-hidden"
   >
-    <v-card-item
+    <VCardItem
       v-motion
       :initial="{ opacity: 0 }"
       :enter="{
@@ -83,13 +82,13 @@ function formatStreak(days: number): string {
       }"
       class="pt-4 px-4 pb-0"
     >
-      <v-card-title class="text-center">Habit Library</v-card-title>
-    </v-card-item>
+      <VCardTitle class="text-center">Habit Library</VCardTitle>
+    </VCardItem>
 
-    <v-list lines="two" bg-color="transparent" class="pt-2">
+    <VList lines="two" bg-color="transparent" class="pt-2">
       <!-- ─── Paused ──────────────────────────────────────────────────────────────── -->
       <template v-if="grouped.paused.length">
-        <v-list-subheader
+        <VListSubheader
           v-motion
           :initial="{ opacity: 0 }"
           :enter="{
@@ -99,10 +98,10 @@ function formatStreak(days: number): string {
           class="mt-1"
         >
           Pick up where you left off
-        </v-list-subheader>
+        </VListSubheader>
 
         <template v-for="(t, i) in grouped.paused" :key="t.id">
-          <v-divider v-if="i > 0" />
+          <VDivider v-if="i > 0" />
           <HabitListItem
             :delay="160 + i * 70"
             :habit="t"
@@ -121,7 +120,7 @@ function formatStreak(days: number): string {
 
       <!-- ─── Recommendations ──────────────────────────────────────────────────── -->
       <template v-if="grouped.recommended.length">
-        <v-list-subheader
+        <VListSubheader
           v-motion
           :initial="{ opacity: 0 }"
           :enter="{
@@ -131,10 +130,10 @@ function formatStreak(days: number): string {
           :class="grouped.paused.length ? 'mt-3' : 'mt-1'"
         >
           Recommendations
-        </v-list-subheader>
+        </VListSubheader>
 
         <template v-for="(t, i) in grouped.recommended" :key="t.id">
-          <v-divider v-if="i > 0" />
+          <VDivider v-if="i > 0" />
           <HabitListItem
             :delay="200 + grouped.paused.length * 70 + i * 70"
             :habit="t"
@@ -151,7 +150,7 @@ function formatStreak(days: number): string {
 
       <!-- ─── Available (first 3) ───────────────────────────────────────────────── -->
       <template v-if="grouped.available.length">
-        <v-list-subheader
+        <VListSubheader
           v-motion
           :initial="{ opacity: 0 }"
           :enter="{
@@ -164,10 +163,10 @@ function formatStreak(days: number): string {
           :class="grouped.paused.length || grouped.recommended.length ? 'mt-3' : 'mt-1'"
         >
           Fresh starts
-        </v-list-subheader>
+        </VListSubheader>
 
         <template v-for="(t, i) in grouped.available.slice(0, 3)" :key="t.id">
-          <v-divider v-if="i > 0" />
+          <VDivider v-if="i > 0" />
           <HabitListItem
             :delay="200 + grouped.paused.length * 70 + grouped.recommended.length * 70 + i * 70"
             :habit="t"
@@ -183,10 +182,10 @@ function formatStreak(days: number): string {
       </template>
 
       <!-- ─── Available (overflow) and active ──────────────────────────────────── -->
-      <v-expand-transition>
+      <VExpandTransition>
         <div v-if="showAll" class="overflow-hidden">
           <template v-for="(t, i) in grouped.available.slice(3)" :key="t.id">
-            <v-divider />
+            <VDivider />
             <HabitListItem
               :delay="i * 60"
               :habit="t"
@@ -201,7 +200,7 @@ function formatStreak(days: number): string {
           </template>
 
           <template v-if="grouped.mastered.length">
-            <v-list-subheader
+            <VListSubheader
               v-motion
               :initial="{ opacity: 0 }"
               :enter="{
@@ -211,10 +210,10 @@ function formatStreak(days: number): string {
               class="mt-3"
             >
               Mastered
-            </v-list-subheader>
+            </VListSubheader>
 
             <template v-for="(t, i) in grouped.mastered" :key="t.id">
-              <v-divider v-if="i > 0" />
+              <VDivider v-if="i > 0" />
               <HabitListItem
                 :delay="grouped.available.slice(3).length * 60 + 80 + i * 60"
                 :habit="t"
@@ -231,7 +230,7 @@ function formatStreak(days: number): string {
           </template>
 
           <template v-if="grouped.active.length">
-            <v-list-subheader
+            <VListSubheader
               v-motion
               :initial="{ opacity: 0 }"
               :enter="{
@@ -241,10 +240,10 @@ function formatStreak(days: number): string {
               class="mt-3"
             >
               Your active habits
-            </v-list-subheader>
+            </VListSubheader>
 
             <template v-for="(t, i) in grouped.active" :key="t.id">
-              <v-divider v-if="i > 0" />
+              <VDivider v-if="i > 0" />
               <HabitListItem
                 :delay="grouped.available.slice(3).length * 60 + 80 + i * 60"
                 :habit="t"
@@ -259,10 +258,10 @@ function formatStreak(days: number): string {
             </template>
           </template>
         </div>
-      </v-expand-transition>
-    </v-list>
+      </VExpandTransition>
+    </VList>
 
-    <v-card-actions
+    <VCardActions
       v-motion
       :initial="{ opacity: 0, y: 10 }"
       :enter="{
@@ -272,7 +271,7 @@ function formatStreak(days: number): string {
       }"
       class="px-4 pb-4 pt-0"
     >
-      <v-btn
+      <VBtn
         class="ml-auto"
         variant="text"
         color="primary"
@@ -280,7 +279,7 @@ function formatStreak(days: number): string {
         @click="showAll = !showAll"
       >
         {{ showAll ? 'Show less' : `See all ${templates.length}` }}
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      </VBtn>
+    </VCardActions>
+  </VCard>
 </template>

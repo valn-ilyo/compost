@@ -54,9 +54,9 @@ const showProgressRow = computed(() => {
 </script>
 
 <template>
-  <v-menu location="bottom end" :close-on-content-click="false">
+  <VMenu location="bottom end" :close-on-content-click="false">
     <template #activator="{ props: menuProps }">
-      <v-btn
+      <VBtn
         v-bind="menuProps"
         :variant="isOverflow ? 'flat' : 'tonal'"
         :color="btnColor"
@@ -65,10 +65,10 @@ const showProgressRow = computed(() => {
         density="comfortable"
       >
         {{ freezeCount }} / {{ freezeCap }}
-      </v-btn>
+      </VBtn>
     </template>
 
-    <v-card
+    <VCard
       v-motion
       :initial="{ opacity: 0, y: -8, scale: 0.97 }"
       :enter="{
@@ -80,7 +80,7 @@ const showProgressRow = computed(() => {
       width="260"
       rounded="lg"
     >
-      <v-card-title
+      <VCardTitle
         v-motion
         :initial="{ opacity: 0, x: -8 }"
         :enter="{
@@ -90,11 +90,11 @@ const showProgressRow = computed(() => {
         }"
         class="text-subtitle-1 pt-4 font-weight-bold"
       >
-        <v-icon :icon="btnIcon" :color="btnColor" size="small" class="mr-2" />
+        <VIcon :icon="btnIcon" :color="btnColor" size="small" class="mr-2" />
         {{ cardTitle }}
-      </v-card-title>
+      </VCardTitle>
 
-      <v-card-text
+      <VCardText
         v-motion
         :initial="{ opacity: 0, y: 6 }"
         :enter="{
@@ -138,11 +138,11 @@ const showProgressRow = computed(() => {
           You're in debt from a missed day before this one. Nothing hit today, it's carried over.
           Log <strong>Yes</strong> consistently and each new freeze chips away at it.
         </template>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-card-text
+      <VCardText
         v-if="showProgressRow"
         v-motion
         :initial="{ opacity: 0, y: 6 }"
@@ -154,7 +154,7 @@ const showProgressRow = computed(() => {
         class="d-flex align-center justify-space-between py-3"
       >
         <span class="text-caption font-weight-medium">{{ progressionLabel }}</span>
-        <v-chip
+        <VChip
           v-if="showProgressRow"
           color="error"
           variant="tonal"
@@ -163,9 +163,9 @@ const showProgressRow = computed(() => {
           class="font-weight-bold"
         >
           {{ daysLabel }}
-        </v-chip>
-        <v-icon v-else icon="mdi-check-circle" color="success" />
-      </v-card-text>
-    </v-card>
-  </v-menu>
+        </VChip>
+        <VIcon v-else icon="mdi-check-circle" color="success" />
+      </VCardText>
+    </VCard>
+  </VMenu>
 </template>

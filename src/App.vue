@@ -79,8 +79,8 @@ onMounted(() => {
 
   watch(
     () => syncStore.isHydrated,
-    (hydrated) => {
-      if (hydrated) {
+    (isHydrated) => {
+      if (isHydrated) {
         syncStore.startRealtime({
           onHabitLog: (row) => masteryStore.mergeHabitLog(row),
 
@@ -108,8 +108,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-app>
+  <VApp>
     <AppSnackbar />
     <RouterView />
-  </v-app>
+  </VApp>
 </template>

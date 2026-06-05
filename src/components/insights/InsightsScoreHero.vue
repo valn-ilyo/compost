@@ -12,7 +12,7 @@ defineProps<{
 </script>
 
 <template>
-  <v-card
+  <VCard
     v-motion
     :initial="{ opacity: 0, y: 32 }"
     :enter="{
@@ -23,8 +23,8 @@ defineProps<{
     rounded="xl"
     elevation="0"
   >
-    <v-row align="center" justify="center" no-gutters>
-      <v-col cols="12" md="auto" class="d-flex justify-center pa-6">
+    <VRow align="center" justify="center" no-gutters>
+      <VCol cols="12" md="auto" class="d-flex justify-center pa-6">
         <div
           v-motion
           :initial="{ opacity: 0, scale: 0.55 }"
@@ -34,7 +34,7 @@ defineProps<{
             transition: { type: 'spring', stiffness: 300, damping: 22, delay: 120 },
           }"
         >
-          <v-progress-circular
+          <VProgressCircular
             reveal
             :bg-color="color"
             :color="color"
@@ -46,16 +46,16 @@ defineProps<{
               <span class="text-headline-large font-weight-bold">{{ normalized }}</span>
               <span class="text-title-large text-medium-emphasis">/{{ normalizedOutOf }}</span>
             </div>
-          </v-progress-circular>
+          </VProgressCircular>
         </div>
-      </v-col>
+      </VCol>
 
-      <v-col
+      <VCol
         cols="12"
         md=""
         class="d-flex flex-column align-center align-md-start pa-6 pt-0 pt-md-6"
       >
-        <v-chip
+        <VChip
           v-motion
           :initial="{ opacity: 0, scale: 0.6, y: -10 }"
           :enter="{
@@ -70,7 +70,7 @@ defineProps<{
           rounded="pill"
         >
           {{ badgeLabel }}
-        </v-chip>
+        </VChip>
 
         <p
           v-motion
@@ -84,9 +84,9 @@ defineProps<{
         >
           {{ tagline }}
         </p>
-      </v-col>
-    </v-row>
-  </v-card>
+      </VCol>
+    </VRow>
+  </VCard>
 </template>
 
 <style scoped>

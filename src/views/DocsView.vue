@@ -61,43 +61,43 @@ async function onDocsNavigate(payload: { tab: DocTab; section: string }) {
 <template>
   <DocsAppBar @navigate="onDocsNavigate">
     <template #tabs>
-      <v-tabs :model-value="activeTab" color="on-primary" @update:model-value="onTabChange" grow>
-        <v-tab rounded="0" value="guide">Guide</v-tab>
-        <v-tab rounded="0" value="methodology">Methodology</v-tab>
-        <v-tab rounded="0" value="credits">Credits</v-tab>
-      </v-tabs>
+      <VTabs :model-value="activeTab" color="on-primary" grow @update:model-value="onTabChange">
+        <VTab rounded="0" value="guide">Guide</VTab>
+        <VTab rounded="0" value="methodology">Methodology</VTab>
+        <VTab rounded="0" value="credits">Credits</VTab>
+      </VTabs>
     </template>
   </DocsAppBar>
 
-  <v-navigation-drawer v-if="mdAndUp" permanent color="secondary">
+  <VNavigationDrawer v-if="mdAndUp" permanent color="secondary">
     <DocsSidebar v-model="activeSection" />
-  </v-navigation-drawer>
+  </VNavigationDrawer>
 
-  <v-main>
+  <VMain>
     <div ref="scrollAnchor" />
     <div v-if="!mdAndUp" class="border-b bg-secondary">
-      <v-chip-group
+      <VChipGroup
         v-model="activeSection"
         selected-class="text-on-secondary"
         mandatory
         class="px-4"
         column
       >
-        <v-chip
+        <VChip
           v-for="item in navForTab"
           :key="item.id"
           :value="item.id"
           :variant="activeSection === item.id ? 'tonal' : 'text'"
         >
           {{ item.label }}
-        </v-chip>
-      </v-chip-group>
+        </VChip>
+      </VChipGroup>
     </div>
 
-    <v-container class="pt-6 docs-content">
+    <VContainer class="pt-6 docs-content">
       <GuideView v-if="activeTab === 'guide'" :active-section="activeSection" />
       <MethodologyView v-else-if="activeTab === 'methodology'" :active-section="activeSection" />
       <CreditsView v-else-if="activeTab === 'credits'" :active-section="activeSection" />
-    </v-container>
-  </v-main>
+    </VContainer>
+  </VMain>
 </template>

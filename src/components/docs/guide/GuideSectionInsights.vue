@@ -2,8 +2,8 @@
 <template>
   <section id="insights">
     <div class="text-overline text-medium-emphasis px-1 mb-1">Insights</div>
-    <v-card flat rounded="xl" class="mb-8">
-      <v-card-text class="pb-1">
+    <VCard flat rounded="xl" class="mb-8">
+      <VCardText class="pb-1">
         <p class="text-body-2 mb-3">
           The Insights tab shows your score, a section-by-section breakdown, habit recommendations,
           and the SDGs your profile touches.
@@ -13,32 +13,32 @@
           the assessment is incomplete, the tab shows a partial score and tells you how far along
           you are.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-list-item prepend-icon="mdi-chart-donut" title="Score and badge" class="pt-2" />
-      <v-card-text class="pt-1 pb-3">
+      <VListItem prepend-icon="mdi-chart-donut" title="Score and badge" class="pt-2" />
+      <VCardText class="pt-1 pb-3">
         <p class="text-body-2">
           Your normalised score out of 100, your current badge, and a contextual tagline based on
           which sections are weakest.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-list-item prepend-icon="mdi-equalizer" title="Section breakdown" class="pt-2" />
-      <v-card-text class="pt-1 pb-3">
+      <VListItem prepend-icon="mdi-equalizer" title="Section breakdown" class="pt-2" />
+      <VCardText class="pt-1 pb-3">
         <p class="text-body-2">
           A bar for each completed section, coloured by how it scores relative to its own maximum.
           Sections that score below 50% of their maximum are flagged as weak.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-list-item prepend-icon="mdi-lightbulb-outline" title="Five insights" class="pt-2" />
-      <v-card-text class="pt-1 pb-3">
+      <VListItem prepend-icon="mdi-lightbulb-outline" title="Five insights" class="pt-2" />
+      <VCardText class="pt-1 pb-3">
         <p class="text-body-2 mb-2">
           After completing the assessment, five questions from your results are highlighted as
           insights. They're drawn from your weakest sections when any exist, so the focus lands
@@ -49,27 +49,27 @@
           doing well. The fifth slot in particular looks for a high-scoring question first, so
           there's usually at least one positive in the set.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-list-item prepend-icon="mdi-playlist-check" title="Habit recommendations" class="pt-2" />
-      <v-card-text class="pt-1 pb-3">
+      <VListItem prepend-icon="mdi-playlist-check" title="Habit recommendations" class="pt-2" />
+      <VCardText class="pt-1 pb-3">
         <p class="text-body-2">
           Habits drawn from the library that map to your weakest sections. If your habit slots are
           full, the panel shows what you're already working on instead.
         </p>
-      </v-card-text>
+      </VCardText>
 
-      <v-divider />
+      <VDivider />
 
-      <v-list-item prepend-icon="mdi-leaf" title="SDG alignment" class="pt-2" />
-      <v-card-text class="pt-1 pb-4">
+      <VListItem prepend-icon="mdi-leaf" title="SDG alignment" class="pt-2" />
+      <VCardText class="pt-1 pb-4">
         <p class="text-body-2">
           The "Sustainable Development Goals" your assessment answers relate to. Each chip's colour
           reflects how you're scoring in the sections that map to that goal.
         </p>
-      </v-card-text>
-    </v-card>
+      </VCardText>
+    </VCard>
   </section>
 </template>

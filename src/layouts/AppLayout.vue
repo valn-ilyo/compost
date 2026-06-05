@@ -15,18 +15,18 @@ const showClock = computed(() => clockVisible.value && route.name === 'home')
 <template>
   <AppNavigation />
   <Transition name="clock-bar">
-    <v-system-bar
+    <VSystemBar
       v-if="showClock"
       :height="$vuetify.display.mdAndUp ? 72 : 128"
       class="pa-0 text-start"
       style="align-items: stretch"
     >
       <ClimateClock />
-    </v-system-bar>
+    </VSystemBar>
   </Transition>
-  <v-main>
+  <VMain>
     <RouterView />
-  </v-main>
+  </VMain>
 </template>
 
 <style>

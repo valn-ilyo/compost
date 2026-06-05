@@ -5,8 +5,8 @@ import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Badge taxonomy</div>
-  <v-card flat rounded="xl" class="mb-8">
-    <v-card-text class="pb-1">
+  <VCard flat rounded="xl" class="mb-8">
+    <VCardText class="pb-1">
       <p class="text-body-2 mb-3">
         The normalised score maps to one of {{ BADGES.length }} badge tiers. Thresholds are
         calibrated toward an urban Indian context, where most users are expected to fall in the
@@ -19,11 +19,11 @@ import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
         triggers a section-specific tagline. Two weak sections trigger a split variant. Three or
         more trigger a broad variant. A clean profile shows the badge's default tagline.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-table density="comfortable">
+    <VTable density="comfortable">
       <thead>
         <tr>
           <th class="text-left text-body-2">Badge</th>
@@ -38,6 +38,6 @@ import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
           </td>
         </tr>
       </tbody>
-    </v-table>
-  </v-card>
+    </VTable>
+  </VCard>
 </template>

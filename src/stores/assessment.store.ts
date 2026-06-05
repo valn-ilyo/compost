@@ -128,7 +128,7 @@ export const useAssessmentStore = defineStore('assessment', {
     //   forceRemote = true (reconnect): server wins -- overwrite all local answers.
     //   forceRemote = false (cold start): local wins -- only fill in sections not
     //     yet answered locally. This preserves in-progress answers entered offline.
-    async hydrateFromSupabase(newUserId: string, forceRemote = false) {
+    async hydrateFromSupabase(newUserId: string, shouldForceRemote = false) {
       this.userId = newUserId
 
       const { data, error } = await supabase
@@ -139,7 +139,7 @@ export const useAssessmentStore = defineStore('assessment', {
       if (error) throw error
 
       for (const row of data as AssessmentAnswerRow[]) {
-        if (forceRemote || !this.isCompleted(row.section_id)) {
+        if (shouldForceRemote || !this.isCompleted(row.section_id)) {
           this.answers[row.section_id] = row.answers
           this.completedAt[row.section_id] = new Date(row.completed_at).getTime()
         }

@@ -5,8 +5,8 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.type
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Habit tracking</div>
-  <v-card flat rounded="xl" class="mb-8">
-    <v-card-text class="pb-1">
+  <VCard flat rounded="xl" class="mb-8">
+    <VCardText class="pb-1">
       <p class="text-body-2">
         Each habit in the library maps to one or more specific assessment questions via a
         <code>covers</code> field. A habit that covers <code>food → diet_type</code> is surfaced
@@ -15,12 +15,12 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.type
         this principle covers all habits; individual per-habit justifications are not listed
         separately.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Streaks" class="pt-4" />
-    <v-card-text class="pt-1 pb-3">
+    <VListItem title="Streaks" class="pt-4" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2 mb-2">
         A streak counts consecutive days on which a habit was logged as completed. It increments by
         1 for each consecutive Yes log and resets to 0 on a missed day, subject to the freeze token
@@ -30,12 +30,12 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.type
         Streak calculation runs against UTC date at reconciliation time. A log submitted at any
         point before midnight UTC counts for that day.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Freeze tokens" class="pt-2" />
-    <v-card-text class="pt-1 pb-3">
+    <VListItem title="Freeze tokens" class="pt-2" />
+    <VCardText class="pt-1 pb-3">
       <p class="text-body-2 mb-2">
         A freeze token is earned for every {{ FREEZE_MILESTONE }} consecutive Yes logs. The balance
         cap is {{ MAX_SLOTS }}. When a day passes with no log and at least one token is held, the
@@ -49,12 +49,12 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.type
         group that is reached with zero or fewer tokens receives no protection and all habits in it
         lose their streak.
       </p>
-    </v-card-text>
+    </VCardText>
 
-    <v-divider />
+    <VDivider />
 
-    <v-list-item title="Mastery" class="pt-2" />
-    <v-card-text class="pt-1 pb-4">
+    <VListItem title="Mastery" class="pt-2" />
+    <VCardText class="pt-1 pb-4">
       <p class="text-body-2 mb-2">
         A habit is mastered after a streak of {{ MASTERY_MILESTONE }} consecutive Yes logs. On
         reaching this threshold, the habit moves to the mastered archive and the user receives one
@@ -67,6 +67,6 @@ import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.type
         {{ FREEZE_MILESTONE }}-day freeze milestone. Tapping a mastered habit opens the retire
         sheet, which removes it from the active slot and adds it to the permanent archive.
       </p>
-    </v-card-text>
-  </v-card>
+    </VCardText>
+  </VCard>
 </template>

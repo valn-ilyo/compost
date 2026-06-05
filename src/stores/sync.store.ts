@@ -131,15 +131,15 @@ export const useSyncStore = defineStore(
 
     // ─── Actions ─────────────────────────────────────────────────────────────
 
-    let draining = false
+    let isDraining = false
 
     // Flush the sync queue to Supabase sequentially.
     // Items are processed one at a time in enqueue order.
     // Returns when the queue is empty or an unrecoverable error stops processing.
     async function drain(): Promise<void> {
       if (!isOnline.value || !isHydrated.value || queue.value.length === 0) return
-      if (draining) return
-      draining = true
+      if (isDraining) return
+      isDraining = true
 
       try {
         const {
@@ -216,7 +216,7 @@ export const useSyncStore = defineStore(
           queue.value.shift() // unknown operation -- discard to avoid infinite loop
         }
       } finally {
-        draining = false
+        isDraining = false
       }
     }
 
@@ -276,8 +276,8 @@ export const useSyncStore = defineStore(
     // ─── Lifecycle ───────────────────────────────────────────────────────────
 
     function init(): void {
-      watch(isOnline, async (online) => {
-        if (!online) return
+      watch(isOnline, async (isNowOnline) => {
+        if (!isNowOnline) return
         if (!isHydrated.value) return
 
         isSyncing.value = true

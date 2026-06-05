@@ -31,8 +31,8 @@ const isLast = computed(() => idx.value === session.value.length - 1)
 
 watch(
   () => props.modelValue,
-  (open) => {
-    if (open) {
+  (isOpen) => {
+    if (isOpen) {
       session.value = props.habitId
         ? store.activeHabits.filter((h) => h.templateId === props.habitId)
         : [...store.unloggedToday]
@@ -70,20 +70,20 @@ function close(): void {
 </script>
 
 <template>
-  <v-bottom-sheet
+  <VBottomSheet
     :model-value="modelValue"
     :max-width="mdAndUp ? '50%' : undefined"
     @update:model-value="close"
   >
-    <v-card
+    <VCard
       v-motion
       :initial="{ opacity: 0, y: 24 }"
       :enter="{ opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }"
       rounded="t-xl"
       :style="{ display: 'flex', flexDirection: 'column', minHeight: mdAndUp ? '230px' : '260px' }"
     >
-      <v-card-title class="pb-0">
-        <v-progress-linear
+      <VCardTitle class="pb-0">
+        <VProgressLinear
           v-if="session.length > 1"
           :model-value="idx + 1"
           :max="session.length"
@@ -92,8 +92,8 @@ function close(): void {
           bg-color="surface-variant"
           rounded="b"
         />
-      </v-card-title>
-      <v-card-text class="py-0 mt-0" style="flex: 1; overflow: hidden">
+      </VCardTitle>
+      <VCardText class="py-0 mt-0" style="flex: 1; overflow: hidden">
         <p
           v-if="current"
           :key="idx"
@@ -109,9 +109,9 @@ function close(): void {
         >
           {{ current.prompt }}
         </p>
-      </v-card-text>
-      <v-card-actions class="flex-column ga-3 pa-4 pt-0">
-        <v-btn
+      </VCardText>
+      <VCardActions class="flex-column ga-3 pa-4 pt-0">
+        <VBtn
           :key="`yes-${idx}`"
           v-motion
           :initial="{ opacity: 0, y: 12, scale: 0.95 }"
@@ -130,8 +130,8 @@ function close(): void {
           @click="answer(true)"
         >
           Yes
-        </v-btn>
-        <v-btn
+        </VBtn>
+        <VBtn
           :key="`no-${idx}`"
           v-motion
           :initial="{ opacity: 0, y: 12, scale: 0.95 }"
@@ -150,8 +150,8 @@ function close(): void {
           @click="answer(false)"
         >
           No
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-bottom-sheet>
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VBottomSheet>
 </template>

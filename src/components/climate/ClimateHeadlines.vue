@@ -55,21 +55,21 @@ function formatDate(iso: string): string {
 </script>
 
 <template>
-  <v-sheet>
-    <v-chip label variant="text" class="text-uppercase">
+  <VSheet>
+    <VChip label variant="text" class="text-uppercase">
       Good news about the planet.
       <template #append>
-        <v-progress-circular
+        <VProgressCircular
           :model-value="progress"
           size="12"
           width="1.5"
           class="ml-2 headline-progress"
         />
       </template>
-    </v-chip>
+    </VChip>
 
     <!-- ─── Skeleton ────────────────────────────────────────────────────────────── -->
-    <v-card
+    <VCard
       v-if="loading"
       color="tertiary-container"
       rounded="medium"
@@ -77,29 +77,29 @@ function formatDate(iso: string): string {
       :min-height="$vuetify.display.smAndUp ? 116 : 144"
       class="d-flex flex-column"
     >
-      <v-card-title class="pb-0">
-        <v-skeleton-loader type="text" color="tertiary-container" class="pt-2 pb-3" />
-        <v-skeleton-loader
+      <VCardTitle class="pb-0">
+        <VSkeletonLoader type="text" color="tertiary-container" class="pt-2 pb-3" />
+        <VSkeletonLoader
+          v-if="!$vuetify.display.smAndUp"
           type="text"
           color="tertiary-container"
           class="pb-3"
-          v-if="!$vuetify.display.smAndUp"
         />
-        <v-skeleton-loader type="text" color="tertiary-container" width="50%" />
-      </v-card-title>
-      <v-spacer />
-      <v-card-actions class="py-0">
-        <v-spacer />
-        <v-skeleton-loader type="text" color="tertiary-container" width="160" height="24" />
-        <v-skeleton-loader
+        <VSkeletonLoader type="text" color="tertiary-container" width="50%" />
+      </VCardTitle>
+      <VSpacer />
+      <VCardActions class="py-0">
+        <VSpacer />
+        <VSkeletonLoader type="text" color="tertiary-container" width="160" height="24" />
+        <VSkeletonLoader
           type="text"
           color="tertiary-container"
           width="48"
           height="24"
           class="ml-2"
         />
-      </v-card-actions>
-    </v-card>
+      </VCardActions>
+    </VCard>
 
     <!-- ─── Carousel ────────────────────────────────────────────────────────────── -->
     <div
@@ -112,7 +112,7 @@ function formatDate(iso: string): string {
         transition: { type: 'spring', stiffness: 300, damping: 22, delay: 60 },
       }"
     >
-      <v-carousel
+      <VCarousel
         v-model="activeIndex"
         cycle
         :interval="5000"
@@ -120,24 +120,24 @@ function formatDate(iso: string): string {
         height="auto"
         hide-delimiters
       >
-        <v-carousel-item v-for="(item, i) in tickerItems" :key="i" :value="i">
-          <v-card
+        <VCarouselItem v-for="(item, i) in tickerItems" :key="i" :value="i">
+          <VCard
             color="tertiary-container"
             rounded="medium"
             elevation="0"
             class="d-flex flex-column"
             :min-height="$vuetify.display.smAndUp ? 116 : 144"
           >
-            <v-card-title
+            <VCardTitle
               class="pb-0 text-wrap font-weight-medium newsfeed-headline"
               :class="$vuetify.display.smAndUp ? 'clamp-2' : 'clamp-3'"
             >
               {{ item.headline }}
-            </v-card-title>
-            <v-spacer />
-            <v-card-actions class="py-0">
-              <v-spacer />
-              <v-btn
+            </VCardTitle>
+            <VSpacer />
+            <VCardActions class="py-0">
+              <VSpacer />
+              <VBtn
                 :href="item.link"
                 color="on-tertiary-container"
                 target="_blank"
@@ -149,27 +149,27 @@ function formatDate(iso: string): string {
                 density="compact"
               >
                 {{ item.source }}, {{ formatDate(item.date) }}
-              </v-btn>
-              <v-btn-group density="compact" size="x-small" variant="text" rounded="medium">
-                <v-btn
+              </VBtn>
+              <VBtnGroup density="compact" size="x-small" variant="text" rounded="medium">
+                <VBtn
                   color="on-tertiary-container"
                   icon="mdi-chevron-left"
-                  @click="activeIndex = (activeIndex - 1 + tickerItems.length) % tickerItems.length"
                   :ripple="false"
+                  @click="activeIndex = (activeIndex - 1 + tickerItems.length) % tickerItems.length"
                 />
-                <v-btn
+                <VBtn
                   color="on-tertiary-container"
                   icon="mdi-chevron-right"
-                  @click="activeIndex = (activeIndex + 1) % tickerItems.length"
                   :ripple="false"
+                  @click="activeIndex = (activeIndex + 1) % tickerItems.length"
                 />
-              </v-btn-group>
-            </v-card-actions>
-          </v-card>
-        </v-carousel-item>
-      </v-carousel>
+              </VBtnGroup>
+            </VCardActions>
+          </VCard>
+        </VCarouselItem>
+      </VCarousel>
     </div>
-  </v-sheet>
+  </VSheet>
 </template>
 
 <style scoped>

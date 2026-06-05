@@ -46,7 +46,7 @@ watch(
 </script>
 
 <template>
-  <v-navigation-drawer
+  <VNavigationDrawer
     v-if="$vuetify.display.mdAndUp"
     rail
     permanent
@@ -54,8 +54,8 @@ watch(
     color="surface-light"
     :open-delay="150"
   >
-    <v-list nav>
-      <v-list-item
+    <VList nav>
+      <VListItem
         v-for="(item, i) in items"
         :key="i"
         :exact="item.exact || false"
@@ -66,23 +66,23 @@ watch(
         color="secondary"
       >
         <template #prepend="{ isActive }">
-          <v-icon>
+          <VIcon>
             {{ isActive ? item.iconFilled : item.iconOutline }}
-          </v-icon>
+          </VIcon>
         </template>
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
-  <v-bottom-navigation
-    v-model="selected"
+      </VListItem>
+    </VList>
+  </VNavigationDrawer>
+  <VBottomNavigation
     v-if="!$vuetify.display.mdAndUp"
+    v-model="selected"
     color="secondary"
     bg-color="surface-light"
     :elevation="0"
     grow
     class="border-t"
   >
-    <v-btn
+    <VBtn
       v-for="item in items"
       :key="item.title"
       :value="item.to"
@@ -91,8 +91,8 @@ watch(
       min-width="0"
       color="secondary"
     >
-      <v-icon>{{ selected === item.to ? item.iconFilled : item.iconOutline }}</v-icon>
+      <VIcon>{{ selected === item.to ? item.iconFilled : item.iconOutline }}</VIcon>
       <span>{{ item.title }}</span>
-    </v-btn>
-  </v-bottom-navigation>
+    </VBtn>
+  </VBottomNavigation>
 </template>

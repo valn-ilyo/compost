@@ -59,15 +59,15 @@ const rollHint = {
 }
 
 async function handleSubmit() {
-  const { valid } = await form.value!.validate()
-  if (!valid) return
+  const { valid: isFormValid } = await form.value!.validate()
+  if (!isFormValid) return
 
   isLoading.value = true
   try {
     // Uniqueness check -- skip if roll number is unchanged (edit mode).
     const trimmed = formData.rollNo.trim()
-    const unchanged = trimmed.toLowerCase() === (profileStore.profile?.roll_no ?? '').toLowerCase()
-    if (!unchanged) {
+    const isUnchanged = trimmed.toLowerCase() === (profileStore.profile?.roll_no ?? '').toLowerCase()
+    if (!isUnchanged) {
       const { data: available } = await supabase.rpc('is_roll_no_available', {
         p_roll_no: trimmed,
       })

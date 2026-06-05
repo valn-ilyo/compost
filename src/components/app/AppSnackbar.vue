@@ -9,11 +9,11 @@ watch(isActive, (isNowActive) => {
 </script>
 
 <template>
-  <v-snackbar v-model="isActive" :color="color" :timeout="timeout" multi-line>
+  <VSnackbar v-model="isActive" :color="color" :timeout="timeout" multi-line>
     {{ message }}
 
     <template #actions>
-      <v-btn
+      <VBtn
         variant="text"
         size="small"
         color="on-error"
@@ -21,5 +21,5 @@ watch(isActive, (isNowActive) => {
         @click="isActive = false"
       />
     </template>
-  </v-snackbar>
+  </VSnackbar>
 </template>

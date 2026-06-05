@@ -24,7 +24,7 @@ export default defineConfigWithVueTs(
         "error",
         "PascalCase",
         {
-          registeredComponentsOnly: true,
+          registeredComponentsOnly: false,
         },
       ],
 

@@ -1,8 +1,8 @@
-<!-- Component -- methodology limitations section, caveats and references -->
+<!-- Component -- methodology limitations section, caveats on scoring accuracy -->
 <script setup lang="ts">
-import { SECTIONS } from '@/data/registry'
+import { SECTIONS } from "@/data/registry";
 
-const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
+const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 </script>
 
 <template>
@@ -48,35 +48,6 @@ const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
         Because the normalised score always divides by the full {{ totalScaledMax }}-point maximum,
         a partial assessment produces a score that cannot be directly compared to a complete one. A
         partial score is not representative of a user's full profile.
-      </p>
-    </VCardText>
-  </VCard>
-
-  <div class="text-overline text-medium-emphasis px-1 mb-1">References</div>
-  <VCard flat rounded="xl" class="mb-8">
-    <VCardText>
-      <p class="text-body-2 mb-2">
-        Ellen MacArthur Foundation. (2019).
-        <em>Completing the picture: How the circular economy tackles climate change.</em>
-      </p>
-      <p class="text-body-2 mb-2">
-        FAO. (2013). <em>Food wastage footprint: Impacts on natural resources.</em>
-        Food and Agriculture Organization of the United Nations.
-      </p>
-      <p class="text-body-2 mb-2">
-        Freitag, C., Berners-Lee, M., Widdicks, K., Knowles, B., Blair, G., &amp; Friday, A. (2021).
-        The real climate and transformative impact of ICT: A critique of estimates, trends, and
-        regulations. <em>Patterns, 2</em>(9).
-      </p>
-      <p class="text-body-2 mb-2">
-        International Energy Agency. (2022). <em>World energy outlook 2022.</em> IEA.
-      </p>
-      <p class="text-body-2 mb-2">
-        International Energy Agency. (2023). <em>Global EV outlook 2023.</em> IEA.
-      </p>
-      <p class="text-body-2">
-        Poore, J., &amp; Nemecek, T. (2018). Reducing food's environmental impacts through producers
-        and consumers. <em>Science, 360</em>(6392), 987–992.
       </p>
     </VCardText>
   </VCard>

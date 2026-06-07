@@ -1,12 +1,12 @@
 <!-- Component -- methodology habits section, streak, freeze, and mastery model -->
 <script setup lang="ts">
-import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from '@/types/app.types'
+import { FREEZE_MILESTONE, MASTERY_MILESTONE, MAX_SLOTS } from "@/types/app.types";
 </script>
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Habit tracking</div>
   <VCard flat rounded="xl" class="mb-8">
-    <VCardText class="pb-1">
+    <VCardText class="pb-1 pt-0">
       <p class="text-body-2">
         Each habit in the library maps to one or more specific assessment questions via a
         <code>covers</code> field. A habit that covers <code>food → diet_type</code> is surfaced

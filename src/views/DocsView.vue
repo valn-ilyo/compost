@@ -96,7 +96,7 @@ async function onDocsNavigate(payload: { tab: DocTab; section: string }) {
 
     <VContainer class="pt-6 docs-content">
       <GuideView v-if="activeTab === 'guide'" :active-section="activeSection" />
-      <MethodologyView v-else-if="activeTab === 'methodology'" :active-section="activeSection" />
+      <MethodologyView v-else-if="activeTab === 'methodology'" :active-section="activeSection" @go-references="activeSection = 'references'" />
       <CreditsView v-else-if="activeTab === 'credits'" :active-section="activeSection" />
     </VContainer>
   </VMain>

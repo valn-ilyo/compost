@@ -1,12 +1,12 @@
 <!-- Component -- methodology badges section, badge tiers and tagline variant logic -->
 <script setup lang="ts">
-import { BADGES, WEAK_THRESHOLD } from '@/data/badge'
+import { BADGES, WEAK_THRESHOLD } from "@/data/badge";
 </script>
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Badge taxonomy</div>
   <VCard flat rounded="xl" class="mb-8">
-    <VCardText class="pb-1">
+    <VCardText class="pb-1 pt-0">
       <p class="text-body-2 mb-3">
         The normalised score maps to one of {{ BADGES.length }} badge tiers. Thresholds are
         calibrated toward an urban Indian context, where most users are expected to fall in the

@@ -1,22 +1,22 @@
 <!-- Component -- methodology overview section, footprint model summary and structure table -->
 <script setup lang="ts">
-import { SECTIONS, questionRegistry } from '@/data/registry'
+import { SECTIONS, questionRegistry } from "@/data/registry";
 
-const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0)
+const totalScaledMax = SECTIONS.reduce((sum, s) => sum + s.scaledMax, 0);
 
 const sectionRows = SECTIONS.map((s) => ({
   label: s.label,
   questions: questionRegistry[s.id]?.length ?? 0,
   maxRaw: s.maxRaw,
   scaledMax: s.scaledMax,
-  weight: ((s.scaledMax / totalScaledMax) * 100).toFixed(1) + '%',
-}))
+  weight: ((s.scaledMax / totalScaledMax) * 100).toFixed(1) + "%",
+}));
 </script>
 
 <template>
   <div class="text-overline text-medium-emphasis px-1 mb-1">Overview</div>
   <VCard flat rounded="xl" class="mb-8">
-    <VCardText>
+    <VCardText class="pt-0">
       <p class="text-body-2 mb-3">
         Compost estimates a user's personal environmental footprint across seven behavioural domains
         using a structured self-assessment. Responses are aggregated into a single normalised score

@@ -3,7 +3,7 @@
   <div class="text-overline text-medium-emphasis px-1 mb-1">Insights algorithm</div>
 
   <VCard flat rounded="xl" class="mb-8">
-    <VCardText class="pb-1">
+    <VCardText class="pb- pt-0">
       <p class="text-body-2 mb-2">
         The Insights tab selects exactly five questions from the completed assessment to surface as
         actionable insights. It follows a deterministic algorithm that prioritises the user's

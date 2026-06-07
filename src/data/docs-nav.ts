@@ -24,6 +24,7 @@ export const methodologyNav: NavItem[] = [
   { id: 'insights', label: 'Insights', icon: 'mdi-lightbulb-outline' },
   { id: 'questions', label: 'Questions', icon: 'mdi-help-circle-outline' },
   { id: 'limitations', label: 'Limitations', icon: 'mdi-exclamation-thick' },
+  { id: 'references', label: 'References', icon: 'mdi-format-list-numbered' },
 ]
 
 export const creditsNav: NavItem[] = [

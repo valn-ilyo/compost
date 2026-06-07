@@ -19,7 +19,6 @@ const emit = defineEmits<{
 const store = useMasteryStore()
 const { mdAndUp } = useDisplay()
 
-// ─── Computed ────────────────────────────────────────────────────────────────
 
 // Covers every slot combination when at capacity (MAX_SLOTS = 3):
 //   3 active, 0 mastered  → all 3 are swappable
@@ -54,7 +53,6 @@ const subtitleCopy = computed<string>(() => {
 
 const closeBtnLabel = 'Close'
 
-// ─── Actions ─────────────────────────────────────────────────────────────────
 
 function confirmSwap(removeId: string): void {
   emit('swap', removeId)

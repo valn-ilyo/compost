@@ -1,3 +1,4 @@
+// Vite build config -- PWA with injectManifest strategy, Vue, and Vuetify plugins
 import { VitePWA } from "vite-plugin-pwa";
 
 import { fileURLToPath, URL } from "node:url";

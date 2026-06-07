@@ -66,7 +66,6 @@ export function useMasteryActions() {
     store.removeHabit(templateId)
   }
 
-  // Remove the selected habit and add the pending one.
   function handleSwap(removeTemplateId: string): void {
     if (!pendingTemplate.value) return
 

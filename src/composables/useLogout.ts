@@ -27,7 +27,6 @@ export function resetAllStores() {
   syncStore.clearQueue()
   syncStore.isHydrated = false
 
-  // Clear profile and assessment (mutable stores; full reset).
   profileStore.reset()
   assessmentStore.clearAll()
 
@@ -38,7 +37,6 @@ export function resetAllStores() {
   masteryStore.masteredArchive = []
   masteryStore.lastReconcileEvents = []
 
-  // Remove persisted localStorage cache so the next session starts clean.
   localStorage.removeItem('mastery')
   localStorage.removeItem('assessment')
   localStorage.removeItem('profile-store')

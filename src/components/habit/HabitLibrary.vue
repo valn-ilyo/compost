@@ -86,7 +86,6 @@ function formatStreak(days: number): string {
     </VCardItem>
 
     <VList lines="two" bg-color="transparent" class="pt-2">
-      <!-- ─── Paused ──────────────────────────────────────────────────────────────── -->
       <template v-if="grouped.paused.length">
         <VListSubheader
           v-motion
@@ -118,7 +117,6 @@ function formatStreak(days: number): string {
         </template>
       </template>
 
-      <!-- ─── Recommendations ──────────────────────────────────────────────────── -->
       <template v-if="grouped.recommended.length">
         <VListSubheader
           v-motion
@@ -148,7 +146,6 @@ function formatStreak(days: number): string {
         </template>
       </template>
 
-      <!-- ─── Available (first 3) ───────────────────────────────────────────────── -->
       <template v-if="grouped.available.length">
         <VListSubheader
           v-motion
@@ -181,7 +178,6 @@ function formatStreak(days: number): string {
         </template>
       </template>
 
-      <!-- ─── Available (overflow) and active ──────────────────────────────────── -->
       <VExpandTransition>
         <div v-if="showAll" class="overflow-hidden">
           <template v-for="(t, i) in grouped.available.slice(3)" :key="t.id">

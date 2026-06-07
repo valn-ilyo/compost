@@ -154,7 +154,6 @@ async function init() {
   const store = useClockDataStore()
   const hasCachedData = store.isCacheValid && !!store.deadlineTs
 
-  // Load from cache immediately so the UI is never empty.
   if (hasCachedData) {
     hydrateFromStore(store)
     initialized.value = true

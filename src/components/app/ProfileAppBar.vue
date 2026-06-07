@@ -109,7 +109,6 @@ async function deleteAccount() {
     </template>
   </VAppBar>
 
-  <!-- ─── Reset assessments dialog ───────────────────────────────────────── -->
   <VDialog v-model="showConfirmDialog" width="auto" :persistent="isResetting">
     <VCard rounded="lg">
       <VCardTitle class="pt-6 px-6">Clear all assessments?</VCardTitle>
@@ -132,7 +131,6 @@ async function deleteAccount() {
     </VCard>
   </VDialog>
 
-  <!-- ─── Delete account dialog ──────────────────────────────────────────── -->
   <VDialog v-model="showDeleteDialog" width="auto" :persistent="isDeleting">
     <VCard rounded="lg">
       <VCardTitle class="pt-6 px-6">Delete your account?</VCardTitle>

@@ -133,9 +133,7 @@ export const useSyncStore = defineStore(
 
     let isDraining = false
 
-    // Flush the sync queue to Supabase sequentially.
     // Items are processed one at a time in enqueue order.
-    // Returns when the queue is empty or an unrecoverable error stops processing.
     async function drain(): Promise<void> {
       if (!isOnline.value || !isHydrated.value || queue.value.length === 0) return
       if (isDraining) return

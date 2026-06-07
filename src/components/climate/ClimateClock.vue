@@ -8,7 +8,6 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
 
 <template>
   <VRow no-gutters>
-    <!-- ─── Deadline ──────────────────────────────────────────────────────────── -->
     <VCol cols="12" md="6">
       <VSheet color="error">
         <VSheet color="error-container" class="d-flex align-center">
@@ -127,7 +126,6 @@ const { loading, deadlineLabel, cd, currentLifeline, lifelineDisplay, lifelineIn
       </VSheet>
     </VCol>
 
-    <!-- ─── Lifeline ──────────────────────────────────────────────────────────── -->
     <VCol cols="12" md="6">
       <VSheet color="tertiary">
         <VSheet color="tertiary-container" class="d-flex align-center">

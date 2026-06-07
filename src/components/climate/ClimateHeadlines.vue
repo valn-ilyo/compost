@@ -68,7 +68,6 @@ function formatDate(iso: string): string {
       </template>
     </VChip>
 
-    <!-- ─── Skeleton ────────────────────────────────────────────────────────────── -->
     <VCard
       v-if="loading"
       color="tertiary-container"
@@ -101,7 +100,6 @@ function formatDate(iso: string): string {
       </VCardActions>
     </VCard>
 
-    <!-- ─── Carousel ────────────────────────────────────────────────────────────── -->
     <div
       v-else
       v-motion

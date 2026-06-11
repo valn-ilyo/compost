@@ -75,7 +75,10 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
       label: "FAO (2011). Global Food Losses and Food Waste. Food and Agriculture Organization",
       url: "https://www.fao.org/4/mb060e/mb060e00.htm",
     },
-    { label: "FAO (2013). Food Wastage Footprint: Impacts on Natural Resources. FAO, Rome" },
+    {
+      label: "FAO (2013). Food Wastage Footprint: Impacts on Natural Resources. FAO, Rome",
+      url: "https://www.fao.org/3/i3347e/i3347e.pdf",
+    },
   ],
   leftovers: [
     // FIX: FAO moved from /3/ to /4/ path; updated to canonical redirect target
@@ -137,6 +140,9 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
   // ── Consumption ───────────────────────────────────────────────────────────
   printing_habits: [
     { label: "ecoinvent Database v3", url: "https://ecoinvent.org" },
+    // NOTE: "Two Sides & Sappi" refers to industry LCA research by the Two Sides campaign
+    // and Sappi's eQ Insights series; no single co-authored publication with a stable URL exists.
+    // Treat as a general industry source or replace with a specific dated document if available.
     { label: "Two Sides & Sappi. Lifecycle assessment studies for paper products" },
   ],
   clothing_purchases: [
@@ -165,6 +171,7 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
     {
       label:
         "Hoekstra, A.Y. et al. (2011). The Water Footprint Assessment Manual. Earthscan, London",
+      url: "https://waterfootprint.org/resources/TheWaterFootprintAssessmentManual.pdf",
     },
     {
       label: "CPCB. Domestic water use benchmarks. Central Pollution Control Board, India",
@@ -179,17 +186,21 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
     {
       label:
         "Hoekstra, A.Y. et al. (2011). The Water Footprint Assessment Manual. Earthscan, London",
+      url: "https://waterfootprint.org/resources/TheWaterFootprintAssessmentManual.pdf",
     },
   ],
   laundry_method: [
     { label: "Bureau of Energy Efficiency (BEE) India", url: "https://beeindia.gov.in" },
   ],
   drinking_water_source: [
+    // FIX: corrected middle initial from "H." to "H.S." (Heather S. Cooley)
     {
-      label: "Gleick, P.H. & Cooley, H. (2009). Environmental Research Letters, 4(1), 014009",
+      label: "Gleick, P.H. & Cooley, H.S. (2009). Environmental Research Letters, 4(1), 014009",
       url: "https://doi.org/10.1088/1748-9326/4/1/014009",
     },
+    // NOTE: Pacific Institute (2007) fact sheet has been archived; no stable public URL available
     { label: "Pacific Institute (2007). Bottled Water and Energy: A Fact Sheet" },
+    // NOTE: BIS IS 10500:2012 is a paid standard; no free public URL
     { label: "BIS IS 10500:2012. Drinking Water — Specification. Bureau of Indian Standards" },
   ],
   leak_reporting: [
@@ -203,7 +214,10 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
 
   // ── Waste ─────────────────────────────────────────────────────────────────
   plastic_bottles: [
-    { label: "MoEFCC. Plastic Waste Management (Amendment) Rules, 2021" },
+    {
+      label: "MoEFCC. Plastic Waste Management (Amendment) Rules, 2021",
+      url: "https://egazette.nic.in/WriteReadData/2021/228947.pdf",
+    },
     // FIX: first author was listed as "Kumar, R." — actual lead author is Hossain, R.
     {
       label: "Hossain, R. et al. (2022). Sustainability, 14(8), 4425",
@@ -211,14 +225,23 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
     },
   ],
   waste_segregation: [
-    { label: "Solid Waste Management Rules, 2016. MoEFCC, India" },
+    {
+      label: "Solid Waste Management Rules, 2016. MoEFCC, India",
+      url: "https://egazette.nic.in/WriteReadData/2016/168620.pdf",
+    },
+    // FIX: was "Ahluwalia, I.J. & Kapur, A. (2022)" — co-author "Kapur" does not exist on this paper
+    // and year was wrong; correct citation is Ahluwalia & Patel (2018), ICRIER Working Paper 356
     {
       label:
-        "Ahluwalia, I.J. & Kapur, A. (2022). Solid Waste Management. ICRIER Environment, Energy and Economics Research",
+        "Ahluwalia, I.J. & Patel, U. (2018). Solid Waste Management in India: An Assessment of Resource Recovery and Environmental Impact. ICRIER Working Paper 356",
+      url: "https://icrier.org/pdf/Working_Paper_356.pdf",
     },
   ],
   disposable_cutlery: [
-    { label: "MoEFCC. Plastic Waste Management (Amendment) Rules, 2021" },
+    {
+      label: "MoEFCC. Plastic Waste Management (Amendment) Rules, 2021",
+      url: "https://egazette.nic.in/WriteReadData/2021/228947.pdf",
+    },
     {
       label: "CPCB (2022). Guidance on banned single-use plastic items",
       url: "https://cpcb.nic.in",
@@ -228,20 +251,41 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
     {
       label:
         "Danish Environmental Protection Agency (2018). LCA of Grocery Carrier Bags. Environmental Project No. 1985",
+      url: "https://www2.mst.dk/udgiv/publications/2018/02/978-87-93614-73-4.pdf",
     },
-    { label: "MoEFCC. Plastic Waste Management (Amendment) Rules, 2021" },
+    {
+      label: "MoEFCC. Plastic Waste Management (Amendment) Rules, 2021",
+      url: "https://egazette.nic.in/WriteReadData/2021/228947.pdf",
+    },
   ],
   ewaste: [
-    { label: "E-Waste (Management) Rules, 2016 (amended 2022). MoEFCC, India" },
-    { label: "Global E-Waste Monitor 2024. UNITAR/ITU" },
+    // FIX: the E-Waste (Management) Rules, 2022 (GSR 111(E), 22 Feb 2022) fully superseded
+    // the 2016 rules — it is a new notification, not merely an amendment; label updated accordingly
+    { label: "E-Waste (Management) Rules, 2022. MoEFCC, India" },
+    {
+      label: "Global E-Waste Monitor 2024. UNITAR/ITU",
+      url: "https://ewastemonitor.info/the-global-e-waste-monitor-2024/",
+    },
   ],
   organic_waste: [
-    { label: "IPCC AR6, Working Group I, Ch. 7 (The Earth's Energy Budget), 2021" },
-    { label: "Solid Waste Management Rules, 2016. MoEFCC, India" },
+    {
+      label: "IPCC AR6, Working Group I, Ch. 7 (The Earth's Energy Budget), 2021",
+      url: "https://doi.org/10.1017/9781009157896.009",
+    },
+    {
+      label: "Solid Waste Management Rules, 2016. MoEFCC, India",
+      url: "https://egazette.nic.in/WriteReadData/2016/168620.pdf",
+    },
   ],
   food_waste: [
-    { label: "UNEP Food Waste Index Report, 2021. United Nations Environment Programme" },
-    { label: "FAO (2013). Food Wastage Footprint: Impacts on Natural Resources. FAO, Rome" },
+    {
+      label: "UNEP Food Waste Index Report, 2021. United Nations Environment Programme",
+      url: "https://www.unep.org/resources/report/unep-food-waste-index-report-2021",
+    },
+    {
+      label: "FAO (2013). Food Wastage Footprint: Impacts on Natural Resources. FAO, Rome",
+      url: "https://www.fao.org/3/i3347e/i3347e.pdf",
+    },
   ],
 
   // ── Digital ───────────────────────────────────────────────────────────────
@@ -260,15 +304,21 @@ const QUESTION_SOURCES: Record<string, MethodologyRef[]> = {
       label: "IEA (2022). Data Centres and Data Transmission Networks",
       url: "https://www.iea.org",
     },
+    // FIX: previous label "des équipements numériques en France" did not match the actual 2019
+    // study, which covers all consumer equipment (not only digital); title corrected accordingly
     {
       label:
-        "ADEME (2019). Modélisation et évaluation du poids carbone des équipements numériques en France",
+        "ADEME (2019). Modélisation et évaluation du poids carbone de produits de consommation et biens d'équipement",
+      url: "https://librairie.ademe.fr/industrie-et-production-durable/1190-modelisation-et-evaluation-du-poids-carbone-de-produits-de-consommation-et-biens-d-equipement.html",
     },
   ],
   email_hygiene: [
+    // FIX: previous label "des équipements numériques en France" did not match the actual 2019
+    // study, which covers all consumer equipment (not only digital); title corrected accordingly
     {
       label:
-        "ADEME (2019). Modélisation et évaluation du poids carbone des équipements numériques en France",
+        "ADEME (2019). Modélisation et évaluation du poids carbone de produits de consommation et biens d'équipement",
+      url: "https://librairie.ademe.fr/industrie-et-production-durable/1190-modelisation-et-evaluation-du-poids-carbone-de-produits-de-consommation-et-biens-d-equipement.html",
     },
     {
       label: "IEA (2022). Data Centres and Data Transmission Networks",

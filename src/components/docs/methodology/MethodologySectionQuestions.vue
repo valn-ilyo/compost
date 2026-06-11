@@ -38,8 +38,22 @@ const sectionGroups = SECTIONS.map((section) => ({
     <VCard flat rounded="xl" class="mb-4">
       <VExpansionPanels variant="accordion" :elevation="0" :model-value="0">
         <VExpansionPanel>
-          <VExpansionPanelTitle>
-            <span class="text-overline text-medium-emphasis">{{ group.meta.label }}</span>
+          <VExpansionPanelTitle style="background: rgba(var(--v-theme-primary), 0.07)">
+            <div class="d-flex align-center ga-2">
+              <span
+                style="
+                  display: inline-block;
+                  width: 3px;
+                  height: 14px;
+                  background: rgb(var(--v-theme-primary));
+                  border-radius: 2px;
+                  flex-shrink: 0;
+                "
+              ></span>
+              <span class="text-subtitle-2 font-weight-bold text-primary">{{
+                group.meta.label
+              }}</span>
+            </div>
           </VExpansionPanelTitle>
           <VExpansionPanelText class="pt-0">
             <template v-for="(question, qi) in group.questions" :key="question.id">

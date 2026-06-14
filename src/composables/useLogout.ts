@@ -89,23 +89,29 @@ export function useLogout() {
   };
 
   // Order matters:
-  //   1. Call delete_account() RPC -- removes the row from auth.users (CASCADE
+  //   1. unsubscribePush() -- while the session is still valid, remove this
+  //      device's push subscription (RLS-protected DB DELETE + browser
+  //      subscription.unsubscribe()). The DB row will also be CASCADE-deleted
+  //      by the RPC below, but the browser unsubscribe must happen here, before
+  //      the session is gone.
+  //   2. Call delete_account() RPC -- removes the row from auth.users (CASCADE
   //      wipes all user data across every table).
-  //   2. resetAllStores() -- wipe in-memory and localStorage state.
-  //   3. supabase.auth.signOut() -- the server returns 403 user_not_found (the
+  //   3. resetAllStores() -- wipe in-memory and localStorage state.
+  //   4. supabase.auth.signOut() -- the server returns 403 user_not_found (the
   //      user no longer exists in auth.users), but the Supabase JS v2 client
   //      clears its local session and fires SIGNED_OUT regardless. Skipping
   //      this call leaves the stale JWT in the client's session storage; on the
   //      next hydration cycle the router sees a "live" session, finds no profile
   //      row, and triggers an onboarding upsert that fails with 23503 (FK
   //      violation -- user_id no longer exists in auth.users).
-  //   4. Navigate to /auth.
+  //   5. Navigate to /auth.
   //
   // Throws on RPC failure so the caller can show an error and leave the user
   // logged in (their account is still intact).
   const deleteAccount = async () => {
     loggingOut.value = true;
     try {
+      await unsubscribePush(); // remove push subscription while session is valid
       const { error } = await supabase.rpc("delete_account");
       if (error) throw error;
       resetAllStores();

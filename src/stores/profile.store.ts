@@ -17,10 +17,16 @@ export const useProfileStore = defineStore(
     const userId = ref<string>('')
 
     // Controls whether the router redirects to the onboarding flow.
+    // Uses !!x?.trim() (not x?.trim() !== '') so that null/undefined --
+    // the state of a freshly-created profile row, e.g. right after
+    // handle_new_user() or after a delete-account + re-auth -- correctly
+    // count as "not filled". With !==, null?.trim() short-circuits to
+    // undefined, and undefined !== '' is true, so a blank profile was
+    // wrongly treated as complete.
     const isComplete = computed(() => {
       if (!profile.value) return false
-      const isNameFilled = profile.value.name?.trim() !== ''
-      const isRollFilled = profile.value.roll_no?.trim() !== ''
+      const isNameFilled = !!profile.value.name?.trim()
+      const isRollFilled = !!profile.value.roll_no?.trim()
       return isNameFilled && isRollFilled
     })
 
